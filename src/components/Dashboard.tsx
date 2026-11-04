@@ -42,6 +42,7 @@ import { computeSaleProfit, computeTotals, normalizeFinancialSettings, type Sale
 import { computeWorkshopSummary, isWithinReportPeriod } from '../lib/workshopReports';
 import { computeExpectedCash } from '../lib/cashSessionMath';
 import type { CashSession } from '../types';
+import { APP_NAME_SLUG } from '../config/brand';
 
 // Helper component for printing high-quality A4 reports
 interface PrintableReportProps {
@@ -927,7 +928,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
         XLSX.utils.book_append_sheet(wb, wsSummary, 'Synthèse');
 
         XLSX.utils.book_append_sheet(wb, ws, 'Valorisation Stock');
-        XLSX.writeFile(wb, `Rapport_Valorisation_Stock_${new Date().toISOString().split('T')[0]}.xlsx`);
+        XLSX.writeFile(wb, `${APP_NAME_SLUG}-rapport-valorisation-stock_${new Date().toISOString().split('T')[0]}.xlsx`);
         return;
       }
 
@@ -982,7 +983,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
       else if (activeModal === 'sales') tabName = 'Transactions';
 
       XLSX.utils.book_append_sheet(wb, ws, tabName.slice(0, 30));
-      XLSX.writeFile(wb, `Rapport_Caisse_${tabName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`);
+      XLSX.writeFile(wb, `${APP_NAME_SLUG}-rapport-caisse-${tabName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`);
     } catch (e) {
       console.error(e);
       alert("Une erreur est survenue lors de l'exportation vers Excel.");
@@ -1052,7 +1053,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
       const ws = XLSX.utils.json_to_sheet(rows);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Dépenses');
-      XLSX.writeFile(wb, `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
+      XLSX.writeFile(wb, `${APP_NAME_SLUG}-${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
     } catch (e) {
       console.error(e);
       alert("Une erreur est survenue lors de l'exportation vers Excel.");

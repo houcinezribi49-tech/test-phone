@@ -1,6 +1,7 @@
-# Phone Clinic
+# Application
 
 Application React + TypeScript pour la caisse, les réparations et la gestion des stocks, avec Firebase.
+Le nom affiché est configuré par `VITE_APP_NAME` (valeur par défaut : `Test`).
 
 ## Installation locale
 

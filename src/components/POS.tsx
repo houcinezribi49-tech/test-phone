@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { PrintableTicket } from './PrintableTicket';
 import { can } from '../lib/permissions';
 import { addCashSessionTotals, requireOpenCashSession, useCashSession } from '../lib/cashSessions';
+import { APP_NAME_SLUG } from '../config/brand';
 
 interface POSProps {
   userProfile: UserProfile | null;
@@ -545,7 +546,7 @@ export default function POS({ userProfile }: POSProps) {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `facture-${invoice.number}.pdf`;
+      a.download = `${APP_NAME_SLUG}-facture-${invoice.number}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();

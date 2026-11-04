@@ -1,4 +1,4 @@
-# Phone Clinic — Phase A specification
+# Application — Phase A specification
 
 **Status:** The original Phase A proposal below is retained as design context. Supplier purchase invoices have since been implemented in the application and Firestore rules have been updated locally; the rules have not been deployed and no data migration has been run.
 

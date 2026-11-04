@@ -10,6 +10,7 @@ import { fr } from 'date-fns/locale';
 import { cn } from '../lib/utils';
 import { addPendingOperation } from '../lib/offlineManager';
 import { computeSaleProfit } from '../lib/financial';
+import { APP_NAME_SLUG } from '../config/brand';
 
 interface SalesProps {
   userProfile: UserProfile | null;
@@ -245,7 +246,7 @@ export default function Sales({ userProfile }: SalesProps) {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `facture-${invoice.number}.pdf`;
+      a.download = `${APP_NAME_SLUG}-facture-${invoice.number}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();

@@ -29,13 +29,14 @@ if (rootEl) {
 
 document.documentElement.style.setProperty('--brand-primary', APP_BRAND_COLORS.primary);
 document.title = APP_NAME;
+const appDescription = APP_TAGLINE ? `${APP_NAME} — ${APP_TAGLINE}` : APP_NAME;
 document.querySelector('meta[name="theme-color"]')?.setAttribute('content', APP_BRAND_COLORS.primary);
 document.querySelector('meta[name="apple-mobile-web-app-title"]')?.setAttribute('content', APP_SHORT_NAME);
-document.querySelector('meta[name="description"]')?.setAttribute('content', `${APP_NAME} — ${APP_TAGLINE}`);
+document.querySelector('meta[name="description"]')?.setAttribute('content', appDescription);
 document.querySelector('meta[property="og:title"]')?.setAttribute('content', APP_NAME);
-document.querySelector('meta[property="og:description"]')?.setAttribute('content', `${APP_NAME} — ${APP_TAGLINE}`);
+document.querySelector('meta[property="og:description"]')?.setAttribute('content', appDescription);
 document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', APP_NAME);
-document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', `${APP_NAME} — ${APP_TAGLINE}`);
+document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', appDescription);
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {

@@ -11,6 +11,8 @@ import fs from "fs";
 import crypto from "crypto";
 import type { Request, Response, NextFunction } from "express";
 import { getInvoiceTotals } from "./src/lib/financial";
+import { slugifyAppName } from "./src/lib/brand";
+import { DEFAULT_APP_NAME } from "./src/config/brand-defaults";
 
 const firebaseConfigPath = path.join(process.cwd(), "firebase-applet-config.json");
 let firebaseConfig: Record<string, unknown> = {};
@@ -54,7 +56,7 @@ const adminApp = initializeApp({
 });
 const adminAuth = getAuth(adminApp);
 const adminDb = getFirestore(adminApp, databaseId);
-const APP_NAME = process.env.APP_NAME?.trim() || "Phone Clinic";
+const APP_NAME = process.env.APP_NAME?.trim() || DEFAULT_APP_NAME;
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN?.trim();
 
 // No super-admin is configured by default; set the allowed accounts via environment.
@@ -551,7 +553,7 @@ async function startServer() {
       const doc = new PDFDocument({ size: [226, 600], margin: 10 }); // Thermal printer size (approx 80mm)
 
       res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename=facture-${safeFilenamePart(invoice.number)}.pdf`);
+      res.setHeader("Content-Disposition", `attachment; filename=${slugifyAppName(APP_NAME)}-facture-${safeFilenamePart(invoice.number)}.pdf`);
 
       doc.pipe(res);
 

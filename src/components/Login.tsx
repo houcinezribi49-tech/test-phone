@@ -187,7 +187,7 @@ export default function Login({ initialMessage = '' }: { initialMessage?: string
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="app-field w-full pl-10 pr-4 bg-slate-50 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none text-sm font-medium"
-                placeholder="contact@phoneclinic.tn"
+                placeholder="contact@example.com"
               />
             </div>
           </div>

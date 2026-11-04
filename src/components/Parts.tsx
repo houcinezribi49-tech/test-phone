@@ -8,6 +8,7 @@ import { auth, db } from '../firebase';
 import { Product, UserProfile } from '../types';
 import { cn, decodeAzertyBarcode, isSparePart } from '../lib/utils';
 import { can } from '../lib/permissions';
+import { APP_NAME_SLUG } from '../config/brand';
 
 interface SparePart {
   id: string;
@@ -563,7 +564,7 @@ export default function Parts({ userProfile }: PartsProps) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `phone-clinic-parts-import-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = `${APP_NAME_SLUG}-parts-import-backup-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     setLegacyBackupDownloaded(true);

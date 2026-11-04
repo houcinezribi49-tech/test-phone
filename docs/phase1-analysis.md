@@ -1,4 +1,4 @@
-# Phone Clinic — Phase 1 analysis and design
+# Application — Phase 1 analysis and design
 
 **Scope:** Read-only analysis and future design. No application behavior or data was changed for this report. Observations below describe the checked-in source, not a live Firebase deployment.
 

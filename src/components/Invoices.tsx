@@ -9,7 +9,7 @@ import { Invoice, Product, Client, SaleItem, StoreSettings, UserProfile } from '
 import { handleFirestoreError, OperationType } from '../App';
 import { Search, FileText, Eye, X, Printer, Download, User, Calendar, ShoppingBag, Plus, Trash2, Minus, AlertCircle, CheckCircle2, Paperclip, Wallet, Ban } from 'lucide-react';
 import { format } from 'date-fns';
-import { APP_NAME } from '../config/brand';
+import { APP_NAME, APP_NAME_SLUG } from '../config/brand';
 import { fr } from 'date-fns/locale';
 import { cn } from '../lib/utils';
 import { PrintableTicket } from './PrintableTicket';
@@ -998,7 +998,7 @@ export default function Invoices({ userProfile }: InvoicesProps) {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `facture-${invoice.number}.pdf`;
+      a.download = `${APP_NAME_SLUG}-facture-${invoice.number}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
