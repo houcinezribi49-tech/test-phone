@@ -28,6 +28,7 @@ import { cn } from '../lib/utils';
 import { mergePermissions, PERMISSION_FLAGS, PermissionMap, PermissionPreset, permissionPreset, permissionsForPreset } from '../lib/permissions';
 import { useIsSuperAdmin } from '../lib/useIsSuperAdmin';
 import { apiRequest, checkApiHealth } from '../lib/api';
+import { APP_NAME_SLUG } from '../config/brand';
 
 const MENU_OPTIONS = [
   { id: 'dashboard', name: 'Tableau de bord', description: 'Statistiques et graphiques généraux' },
@@ -184,7 +185,7 @@ export default function Users({ userProfile }: UsersProps) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `phone-clinic-permissions-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = `${APP_NAME_SLUG}-permissions-backup-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     setPermissionMigrationBackupDownloaded(true);
@@ -249,7 +250,7 @@ export default function Users({ userProfile }: UsersProps) {
       setUsers([userProfile, ...subUsers]);
       setLoading(false);
     }).catch(err => {
-      console.error('Unable to load user profiles.');
+      console.error('Unable to load user profiles.', { code: err?.code, message: err?.message });
       setLoading(false);
     });
 
@@ -259,7 +260,7 @@ export default function Users({ userProfile }: UsersProps) {
       const subUsers = filterToOwnStore(allDocs);
       setUsers([userProfile, ...subUsers]);
     }, (err) => {
-      console.error('Unable to refresh user profiles.');
+      console.error('Unable to refresh user profiles.', { code: err?.code, message: err?.message });
     });
 
     return () => unsub();
@@ -390,7 +391,10 @@ export default function Users({ userProfile }: UsersProps) {
         return;
       }
     } catch (fsErr: any) {
-      console.error('Unable to verify whether the user profile already exists.');
+      console.error('Unable to verify whether the user profile already exists.', {
+        code: fsErr?.code,
+        message: fsErr?.message,
+      });
       setErrorOnCreate('Erreur de connexion lors de la vérification de l’utilisateur.');
       setActionLoading(null);
       return;
@@ -1102,7 +1106,7 @@ export default function Users({ userProfile }: UsersProps) {
                     required
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
-                    placeholder="caissier1@phoneclinic.tn"
+                    placeholder="caissier1@example.com"
                     className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-shadow"
                   />
                 </div>

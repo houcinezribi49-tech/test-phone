@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { doc, onSnapshot, setDoc, updateDoc, collection, getDocs, query, where, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { db, auth } from '../firebase';
-import { APP_NAME } from '../config/brand';
+import { APP_NAME, APP_NAME_SLUG } from '../config/brand';
 import { StoreSettings, UserProfile } from '../types';
 import { handleFirestoreError, OperationType, hasMenuAccess } from '../App';
 import { Edit2, X, Settings as SettingsIcon, CheckCircle2, Store, Save, Download, Trash2, Database, AlertTriangle, Calendar, Eye, FileText, KeyRound, Lock, ShieldCheck, Music2 } from 'lucide-react';
@@ -604,7 +604,7 @@ export default function Settings({
       XLSX.utils.book_append_sheet(wb, facturesSheet, 'Factures');
       XLSX.utils.book_append_sheet(wb, operationsSheet, 'Opérations');
 
-      const fileName = `Journal_Activite_${activityStartDate}_au_${activityEndDate}.xlsx`;
+      const fileName = `${APP_NAME_SLUG}-journal-activite_${activityStartDate}_au_${activityEndDate}.xlsx`;
       XLSX.writeFile(wb, fileName);
 
       setSuccess('Journal d\'activité téléchargé avec succès !');
@@ -781,7 +781,7 @@ export default function Settings({
       XLSX.utils.book_append_sheet(wb, salesSheet, 'Ventes');
       XLSX.utils.book_append_sheet(wb, invoicesSheet, 'Factures');
 
-      const fileName = `Export_Base_${(storeFormData.storeName || 'Magasin').replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      const fileName = `${APP_NAME_SLUG}-export-base_${(storeFormData.storeName || 'Magasin').replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
       XLSX.writeFile(wb, fileName);
 
       setSuccess('Base de données exportée en fichier Excel avec succès !');

@@ -54,7 +54,7 @@ Pour Render, renseignez les variables dans **Environment**. En local, copiez `.e
 | `SUPER_ADMIN_EMAILS` | non | Liste séparée par virgules ; laisser vide par défaut |
 | `GMAIL_USER` | non | Compte Gmail d’envoi OTP ; vide = envoi désactivé |
 | `GMAIL_APP_PASSWORD` | non | Mot de passe d’application Gmail ; secret |
-| `APP_NAME` | non | Nom dans les courriels et factures, défaut `Phone Clinic` |
+| `APP_NAME` | non | Nom dans les courriels et factures, défaut `Test` |
 | `ALLOWED_ORIGIN` | non | Origine exacte cross-origin ; vide = même origine uniquement |
 | `VITE_FIREBASE_API_KEY` | oui | Clé Web Firebase du client, restreinte par domaine |
 | `VITE_FIREBASE_AUTH_DOMAIN` | oui | `projet.firebaseapp.com` |
@@ -65,9 +65,9 @@ Pour Render, renseignez les variables dans **Environment**. En local, copiez `.e
 | `VITE_FIRESTORE_DATABASE_ID` | non | `(default)` ou ID de la base nommée |
 | `VITE_ALLOW_SELF_SIGNUP` | non | `false` par défaut ; ne l’activer que si souhaité |
 | `VITE_API_URL` | non | URL absolue de l’API, avec ou sans suffixe `/api`; vide pour même origine ou proxy Netlify |
-| `VITE_APP_NAME` | non | Nom commercial, défaut `Phone Clinic` |
+| `VITE_APP_NAME` | non | Nom commercial, défaut `Test` |
 | `VITE_APP_SHORT_NAME` | non | Nom court de marque |
-| `VITE_APP_TAGLINE` | non | Défaut `Caisse & Réparation` |
+| `VITE_APP_TAGLINE` | non | Slogan facultatif, vide par défaut |
 | `VITE_APP_PRIMARY_COLOR` | non | Couleur hexadécimale de marque |
 | `VITE_APP_LOGO` | non | URL locale du logo, défaut `/icon.svg` |
 | `GOOGLE_APPLICATION_CREDENTIALS` | non | Chemin local au JSON du compte de service ; alternative à `FIREBASE_SERVICE_ACCOUNT` |

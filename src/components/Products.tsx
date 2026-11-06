@@ -6,6 +6,7 @@ import { handleFirestoreError, OperationType } from '../App';
 import { Plus, Minus, Search, Edit2, Trash2, X, AlertTriangle, Package, Tag, Barcode, Shield, Eye, EyeOff, AlertCircle, History, Loader2, ArrowDown, ArrowUp } from 'lucide-react';
 import { cn, decodeAzertyBarcode } from '../lib/utils';
 import { can } from '../lib/permissions';
+import { APP_NAME_SLUG } from '../config/brand';
 
 interface ProductsProps {
   userProfile: UserProfile | null;
@@ -325,7 +326,7 @@ export default function Products({ userProfile }: ProductsProps) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `phone-clinic-products-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = `${APP_NAME_SLUG}-products-backup-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     setMigrationBackupDownloaded(true);

@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import PDFDocument from 'pdfkit';
 import { getInvoiceTotals } from './src/lib/financial.ts';
+import { slugifyAppName } from './src/lib/brand.ts';
+import { DEFAULT_APP_NAME, DEFAULT_APP_SHORT_NAME, DEFAULT_APP_TAGLINE } from './src/config/brand-defaults.ts';
 
 const rootDirectory = path.dirname(fileURLToPath(import.meta.url));
 
@@ -23,13 +25,13 @@ function pdfApiPlugin(environment: Record<string, string>): Plugin {
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader(
               'Content-Disposition',
-              `attachment; filename=facture-${String(invoice.number ?? 'ticket').replace(/[^A-Za-z0-9._-]/g, '_').slice(0, 50) || 'ticket'}.pdf`,
+              `attachment; filename=${slugifyAppName(environment.VITE_APP_NAME?.trim() || DEFAULT_APP_NAME)}-facture-${String(invoice.number ?? 'ticket').replace(/[^A-Za-z0-9._-]/g, '_').slice(0, 50) || 'ticket'}.pdf`,
             );
             document.pipe(res);
             document.fontSize(14).text(
               typeof invoice.storeName === 'string' && invoice.storeName.trim()
                 ? invoice.storeName.trim()
-                : environment.VITE_APP_NAME?.trim() || 'Phone Clinic',
+                : environment.VITE_APP_NAME?.trim() || DEFAULT_APP_NAME,
               { align: 'center' },
             );
             if (typeof invoice.address === 'string' && invoice.address.trim()) {
@@ -94,9 +96,9 @@ function pdfApiPlugin(environment: Record<string, string>): Plugin {
 
 function salesBuildPlugin(environment: Record<string, string>): Plugin {
   const brand = {
-    name: environment.VITE_APP_NAME?.trim() || 'PHONE CLINIC',
-    shortName: environment.VITE_APP_SHORT_NAME?.trim() || 'PHONE CLINIC',
-    tagline: environment.VITE_APP_TAGLINE?.trim() || 'REPAIR • SALES • ACCESSORIES',
+    name: environment.VITE_APP_NAME?.trim() || DEFAULT_APP_NAME,
+    shortName: environment.VITE_APP_SHORT_NAME?.trim() || DEFAULT_APP_SHORT_NAME,
+    tagline: environment.VITE_APP_TAGLINE?.trim() || DEFAULT_APP_TAGLINE,
     primaryColor: environment.VITE_APP_PRIMARY_COLOR?.trim() || '#5846E8',
     logo: environment.VITE_APP_LOGO?.trim() || '/icon.svg',
   };
@@ -111,6 +113,7 @@ function salesBuildPlugin(environment: Record<string, string>): Plugin {
           '%VITE_APP_NAME%': brand.name,
           '%VITE_APP_SHORT_NAME%': brand.shortName,
           '%VITE_APP_TAGLINE%': brand.tagline,
+          '%VITE_APP_DESCRIPTION%': brand.tagline ? `${brand.name} — ${brand.tagline}` : brand.name,
           '%VITE_APP_PRIMARY_COLOR%': brand.primaryColor,
           '%VITE_APP_LOGO%': brand.logo,
           '%VITE_BUILD_ID%': buildId,
@@ -128,7 +131,7 @@ function salesBuildPlugin(environment: Record<string, string>): Plugin {
         source: JSON.stringify({
           name: brand.name,
           short_name: brand.shortName,
-          description: `${brand.name} — ${brand.tagline}`,
+          description: brand.tagline ? `${brand.name} — ${brand.tagline}` : brand.name,
           start_url: '/',
           scope: '/',
           display: 'standalone',
