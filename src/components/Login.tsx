@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, signInWithRedirect, GoogleAuthProvider, signOut, sendPasswordResetEmail } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithRedirect, GoogleAuthProvider, signOut, sendPasswordResetEmail } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { Mail, Lock, AlertCircle, Chrome } from 'lucide-react';
@@ -27,28 +27,19 @@ export default function Login({ initialMessage = '' }: { initialMessage?: string
     setLoading(true);
 
     try {
-      await signInWithPopup(auth, provider);
+      await signInWithRedirect(auth, provider);
     } catch (err: any) {
       console.error('Google sign-in failed.');
 
-      if (err?.code === 'auth/popup-closed-by-user') {
-        setError('La fenêtre de connexion Google a été fermée. Réessayez.');
-      } else if (err?.code === 'auth/popup-blocked' || err?.code === 'auth/cancelled-popup-request' || err?.code === 'auth/operation-not-supported-in-this-environment') {
-        setError('La popup a été bloquée par le navigateur. Redirection en cours…');
-        try {
-          await signInWithRedirect(auth, provider);
-        } catch (redirectErr: any) {
-          console.error('Google sign-in redirect failed.');
-          setError('La redirection Google a échoué. Vérifiez les paramètres Firebase et réessayez.');
-        }
-      } else if (err?.code === 'auth/unauthorized-domain') {
+      if (err?.code === 'auth/unauthorized-domain') {
         setError(`Ce domaine n'est pas autorisé dans Firebase Console: ${window.location.hostname}. Ajoutez localhost ou ce domaine dans Authentication > Settings > Authorized domains.`);
       } else if (err?.code === 'auth/operation-not-allowed') {
         setError('Le fournisseur Google n\'est pas activé dans Firebase Console. Activez Google dans Authentication > Sign-in method.');
       } else if (err?.code === 'auth/network-request-failed') {
         setError('La connexion réseau a échoué. Vérifiez votre connexion Internet puis réessayez.');
       } else {
-        setError(err?.message || 'Erreur Google inconnue.');
+        console.error('Google sign-in redirect failed.');
+        setError('La redirection Google a échoué. Vérifiez les paramètres Firebase et réessayez.');
       }
     } finally {
       setLoading(false);

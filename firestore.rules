@@ -14,6 +14,10 @@ service cloud.firestore {
       return false;
     }
 
+    function isSuperAdmin() {
+      return isAuthenticated() && request.auth.token.get('superAdmin', false) == true;
+    }
+
     // Vrai si `uid` est un compte admin dont le magasin lui appartient bien à lui-même
     // (ownerId == uid, ou absent = équivalent). Sert à isoler strictement chaque magasin.
     function isStoreAdmin(uid) {
@@ -72,7 +76,7 @@ service cloud.firestore {
           )
       ));
     }
-    function isAdminRole() {
+   function isAdmin() {
       return isAuthenticated() && userExists() && userData().get('role', '') == 'admin';
     }
     function isStoreOwnerAdmin(ownerId) {
@@ -400,13 +404,14 @@ service cloud.firestore {
       allow get: if isAuthenticated() && (
         request.auth.uid == userId ||
         isAdmin() ||
+        isSuperAdmin() ||
         (isStoreAdmin(request.auth.uid) &&
          resource.data.get('ownerId', resource.id) == request.auth.uid)
       );
-      allow list: if isAdmin() || (
-        isStoreAdmin(request.auth.uid) &&
-        resource.data.get('ownerId', resource.id) == request.auth.uid
-      );
+      allow list: if isAdmin() ||
+        isSuperAdmin() ||
+        (isStoreAdmin(request.auth.uid) &&
+         resource.data.get('ownerId', resource.id) == request.auth.uid);
 
       // Modification par soi-même sans changer rôle/statut/ownerId
       allow update: if isAuthenticated() && request.auth.uid == userId &&

@@ -250,7 +250,7 @@ export default function Users({ userProfile }: UsersProps) {
       setUsers([userProfile, ...subUsers]);
       setLoading(false);
     }).catch(err => {
-      console.error('Unable to load user profiles.');
+      console.error('Unable to load user profiles.', { code: err?.code, message: err?.message });
       setLoading(false);
     });
 
@@ -260,7 +260,7 @@ export default function Users({ userProfile }: UsersProps) {
       const subUsers = filterToOwnStore(allDocs);
       setUsers([userProfile, ...subUsers]);
     }, (err) => {
-      console.error('Unable to refresh user profiles.');
+      console.error('Unable to refresh user profiles.', { code: err?.code, message: err?.message });
     });
 
     return () => unsub();
@@ -391,7 +391,10 @@ export default function Users({ userProfile }: UsersProps) {
         return;
       }
     } catch (fsErr: any) {
-      console.error('Unable to verify whether the user profile already exists.');
+      console.error('Unable to verify whether the user profile already exists.', {
+        code: fsErr?.code,
+        message: fsErr?.message,
+      });
       setErrorOnCreate('Erreur de connexion lors de la vérification de l’utilisateur.');
       setActionLoading(null);
       return;
