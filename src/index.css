@@ -69,6 +69,72 @@
 }
 
 @layer components {
+  .responsive-card-table {
+    width: 100%;
+  }
+
+  @media (max-width: 639px) {
+    .responsive-card-table,
+    .responsive-card-table tbody {
+      display: grid;
+    }
+
+    .responsive-card-table thead {
+      display: none;
+    }
+
+    .responsive-card-table tbody {
+      gap: 0.75rem;
+      padding: 0.75rem;
+    }
+
+    .responsive-card-table tbody tr {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem;
+      border: 1px solid var(--color-card-border);
+      border-radius: 1rem;
+      background: white;
+      padding: 0.75rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .responsive-card-table tbody tr > td {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 0.25rem;
+      overflow-wrap: anywhere;
+      border: 0;
+      padding: 0.35rem;
+      text-align: left;
+      white-space: normal;
+    }
+
+    .responsive-card-table tbody tr > td::before {
+      color: var(--color-secondary-text);
+      content: attr(data-label);
+      font-size: 0.625rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .responsive-card-table tbody tr > td:first-child {
+      grid-column: 1 / -1;
+      border-bottom: 1px solid var(--color-card-border);
+      padding-bottom: 0.75rem;
+    }
+
+    .responsive-card-table tbody tr > td:last-child,
+    .responsive-card-table tbody tr > td[colspan] {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--color-card-border);
+      padding-top: 0.75rem;
+    }
+  }
+
   .stat-card {
     position: relative;
     overflow: hidden;

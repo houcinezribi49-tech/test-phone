@@ -1137,7 +1137,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
   );
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-5 pb-12 sm:space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E2E2DF] pb-5">
         <div>
@@ -1706,7 +1706,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
                   <p className="text-xs font-bold uppercase tracking-wider text-[#5C5C5C]">Aucune vente récente dans le système</p>
                 </div>
               ) : (
-                <table className="w-full border-collapse text-left">
+                <table className="responsive-card-table w-full border-collapse text-left">
                   <thead>
                     <tr className="border-b border-[#E2E2DF] bg-[#F4F4F2] text-[10px] font-extrabold uppercase tracking-wider text-[#5C5C5C]">
                       <th className="px-4 py-4">Vente</th>
@@ -1726,7 +1726,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
                       const margin = canShowMargin ? computeSaleProfit(sale, saleCostSnapshots[sale.id]) : null;
                       return (
                         <tr key={sale.id} className="transition-colors hover:bg-[#F4F4F2]">
-                          <td className="whitespace-nowrap px-4 py-4">
+                          <td data-label="Vente" className="whitespace-nowrap px-4 py-4">
                             <div className="flex flex-col">
                               <span className="text-xs font-bold text-[#0A0A0A]">{sale.clientName || 'Client de passage'}</span>
                               <span className="mt-0.5 font-mono text-[10px] font-semibold text-[#5C5C5C]">{formattedDate} · {formattedTime}</span>
@@ -1734,12 +1734,12 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
                           </td>
                           {canShowMargin && (
                             <>
-                              <td className="whitespace-nowrap px-4 py-4 text-right">
+                              <td data-label="Achat" className="whitespace-nowrap px-4 py-4 text-right">
                                 <span className="font-mono text-xs font-semibold tabular-nums text-[#0A0A0A]">
                                   {margin?.complete ? `${margin.cost.toFixed(3)} ${currency}` : '—'}
                                 </span>
                               </td>
-                              <td className="whitespace-nowrap px-4 py-4 text-right">
+                              <td data-label="Bénéfice" className="whitespace-nowrap px-4 py-4 text-right">
                                 {margin?.complete && margin.profit !== null ? (
                                   <span className="inline-flex items-center gap-2">
                                     <span className={cn('font-mono text-xs font-bold tabular-nums', margin.profit < 0 ? 'text-[#8A210A]' : 'text-[#1B5E2B]')}>
@@ -1751,20 +1751,20 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
                               </td>
                             </>
                           )}
-                          <td className="whitespace-nowrap px-4 py-4 text-right">
+                          <td data-label="Total" className="whitespace-nowrap px-4 py-4 text-right">
                             <span className="font-mono text-xs font-bold tabular-nums text-[#0A0A0A]">{sale.total.toFixed(3)} {currency}</span>
                           </td>
-                          <td className="whitespace-nowrap px-4 py-4 text-right">
+                          <td data-label="Montant payé" className="whitespace-nowrap px-4 py-4 text-right">
                             <span className="font-mono text-xs font-semibold tabular-nums text-[#0A0A0A]">{sale.paid.toFixed(3)} {currency}</span>
                           </td>
-                          <td className="whitespace-nowrap px-4 py-4 text-right">
+                          <td data-label="Reste à payer" className="whitespace-nowrap px-4 py-4 text-right">
                             {sale.debt > 0 ? (
                               <span className="font-mono text-xs font-bold tabular-nums text-[#8A210A]">-{sale.debt.toFixed(3)} {currency}</span>
                             ) : (
                               <span className="font-mono text-xs font-semibold tabular-nums text-[#5C5C5C]">0.000 {currency}</span>
                             )}
                           </td>
-                          <td className="whitespace-nowrap px-4 py-4 text-center">
+                          <td data-label="Statut" className="whitespace-nowrap px-4 py-4 text-center">
                             <span className={cn(
                               "inline-flex items-center rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider",
                               sale.debt > 0 

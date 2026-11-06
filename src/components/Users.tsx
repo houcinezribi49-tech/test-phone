@@ -769,7 +769,7 @@ export default function Users({ userProfile }: UsersProps) {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="responsive-card-table w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/50">
                   <th className="py-4 px-6 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Utilisateur & ID</th>
@@ -798,7 +798,7 @@ export default function Users({ userProfile }: UsersProps) {
                         : "hover:bg-slate-50/20"
                     )}>
                       {/* Left Block: Avatar and Email/UID info */}
-                      <td className="py-4 px-6">
+                      <td data-label="Utilisateur & identifiant" className="py-4 px-6">
                         <div className="flex items-center gap-3">
                           <div className={cn(
                             "w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center font-black text-xs border border-indigo-100/50",
@@ -826,7 +826,7 @@ export default function Users({ userProfile }: UsersProps) {
                       </td>
 
                       {/* Credentials Display Column with copy functions */}
-                      <td className="py-4 px-6">
+                      <td data-label="Coordonnées de connexion" className="py-4 px-6">
                         <div className="space-y-1 text-xs">
                           {/* Email Copy Line */}
                           <div className="flex items-center gap-2 group/btn">
@@ -858,7 +858,7 @@ export default function Users({ userProfile }: UsersProps) {
                       </td>
 
                       {/* Code de sécurité individuel */}
-                      <td className="py-4 px-6">
+                      <td data-label="Code sécurité" className="py-4 px-6">
                         {profile.securityCode ? (
                           <div className="flex items-center gap-2 group/btn">
                             <Shield className="w-3.5 h-3.5 text-rose-400 shrink-0" />
@@ -879,7 +879,7 @@ export default function Users({ userProfile }: UsersProps) {
                       </td>
 
                       {/* Rôle Badge */}
-                      <td className="py-4 px-6">
+                      <td data-label="Rôle" className="py-4 px-6">
                         <span className={cn(
                           "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5",
                           profile.role === 'admin'
@@ -892,7 +892,7 @@ export default function Users({ userProfile }: UsersProps) {
                       </td>
 
                       {/* Allowed Menus List */}
-                      <td className="py-4 px-6 max-w-xs">
+                      <td data-label="Menus visibles" className="py-4 px-6 max-w-xs">
                         <div className="flex flex-wrap gap-1">
                           {MENU_OPTIONS.map((menu) => {
                             const isAllowed = allowed.includes(menu.id);
@@ -915,7 +915,7 @@ export default function Users({ userProfile }: UsersProps) {
                       </td>
 
                       {/* Statut Badge */}
-                      <td className="py-4 px-6">
+                      <td data-label="Statut" className="py-4 px-6">
                         <span className={cn(
                           "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5",
                           profile.status === 'banned' 
@@ -928,7 +928,7 @@ export default function Users({ userProfile }: UsersProps) {
                       </td>
 
                       {/* Combined Actions: Edit, Toggle Status, Delete */}
-                      <td className="py-4 px-6 text-right">
+                      <td data-label="Actions" className="py-4 px-6 text-right">
                         {isSelf ? (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase tracking-wider rounded-xl border border-indigo-100">
                             <Shield className="w-3 h-3" />

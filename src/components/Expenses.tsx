@@ -239,18 +239,18 @@ export default function Expenses({ userProfile }: { userProfile: UserProfile | n
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+              <table className="responsive-card-table w-full text-left text-sm">
                 <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
                   <tr><th className="px-4 py-3">Date</th><th className="px-4 py-3">Libellé</th><th className="px-4 py-3">Catégorie</th><th className="px-4 py-3">Mode</th><th className="px-4 py-3 text-right">Montant (DT)</th></tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredExpenses.map(expense => (
                     <tr key={expense.id} className="hover:bg-slate-50">
-                      <td className="whitespace-nowrap px-4 py-3">{toDate(expense.date).toLocaleDateString('fr-FR')}</td>
-                      <td className="px-4 py-3 font-semibold text-slate-800">{expense.label}</td>
-                      <td className="px-4 py-3">{expense.category}</td>
-                      <td className="px-4 py-3">{expense.mode}</td>
-                      <td className="px-4 py-3 text-right font-mono font-bold text-rose-700">{Number(expense.amount).toFixed(3)}</td>
+                      <td data-label="Date" className="whitespace-nowrap px-4 py-3">{toDate(expense.date).toLocaleDateString('fr-FR')}</td>
+                      <td data-label="Libellé" className="px-4 py-3 font-semibold text-slate-800">{expense.label}</td>
+                      <td data-label="Catégorie" className="px-4 py-3">{expense.category}</td>
+                      <td data-label="Mode" className="px-4 py-3">{expense.mode}</td>
+                      <td data-label="Montant" className="px-4 py-3 text-right font-mono font-bold text-rose-700">{Number(expense.amount).toFixed(3)}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -498,7 +498,7 @@ export default function Sales({ userProfile }: SalesProps) {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="responsive-card-table w-full text-left">
             <thead>
               <tr className="bg-slate-50/60 border-b border-slate-100">
                 <th className="px-6 py-3.5 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Date</th>
@@ -535,7 +535,7 @@ export default function Sales({ userProfile }: SalesProps) {
                     className="hover:bg-indigo-50/30 transition-colors group cursor-pointer"
                     onClick={() => setSelectedSale(sale)}
                   >
-                    <td className="px-6 py-4">
+                    <td data-label="Date" className="px-6 py-4">
                       <div className="text-sm font-bold text-slate-800">
                         {sale.date?.toDate ? format(sale.date.toDate(), 'dd MMM yyyy', { locale: fr }) : '—'}
                       </div>
@@ -546,7 +546,7 @@ export default function Sales({ userProfile }: SalesProps) {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td data-label="Client" className="px-6 py-4">
                       <div className="flex items-center gap-2.5">
                         <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-100 to-cyan-100 flex items-center justify-center text-[10px] font-black text-indigo-600 shrink-0">
                           {sale.clientName?.[0]?.toUpperCase() || '?'}
@@ -557,11 +557,11 @@ export default function Sales({ userProfile }: SalesProps) {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td data-label="Total" className="px-6 py-4">
                       <span className="text-sm font-black text-slate-900 font-mono">{sale.total.toFixed(3)}</span>
                       <span className="text-[10px] text-slate-400 font-bold ml-1">DT</span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td data-label="Statut" className="px-6 py-4">
                       {sale.debt > 0 ? (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black bg-rose-50 text-rose-600 border border-rose-100">
                           <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
@@ -574,7 +574,7 @@ export default function Sales({ userProfile }: SalesProps) {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td data-label="Actions" className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={(e) => { e.stopPropagation(); setSelectedSale(sale); }}

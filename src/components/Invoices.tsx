@@ -1105,7 +1105,7 @@ export default function Invoices({ userProfile }: InvoicesProps) {
 
         {activeTab === 'sales' ? (
         <div className="overflow-x-auto text-[13px] font-medium text-slate-600">
-          <table className="w-full text-left border-collapse">
+          <table className="responsive-card-table w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-[10px] font-extrabold uppercase tracking-widest">
                 <th className="px-6 py-4">N° Facture</th>
@@ -1127,16 +1127,16 @@ export default function Invoices({ userProfile }: InvoicesProps) {
               ) : (
                 filteredInvoices.map((invoice) => (
                   <tr key={invoice.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4 font-bold text-gray-900">{invoice.number}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td data-label="N° facture" className="px-6 py-4 font-bold text-gray-900">{invoice.number}</td>
+                    <td data-label="Date" className="px-6 py-4 text-sm text-gray-600">
                       {invoice.date?.toDate ? format(invoice.date.toDate(), 'dd MMM yyyy', { locale: fr }) : 'Inconnue'}
                     </td>
-                    <td className="px-6 py-4">
+                    <td data-label="Client" className="px-6 py-4">
                       <div className="text-sm font-medium text-gray-900">{invoice.clientName}</div>
                       {invoice.clientCode && <div className="text-[10px] text-gray-400 font-mono uppercase tracking-tighter">Code: {invoice.clientCode}</div>}
                     </td>
-                    <td className="px-6 py-4 font-black text-gray-900 font-mono">{invoice.total.toFixed(3)} {storeSettings?.currency || 'DT'}</td>
-                    <td className="px-6 py-4 text-right">
+                    <td data-label="Total" className="px-6 py-4 font-black text-gray-900 font-mono">{invoice.total.toFixed(3)} {storeSettings?.currency || 'DT'}</td>
+                    <td data-label="Actions" className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => setSelectedInvoice(invoice)}
@@ -1162,7 +1162,7 @@ export default function Invoices({ userProfile }: InvoicesProps) {
           <p className="p-8 text-center text-sm font-semibold text-slate-500">Les factures d’achat sont réservées à l’administrateur du magasin.</p>
         ) : (
           <div className="overflow-x-auto text-[13px] font-medium text-slate-600">
-            <table className="w-full text-left border-collapse">
+            <table className="responsive-card-table w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-[10px] font-extrabold uppercase tracking-widest">
                   <th className="px-6 py-4">N° Facture d’achat</th>
@@ -1183,13 +1183,13 @@ export default function Invoices({ userProfile }: InvoicesProps) {
                     const debt = (Number(purchase.debtMilli) || 0) / 1000;
                     return (
                       <tr key={purchase.id} className="hover:bg-slate-50/60">
-                        <td className="px-6 py-4 font-bold text-gray-900">{purchase.invoiceNumber || purchase.number || `Achat-${purchase.id.slice(0, 8)}`}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600">{purchaseDate ? format(purchaseDate, 'dd MMM yyyy', { locale: fr }) : 'Inconnue'}</td>
-                        <td className="px-6 py-4">{purchase.supplierName || purchase.supplierId || 'Fournisseur non renseigné'}</td>
-                        <td className="px-6 py-4 text-right font-black font-mono">{total.toFixed(3)} {storeSettings?.currency || 'DT'}</td>
-                        <td className="px-6 py-4 text-right font-black font-mono text-rose-700">{debt.toFixed(3)} {storeSettings?.currency || 'DT'}</td>
-                        <td className="px-6 py-4">{purchase.status === 'cancelled' ? 'Annulée' : 'Reçue'}</td>
-                        <td className="px-6 py-4 text-right">
+                        <td data-label="N° facture d’achat" className="px-6 py-4 font-bold text-gray-900">{purchase.invoiceNumber || purchase.number || `Achat-${purchase.id.slice(0, 8)}`}</td>
+                        <td data-label="Date" className="px-6 py-4 text-sm text-gray-600">{purchaseDate ? format(purchaseDate, 'dd MMM yyyy', { locale: fr }) : 'Inconnue'}</td>
+                        <td data-label="Fournisseur" className="px-6 py-4">{purchase.supplierName || purchase.supplierId || 'Fournisseur non renseigné'}</td>
+                        <td data-label="Total" className="px-6 py-4 text-right font-black font-mono">{total.toFixed(3)} {storeSettings?.currency || 'DT'}</td>
+                        <td data-label="Reste dû" className="px-6 py-4 text-right font-black font-mono text-rose-700">{debt.toFixed(3)} {storeSettings?.currency || 'DT'}</td>
+                        <td data-label="Statut" className="px-6 py-4">{purchase.status === 'cancelled' ? 'Annulée' : 'Reçue'}</td>
+                        <td data-label="Actions" className="px-6 py-4 text-right">
                           <button type="button" onClick={() => { setSelectedPurchase(purchase); setSupplierPaymentAmount(''); setPurchaseError(''); }}
                             className="min-h-9 rounded-lg border border-slate-200 px-3 text-xs font-bold text-indigo-700 hover:bg-indigo-50">Détails / Régler</button>
                         </td>
