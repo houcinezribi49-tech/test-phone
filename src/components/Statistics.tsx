@@ -10,7 +10,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '../lib/utils';
 import { useIsSuperAdmin } from '../lib/useIsSuperAdmin';
-import { APP_NAME } from '../config/brand';
+import { useBrand } from './BrandProvider';
 
 // Collections comptabilisées dans la "taille de la base" de chaque magasin
 const DATA_COLLECTIONS = ['products', 'sales', 'clients', 'invoices', 'categories', 'notes', 'supplies'];
@@ -37,6 +37,7 @@ function formatDate(value?: string) {
 }
 
 export default function Statistics({ userProfile }: StatisticsProps) {
+  const { storeName } = useBrand();
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingStats, setLoadingStats] = useState(false);
   const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
@@ -167,7 +168,7 @@ export default function Statistics({ userProfile }: StatisticsProps) {
             Statistique
           </h1>
           <p className="text-xs text-slate-400 font-semibold mt-1">
-            Vue d'ensemble de tous les magasins utilisant {APP_NAME}
+            Vue d'ensemble de tous les magasins utilisant {storeName}
           </p>
         </div>
         <button

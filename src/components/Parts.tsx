@@ -8,7 +8,8 @@ import { auth, db } from '../firebase';
 import { Product, UserProfile } from '../types';
 import { cn, decodeAzertyBarcode, isSparePart } from '../lib/utils';
 import { can } from '../lib/permissions';
-import { APP_NAME_SLUG } from '../config/brand';
+import { slugifyAppName } from '../lib/brand';
+import { useBrand } from './BrandProvider';
 
 interface SparePart {
   id: string;
@@ -93,6 +94,7 @@ function inferBrand(name: string): string {
 }
 
 export default function Parts({ userProfile }: PartsProps) {
+  const brand = useBrand();
   const ownerId = userProfile?.ownerId || userProfile?.uid || '';
   const isAdmin = userProfile?.role === 'admin';
   const canViewBuyPrice = can(userProfile, 'pieces', 'viewBuyPrice');
@@ -564,7 +566,7 @@ export default function Parts({ userProfile }: PartsProps) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${APP_NAME_SLUG}-parts-import-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = `${slugifyAppName(brand.storeName)}-parts-import-backup-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     setLegacyBackupDownloaded(true);

@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { doc, onSnapshot, setDoc, updateDoc, collection, getDocs, query, where, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { db, auth } from '../firebase';
-import { APP_NAME, APP_NAME_SLUG } from '../config/brand';
 import { StoreSettings, UserProfile } from '../types';
-import { handleFirestoreError, OperationType, hasMenuAccess } from '../App';
+import { hasMenuAccess } from '../lib/permissions';
 import { Edit2, X, CheckCircle2, Store, Save, Download, Trash2, Database, AlertTriangle, Calendar, Eye, FileText, KeyRound, Lock, ShieldCheck, Music2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import * as XLSX from 'xlsx';
@@ -17,6 +16,8 @@ import { verses } from '../data/verses';
 import { isDirectAudioUrl } from '../lib/startup';
 import { Badge, Button, Card, Input, PageHeader, Select } from './ui';
 import { useTheme, type ThemePreference } from './ThemeProvider';
+import { useBrand } from './BrandProvider';
+import { slugifyAppName } from '../lib/brand';
 
 interface SettingsProps {
   userProfile: UserProfile | null;
@@ -283,7 +284,7 @@ function AccountPasswordCard() {
   );
 }
 
-export default function Settings({
+function SettingsContent({
   userProfile,
   deferredPrompt,
   handleInstallApp,
@@ -293,14 +294,18 @@ export default function Settings({
   const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState<string | null>(null);
+  const [firestoreError, setFirestoreError] = useState<string | null>(null);
   const { theme, setTheme } = useTheme();
+  const brand = useBrand();
 
   const ownerId = (userProfile?.role === 'admin' ? userProfile?.uid : userProfile?.ownerId) || userProfile?.uid || auth.currentUser?.uid;
   const { config: startupConfig, canManage: canManageStartup } = useStartup();
-  const canAccessStoreSettings = !userProfile || hasMenuAccess(userProfile, 'settings');
+  const canAccessStoreSettings = hasMenuAccess(userProfile, 'settings');
+  const isAdmin = userProfile?.role === 'admin';
   const isTabAvailable = (tab: SettingsTab) => {
     if (tab === 'compte-securite' || tab === 'application') return true;
     if (tab === 'coran-adhkar') return canAccessStoreSettings && canManageStartup;
+    if (tab === 'donnees') return isAdmin;
     return canAccessStoreSettings;
   };
   const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
@@ -317,7 +322,9 @@ export default function Settings({
   const [startupMessage, setStartupMessage] = useState('');
   const [startupAudioTestMessage, setStartupAudioTestMessage] = useState('');
   const [storeFormData, setStoreFormData] = useState({
-    storeName: '',
+    storeName: brand.storeName,
+    storeTagline: brand.storeTagline,
+    logo: brand.logo,
     currency: '',
     address: '',
     phone: '',
@@ -357,13 +364,13 @@ export default function Settings({
     window.addEventListener('hashchange', syncTabWithHash);
     syncTabWithHash();
     return () => window.removeEventListener('hashchange', syncTabWithHash);
-  }, [canAccessStoreSettings, canManageStartup]);
+  }, [canAccessStoreSettings, canManageStartup, isAdmin]);
 
   useEffect(() => {
     if (!isTabAvailable(activeTab)) {
       setActiveTab(canAccessStoreSettings ? 'boutique' : 'compte-securite');
     }
-  }, [activeTab, canAccessStoreSettings, canManageStartup]);
+  }, [activeTab, canAccessStoreSettings, canManageStartup, isAdmin]);
 
   useEffect(() => {
     setStartupEnabled(startupConfig.enabled);
@@ -380,6 +387,10 @@ export default function Settings({
   ]);
 
   const saveStartupSettings = async () => {
+    if (!canManageStartup) {
+      setStartupMessage('Vous n’êtes pas autorisé à modifier ces réglages.');
+      return;
+    }
     if (!ownerId) {
       setStartupMessage('Propriétaire du magasin introuvable.');
       return;
@@ -471,9 +482,21 @@ export default function Settings({
   };
 
   const fetchActivityRecords = async (start: Date, end: Date) => {
-    const salesSnap = await getDocs(query(collection(db, 'sales'), where('ownerId', '==', ownerId)));
-    const invoicesSnap = await getDocs(query(collection(db, 'invoices'), where('ownerId', '==', ownerId)));
-    const auditLogsSnap = await getDocs(query(collection(db, 'audit_logs'), where('ownerId', '==', ownerId)));
+    if (!isAdmin || !ownerId) throw new Error('Accès administrateur requis.');
+    let salesSnap;
+    let invoicesSnap;
+    let auditLogsSnap;
+    try {
+      [salesSnap, invoicesSnap, auditLogsSnap] = await Promise.all([
+        getDocs(query(collection(db, 'sales'), where('ownerId', '==', ownerId))),
+        getDocs(query(collection(db, 'invoices'), where('ownerId', '==', ownerId))),
+        getDocs(query(collection(db, 'audit_logs'), where('ownerId', '==', ownerId))),
+      ]);
+    } catch (error) {
+      console.error('Unable to load activity records:', error);
+      setFirestoreError('Impossible de charger le journal d’activité. Vérifiez vos autorisations Firestore.');
+      throw error;
+    }
 
     const salesInRange = salesSnap.docs
       .map(d => ({ id: d.id, ...d.data() } as any))
@@ -501,6 +524,10 @@ export default function Settings({
   };
 
   const handleDownloadActivityLog = async () => {
+    if (!isAdmin || !ownerId) {
+      setFirestoreError('Cette action est réservée à l’administrateur du magasin.');
+      return;
+    }
     const range = validateActivityRange();
     if (!range) return;
     const { start, end } = range;
@@ -598,19 +625,24 @@ export default function Settings({
       XLSX.utils.book_append_sheet(wb, facturesSheet, 'Factures');
       XLSX.utils.book_append_sheet(wb, operationsSheet, 'Opérations');
 
-      const fileName = `${APP_NAME_SLUG}-journal-activite_${activityStartDate}_au_${activityEndDate}.xlsx`;
+      const fileName = `${slugifyAppName(brand.storeName)}-journal-activite_${activityStartDate}_au_${activityEndDate}.xlsx`;
       XLSX.writeFile(wb, fileName);
 
       setSuccess('Journal d\'activité téléchargé avec succès !');
       setTimeout(() => setSuccess(null), 3000);
     } catch (error) {
-      handleFirestoreError(error, OperationType.LIST, `sales|invoices|audit_logs/${ownerId}`);
+      console.error('Unable to download activity records:', error);
+      setActivityError('Impossible de télécharger le journal d’activité. Vérifiez vos autorisations Firestore.');
     } finally {
       setIsGeneratingActivity(false);
     }
   };
 
   const handleViewActivityLog = async () => {
+    if (!isAdmin || !ownerId) {
+      setFirestoreError('Cette action est réservée à l’administrateur du magasin.');
+      return;
+    }
     const range = validateActivityRange();
     if (!range) return;
     const { start, end } = range;
@@ -662,13 +694,18 @@ export default function Settings({
       setActivityLogLines(lines.map(l => l.text));
       setShowActivityLogModal(true);
     } catch (error) {
-      handleFirestoreError(error, OperationType.LIST, `sales|invoices|audit_logs/${ownerId}`);
+      console.error('Unable to display activity records:', error);
+      setActivityError('Impossible d’afficher le journal d’activité. Vérifiez vos autorisations Firestore.');
     } finally {
       setIsLoadingActivityView(false);
     }
   };
 
   const handleExportExcel = async () => {
+    if (!isAdmin || !ownerId) {
+      setFirestoreError('Cette action est réservée à l’administrateur du magasin.');
+      return;
+    }
     setIsExporting(true);
     try {
       const isAdmin = userProfile?.role === 'admin';
@@ -770,20 +807,24 @@ export default function Settings({
       XLSX.utils.book_append_sheet(wb, salesSheet, 'Ventes');
       XLSX.utils.book_append_sheet(wb, invoicesSheet, 'Factures');
 
-      const fileName = `${APP_NAME_SLUG}-export-base_${(storeFormData.storeName || 'Magasin').replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      const fileName = `${slugifyAppName(brand.storeName)}-export-base_${(storeFormData.storeName || 'Magasin').replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
       XLSX.writeFile(wb, fileName);
 
       setSuccess('Base de données exportée en fichier Excel avec succès !');
       setTimeout(() => setSuccess(null), 4000);
     } catch (error) {
       console.error('Erreur export :', error);
-      alert('Une erreur est survenue lors de l\'exportation de la base de données.');
+      setFirestoreError('Impossible d’exporter les données. Vérifiez vos autorisations Firestore.');
     } finally {
       setIsExporting(false);
     }
   };
 
   const handlePurgeDatabase = async () => {
+    if (!isAdmin || !ownerId) {
+      setFirestoreError('Cette action est réservée à l’administrateur du magasin.');
+      return;
+    }
     if (!purgeDate) {
       alert("Veuillez sélectionner une date limite.");
       return;
@@ -836,22 +877,33 @@ export default function Settings({
       setTimeout(() => setSuccess(null), 5000);
     } catch (error) {
       console.error('Erreur purge:', error);
-      alert('Une erreur est survenue lors de la purge de la base de données.');
+      setFirestoreError('Impossible de purger les données. Vérifiez vos autorisations Firestore.');
     } finally {
       setIsPurging(false);
     }
   };
 
   useEffect(() => {
-    if (!canAccessStoreSettings) return;
-    if (!auth.currentUser || !ownerId) return;
+    if (!canAccessStoreSettings) {
+      setLoading(false);
+      return;
+    }
+    if (!auth.currentUser || !ownerId) {
+      setLoading(false);
+      setFirestoreError('Impossible d’identifier le magasin pour charger ses paramètres.');
+      return;
+    }
+    setLoading(true);
+    setFirestoreError(null);
     const unsubscribeStore = onSnapshot(doc(db, 'settings', ownerId), (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.data() as StoreSettings;
         const financialSettings = normalizeFinancialSettings(data);
         setStoreSettings({ ...data, ...financialSettings, id: snapshot.id });
         setStoreFormData({
-          storeName: data.storeName || '',
+          storeName: data.storeName || brand.storeName,
+          storeTagline: data.storeTagline || '',
+          logo: data.logo || '',
           currency: data.currency || '',
           address: data.address || '',
           phone: data.phone || '',
@@ -865,14 +917,18 @@ export default function Settings({
       } else {
         setStoreSettings({
           id: ownerId,
-          storeName: APP_NAME,
+          storeName: brand.storeName,
+          storeTagline: brand.storeTagline,
+          logo: brand.logo,
           currency: 'DT',
           tva: 0,
           tvaEnabled: false,
           minStockAlert: 5
         } as StoreSettings);
         setStoreFormData({
-          storeName: APP_NAME,
+          storeName: brand.storeName,
+          storeTagline: brand.storeTagline,
+          logo: brand.logo,
           currency: 'DT',
           address: '',
           phone: '',
@@ -886,18 +942,23 @@ export default function Settings({
       }
       setLoading(false);
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, `settings/${ownerId}`);
+      console.error('Unable to load store settings:', error);
+      setFirestoreError('Impossible de charger les paramètres du magasin. Vérifiez vos autorisations Firestore.');
       setLoading(false);
     });
 
     return () => {
       unsubscribeStore();
     };
-  }, [ownerId, canAccessStoreSettings]);
+  }, [ownerId, canAccessStoreSettings, brand.storeName, brand.storeTagline, brand.logo]);
 
   const handleStoreSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!ownerId) return;
+    if (!canAccessStoreSettings || !ownerId) {
+      setFirestoreError('Vous n’êtes pas autorisé à modifier les paramètres du magasin.');
+      return;
+    }
+    setFirestoreError(null);
     try {
       await setDoc(doc(db, 'settings', ownerId), {
         ...storeFormData,
@@ -906,7 +967,8 @@ export default function Settings({
       setSuccess('Paramètres du magasin enregistrés avec succès !');
       setTimeout(() => setSuccess(null), 3000);
     } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, `settings/${ownerId}`);
+      console.error('Unable to save store settings:', error);
+      setFirestoreError('Impossible d’enregistrer les paramètres du magasin. Vérifiez vos autorisations Firestore.');
     }
   };
 
@@ -914,7 +976,7 @@ export default function Settings({
     ...(canAccessStoreSettings ? [{ id: 'boutique' as const, label: 'Boutique' }] : []),
     ...(canAccessStoreSettings && canManageStartup ? [{ id: 'coran-adhkar' as const, label: 'Coran & Adhkar' }] : []),
     { id: 'compte-securite', label: 'Compte & sécurité' },
-    ...(canAccessStoreSettings ? [{ id: 'donnees' as const, label: 'Données' }] : []),
+    ...(isAdmin ? [{ id: 'donnees' as const, label: 'Données' }] : []),
     { id: 'application', label: 'Application' },
   ];
 
@@ -931,6 +993,12 @@ export default function Settings({
           ? "Configurez les informations d'en-tête, la devise, les coordonnées de contact et la gestion de la TVA."
           : 'Gérez votre compte et les paramètres de l’application.'}
       />
+
+      {(firestoreError || brand.error) && (
+        <div role="alert" className="rounded-ds-md border border-ds-danger/20 bg-ds-danger-soft p-3 text-sm font-semibold text-ds-danger">
+          {firestoreError || brand.error}
+        </div>
+      )}
 
       {loading ? (
         <Card className="flex items-center justify-center p-16">
@@ -1023,7 +1091,23 @@ export default function Settings({
                       required
                       value={storeFormData.storeName}
                       onChange={(e) => setStoreFormData({ ...storeFormData, storeName: e.target.value })}
-                      placeholder="Ex: Mon Supermarché"
+                      placeholder="Nom de la boutique"
+                    />
+
+                  <Input
+                      label="Slogan de la boutique"
+                      type="text"
+                      value={storeFormData.storeTagline}
+                      onChange={(e) => setStoreFormData({ ...storeFormData, storeTagline: e.target.value })}
+                      placeholder="Slogan facultatif"
+                    />
+
+                  <Input
+                      label="URL du logo"
+                      type="url"
+                      value={storeFormData.logo}
+                      onChange={(e) => setStoreFormData({ ...storeFormData, logo: e.target.value })}
+                      placeholder="https://…"
                     />
 
                   <Input
@@ -1159,7 +1243,7 @@ export default function Settings({
           )}
 
           {/* Card 2: Configuration & Maintenance de la Base de Données */}
-          {canAccessStoreSettings && (
+          {isAdmin && (
           <section
             id="settings-panel-donnees"
             role="tabpanel"
@@ -1513,5 +1597,40 @@ export default function Settings({
         </div>
       )}
     </div>
+  );
+}
+
+class SettingsErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error('Settings page rendering failed:', error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div role="alert" className="mx-auto max-w-4xl rounded-ds-lg border border-ds-danger/20 bg-ds-danger-soft p-6 text-ds-danger">
+          <h1 className="text-lg font-bold">Paramètres indisponibles</h1>
+          <p className="mt-2 text-sm">Une erreur est survenue pendant l’affichage de cette page. Actualisez-la ou réessayez plus tard.</p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export default function Settings(props: SettingsProps) {
+  return (
+    <SettingsErrorBoundary>
+      <SettingsContent {...props} />
+    </SettingsErrorBoundary>
   );
 }

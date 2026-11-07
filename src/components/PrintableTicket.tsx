@@ -4,6 +4,7 @@ import { Invoice, StoreSettings } from '../types';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { getInvoiceTotals } from '../lib/financial';
+import { useBrand } from './BrandProvider';
 
 interface Props {
   invoice: Invoice;
@@ -11,16 +12,19 @@ interface Props {
 }
 
 export const PrintableTicket = forwardRef<HTMLDivElement, Props>(({ invoice, ownerId }, ref) => {
+  const brand = useBrand();
   const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null);
 
   useEffect(() => {
     if (!auth.currentUser) return;
     const finalOwnerId = ownerId || invoice.ownerId || 'store';
-    const unsubscribe = onSnapshot(doc(db, 'settings', finalOwnerId), (snapshot) => {
-      if (snapshot.exists()) {
-        setStoreSettings(snapshot.data() as StoreSettings);
-      }
-    });
+    const unsubscribe = onSnapshot(
+      doc(db, 'settings', finalOwnerId),
+      (snapshot) => {
+        if (snapshot.exists()) setStoreSettings(snapshot.data() as StoreSettings);
+      },
+      (error) => console.error('Unable to load ticket store settings:', error),
+    );
     return unsubscribe;
   }, [ownerId, invoice.ownerId]);
 
@@ -39,8 +43,8 @@ export const PrintableTicket = forwardRef<HTMLDivElement, Props>(({ invoice, own
     dateStr = format(new Date(), 'dd/MM/yyyy HH:mm');
   }
 
-  const storeName = storeSettings?.storeName || 'MARKET-POS';
-  const storeAddress = storeSettings?.address || 'Superette & Épicerie';
+  const storeName = storeSettings?.storeName || brand.storeName;
+  const storeAddress = storeSettings?.address || '';
   const storePhone = storeSettings?.phone || '';
   const currency = storeSettings?.currency || 'DT';
   const totals = getInvoiceTotals(invoice);
@@ -48,7 +52,7 @@ export const PrintableTicket = forwardRef<HTMLDivElement, Props>(({ invoice, own
   return (
     <div ref={ref} className="p-5 w-[80mm] mx-auto bg-white text-black font-mono text-[12px] leading-tight">
       <div className="text-center font-bold text-[16px] uppercase">{storeName}</div>
-      <div className="text-center">{storeAddress}</div>
+      {storeAddress && <div className="text-center">{storeAddress}</div>}
       {storePhone && <div className="text-center">Tél: {storePhone}</div>}
       <div className="border-t border-dashed border-black my-1"></div>
       <div className="text-center font-bold">TICKET DE CAISSE</div>

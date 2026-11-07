@@ -1,14 +1,11 @@
-import { slugifyAppName } from '../lib/brand';
-import { DEFAULT_APP_NAME, DEFAULT_APP_SHORT_NAME, DEFAULT_APP_TAGLINE } from './brand-defaults';
+import { DEFAULT_APP_NAME, DEFAULT_APP_TAGLINE } from './brand-defaults';
 
 function envValue(value: string | undefined, fallback: string): string {
   return value?.trim() || fallback;
 }
 
 export const APP_NAME = envValue(import.meta.env.VITE_APP_NAME, DEFAULT_APP_NAME);
-export const APP_SHORT_NAME = envValue(import.meta.env.VITE_APP_SHORT_NAME, DEFAULT_APP_SHORT_NAME);
 export const APP_TAGLINE = envValue(import.meta.env.VITE_APP_TAGLINE, DEFAULT_APP_TAGLINE);
-export const APP_NAME_SLUG = slugifyAppName(APP_NAME);
 export const APP_PRIMARY_COLOR = envValue(import.meta.env.VITE_APP_PRIMARY_COLOR, '#4F46E5');
 export const APP_LOGO_URL = envValue(import.meta.env.VITE_APP_LOGO, '');
 

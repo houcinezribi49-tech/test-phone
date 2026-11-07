@@ -9,7 +9,8 @@ import { Invoice, Product, Client, SaleItem, StoreSettings, UserProfile } from '
 import { handleFirestoreError, OperationType } from '../App';
 import { Search, FileText, Eye, X, Printer, Download, User, Calendar, ShoppingBag, Plus, Trash2, Minus, AlertCircle, CheckCircle2, Paperclip, Wallet, Ban } from 'lucide-react';
 import { format } from 'date-fns';
-import { APP_NAME, APP_NAME_SLUG } from '../config/brand';
+import { slugifyAppName } from '../lib/brand';
+import { useBrand } from './BrandProvider';
 import { fr } from 'date-fns/locale';
 import { cn } from '../lib/utils';
 import { PrintableTicket } from './PrintableTicket';
@@ -120,6 +121,7 @@ function toInvoiceDate(value: unknown): Date | null {
 }
 
 export default function Invoices({ userProfile }: InvoicesProps) {
+  const brand = useBrand();
   const navigate = useNavigate();
   const { session: cashSession, loading: cashSessionLoading } = useCashSession(userProfile);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -988,7 +990,7 @@ export default function Invoices({ userProfile }: InvoicesProps) {
         },
         body: JSON.stringify({
           ...invoice,
-          storeName: storeSettings?.storeName,
+          storeName: storeSettings?.storeName || brand.storeName,
           address: storeSettings?.address,
           phone: storeSettings?.phone,
           date: invoice.date?.toDate ? format(invoice.date.toDate(), 'dd/MM/yyyy HH:mm') : format(new Date(), 'dd/MM/yyyy HH:mm')
@@ -999,7 +1001,7 @@ export default function Invoices({ userProfile }: InvoicesProps) {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${APP_NAME_SLUG}-facture-${invoice.number}.pdf`;
+      a.download = `${slugifyAppName(brand.storeName)}-facture-${invoice.number}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -1612,7 +1614,7 @@ export default function Invoices({ userProfile }: InvoicesProps) {
                 </div>
                 <div className="space-y-1 text-right">
                   <label className="block text-xs font-semibold uppercase tracking-wider text-ds-muted">Magasin</label>
-                  <div className="text-xs font-bold text-ds-brand sm:text-sm">{storeSettings?.storeName || APP_NAME}</div>
+                  <div className="text-xs font-bold text-ds-brand sm:text-sm">{storeSettings?.storeName || brand.storeName}</div>
                   <div className="text-xs text-ds-muted">{storeSettings?.address || 'Tunisie'}</div>
                   {storeSettings?.phone && <div className="text-xs text-ds-muted">{storeSettings.phone}</div>}
                 </div>

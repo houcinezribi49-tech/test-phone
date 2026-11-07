@@ -1,5 +1,5 @@
-import { APP_LOGO_URL, APP_NAME, APP_TAGLINE } from '../config/brand';
 import { cn } from '../lib/utils';
+import { useBrand } from './BrandProvider';
 
 type BrandLogoProps = {
   variant?: 'full' | 'icon' | 'mono';
@@ -23,7 +23,10 @@ function BrandMark({ logoUrl, monochrome = false }: { logoUrl: string; monochrom
   );
 }
 
-export default function BrandLogo({ variant = 'full', logoUrl = APP_LOGO_URL, className }: BrandLogoProps) {
+export default function BrandLogo({ variant = 'full', logoUrl, className }: BrandLogoProps) {
+  const brand = useBrand();
+  const resolvedLogoUrl = logoUrl ?? brand.logo;
+
   if (variant === 'icon' || variant === 'mono') {
     const monochrome = variant === 'mono';
     return (
@@ -36,7 +39,7 @@ export default function BrandLogo({ variant = 'full', logoUrl = APP_LOGO_URL, cl
           className,
         )}
       >
-        <BrandMark logoUrl={logoUrl} monochrome={monochrome} />
+        <BrandMark logoUrl={resolvedLogoUrl} monochrome={monochrome} />
       </span>
     );
   }
@@ -44,11 +47,11 @@ export default function BrandLogo({ variant = 'full', logoUrl = APP_LOGO_URL, cl
   return (
     <span className={cn('inline-flex min-w-0 items-center gap-3', className)}>
       <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-ds-brand p-2.5 text-ds-brand-contrast shadow-sm shadow-ds-brand/20">
-        <BrandMark logoUrl={logoUrl} />
+        <BrandMark logoUrl={resolvedLogoUrl} />
       </span>
       <span className="flex min-w-0 flex-col">
-        <span className="truncate bg-gradient-to-r from-ds-brand to-ds-accent bg-clip-text font-display text-[18px] font-extrabold leading-tight tracking-[-0.04em] text-transparent">{APP_NAME}</span>
-        <span className="mt-1 truncate text-[9px] font-bold uppercase tracking-[0.12em] text-ds-muted">{APP_TAGLINE}</span>
+        <span className="truncate bg-gradient-to-r from-ds-brand to-ds-accent bg-clip-text font-display text-[18px] font-extrabold leading-tight tracking-[-0.04em] text-transparent">{brand.storeName}</span>
+        <span className="mt-1 truncate text-[9px] font-bold uppercase tracking-[0.12em] text-ds-muted">{brand.storeTagline}</span>
       </span>
     </span>
   );

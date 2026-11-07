@@ -24,6 +24,7 @@ import { can } from '../lib/permissions';
 import { apiFetch } from '../lib/api';
 import { addCashSessionTotals, requireOpenCashSession, useCashSession } from '../lib/cashSessions';
 import MessageComposer from './MessageComposer';
+import { useBrand } from './BrandProvider';
 import type { MessageTemplateKey } from '../lib/messages';
 import { Badge, Button, Card, EmptyState, Input, PageHeader, Select } from './ui';
 import type { BadgeVariant } from './ui';
@@ -226,6 +227,7 @@ export async function deleteRepairAndRestoreStock(r: Repair): Promise<void> {
 }
 
 export default function Repairs({ userProfile }: RepairsProps) {
+  const brand = useBrand();
   const ownerId = userProfile?.ownerId || userProfile?.uid || 'no_user_auth';
   const currentUserLabel = userProfile?.name || userProfile?.email || 'Utilisateur';
   const isAdmin = userProfile?.role === 'admin';
@@ -764,7 +766,7 @@ export default function Repairs({ userProfile }: RepairsProps) {
                     appareil={`${r.deviceBrand || ''} ${r.deviceModel || ''}`.trim()}
                     numero={r.number}
                     montantRestant={`${(Number(r.debt) || 0).toFixed(3)} ${currency}`}
-                    nomMagasin={settings?.storeName || ''}
+                    nomMagasin={settings?.storeName || brand.storeName}
                     indicatif={settings?.whatsappCountryCode || '216'}
                     templates={settings?.messageTemplates}
                     defaultTemplate={getRepairMessageTemplate(r)}
