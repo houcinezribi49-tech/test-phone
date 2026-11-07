@@ -29,6 +29,7 @@ import { mergePermissions, PERMISSION_FLAGS, PermissionMap, PermissionPreset, pe
 import { useIsSuperAdmin } from '../lib/useIsSuperAdmin';
 import { apiRequest, checkApiHealth } from '../lib/api';
 import { APP_NAME_SLUG } from '../config/brand';
+import { Badge, Button, Card, EmptyState, Input, PageHeader, Select } from './ui';
 
 const MENU_OPTIONS = [
   { id: 'dashboard', name: 'Tableau de bord', description: 'Statistiques et graphiques généraux' },
@@ -115,16 +116,16 @@ export default function Users({ userProfile }: UsersProps) {
     permissions: PermissionMap,
     setPermissions: (next: PermissionMap) => void,
   ) => (
-    <div className="ml-3 space-y-3 border-l-2 border-indigo-100 pl-3">
+    <div className="ml-3 space-y-3 border-l-2 border-ds-border pl-3">
       {(['pieces', 'products', 'reparation', 'clients'] as const)
         .filter(menuId => menus.includes(menuId))
         .map(menuId => (
           <div key={menuId} className="space-y-1">
-            <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">
+          <p className="text-xs font-black uppercase tracking-wider text-ds-muted">
               {menuId === 'pieces' ? 'Pièces détachées' : menuId === 'products' ? 'Articles / Services' : menuId === 'reparation' ? 'Partie Réparation' : 'Clients'}
             </p>
             {PERMISSION_FLAGS[menuId].map(({ id, label }) => (
-              <label key={id} className="flex items-center gap-2 text-[10px] font-medium text-slate-600">
+              <label key={id} className="flex min-h-ds-touch-target items-center gap-2 text-sm font-medium text-ds-text">
                 <input
                   type="checkbox"
                   checked={permissions[menuId]?.[id] === true}
@@ -132,17 +133,17 @@ export default function Users({ userProfile }: UsersProps) {
                     ...permissions,
                     [menuId]: { ...permissions[menuId], [id]: event.target.checked },
                   })}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                  className="h-4 w-4 rounded border-ds-border accent-ds-brand"
                 />
                 {label}
               </label>
             ))}
           </div>
         ))}
-      <div className="space-y-1 border-t border-slate-100 pt-2">
-        <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Coran & Adhkar</p>
+      <div className="space-y-1 border-t border-ds-border pt-2">
+        <p className="text-xs font-black uppercase tracking-wider text-ds-muted">Coran & Adhkar</p>
         {PERMISSION_FLAGS.startup.map(({ id, label }) => (
-          <label key={id} className="flex items-center gap-2 text-[10px] font-medium text-slate-600">
+          <label key={id} className="flex min-h-ds-touch-target items-center gap-2 text-sm font-medium text-ds-text">
             <input
               type="checkbox"
               checked={permissions.startup?.[id] === true}
@@ -150,7 +151,7 @@ export default function Users({ userProfile }: UsersProps) {
                 ...permissions,
                 startup: { ...permissions.startup, [id]: event.target.checked },
               })}
-              className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              className="h-4 w-4 rounded border-ds-border accent-ds-brand"
             />
             {label}
           </label>
@@ -674,30 +675,21 @@ export default function Users({ userProfile }: UsersProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="flex items-center gap-2 font-display text-3xl font-black tracking-tight text-slate-900">
-            <UsersIcon className="h-8 w-8 text-indigo-600 fill-indigo-100/40" />
-            Gestion des Utilisateurs
-          </h1>
-          <p className="text-xs text-slate-500 font-medium">
-            Gérez les accès détaillés et modifiez les profils de l’équipe en temps réel.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-          <button
+    <div className="mx-auto w-full min-w-0 max-w-7xl space-y-6">
+      <PageHeader
+        title="Gestion des Utilisateurs"
+        description="Gérez les accès détaillés et modifiez les profils de l’équipe en temps réel."
+        actions={<div className="flex min-w-0 flex-wrap items-center gap-2">
+          <Button
+            variant="secondary"
             type="button"
             onClick={() => void handleApiHealthCheck()}
             disabled={apiHealthLoading}
-            className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
           >
             <Activity className="h-4 w-4" />
             {apiHealthLoading ? 'Vérification…' : 'Tester le serveur'}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => {
               setErrorOnCreate(null);
               setRoleInput('cashier-repair');
@@ -705,83 +697,77 @@ export default function Users({ userProfile }: UsersProps) {
               setPermissionsInput(permissionsForPreset('cashier'));
               setIsModalOpen(true);
             }}
-            className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-indigo-600 px-4 py-2.5 text-xs font-extrabold uppercase tracking-wider text-white shadow-md shadow-indigo-600/20 transition-all hover:bg-indigo-700 active:scale-95"
           >
             <UserPlus className="w-4 h-4" />
             Créer un utilisateur
-          </button>
-        </div>
-      </div>
+          </Button>
+        </div>}
+      />
       {apiHealth && (
-        <p role={apiHealth.ok ? 'status' : 'alert'} className={`rounded-xl border px-4 py-3 text-sm font-semibold ${apiHealth.ok ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800'}`}>
-          {apiHealth.message}
-        </p>
+        <Badge role={apiHealth.ok ? 'status' : 'alert'} variant={apiHealth.ok ? 'success' : 'danger'}>{apiHealth.message}</Badge>
       )}
 
-      <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
-        <button
+      <Card className="min-w-0 space-y-3">
+        <Button
+          variant="secondary"
           type="button"
           onClick={previewPermissionMigration}
           disabled={permissionMigrationBusy}
-          className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-xs font-black text-indigo-800 disabled:opacity-50"
         >
           Prévisualiser la migration des permissions
-        </button>
-        {permissionMigrationError && <p className="text-sm font-semibold text-rose-700">{permissionMigrationError}</p>}
+        </Button>
+        {permissionMigrationError && <p role="alert" className="text-sm font-semibold text-ds-danger">{permissionMigrationError}</p>}
         {permissionMigrationPreview.length > 0 && (
           <>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-xs font-bold text-slate-700">{permissionMigrationPreview.length} compte(s) sans permissions explicites.</p>
+              <p className="text-sm font-bold text-ds-text">{permissionMigrationPreview.length} compte(s) sans permissions explicites.</p>
               <div className="flex gap-2">
-                <button type="button" onClick={downloadPermissionMigrationBackup} className="rounded-xl border border-amber-300 bg-white px-3 py-2 text-xs font-bold text-amber-800">Télécharger la sauvegarde JSON</button>
-                <button type="button" onClick={() => setMigrationConfirmOpen(true)} disabled={!permissionMigrationBackupDownloaded || permissionMigrationBusy} className="rounded-xl bg-amber-700 px-3 py-2 text-xs font-bold text-white disabled:opacity-50">{permissionMigrationBusy ? 'Migration…' : 'Confirmer la migration'}</button>
+                <Button type="button" variant="secondary" onClick={downloadPermissionMigrationBackup}>Télécharger la sauvegarde JSON</Button>
+                <Button type="button" variant="primary" onClick={() => setMigrationConfirmOpen(true)} disabled={!permissionMigrationBackupDownloaded || permissionMigrationBusy}>{permissionMigrationBusy ? 'Migration…' : 'Confirmer la migration'}</Button>
               </div>
             </div>
-            <ul className="max-h-36 space-y-1 overflow-y-auto text-xs text-slate-600">
-              {permissionMigrationPreview.map(profile => <li key={profile.uid} className="rounded-lg bg-slate-50 px-3 py-2">{profile.name || profile.email} · {permissionPreset(profile)}</li>)}
+            <ul className="max-h-36 space-y-1 overflow-y-auto text-sm text-ds-muted">
+              {permissionMigrationPreview.map(profile => <li key={profile.uid} className="rounded-ds-md bg-ds-surface-2 px-3 py-2">{profile.name || profile.email} · {permissionPreset(profile)}</li>)}
             </ul>
           </>
         )}
-      </section>
+      </Card>
 
       {success && (
-        <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-800 text-xs font-bold leading-relaxed flex items-center gap-2.5 animate-in fade-in duration-300">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 animate-bounce" />
+        <Badge variant="success" role="status" className="min-h-0 rounded-ds-md p-4 text-sm">
+          <CheckCircle2 className="mr-2 h-4 w-4 shrink-0" />
           {success}
-        </div>
+        </Badge>
       )}
       {errorOnCreate && !isModalOpen && (
-        <div role="alert" className="rounded-xl border border-rose-100 bg-rose-50 p-4 text-xs font-bold text-rose-700">
+        <div role="alert" className="rounded-ds-md border border-ds-danger/20 bg-ds-danger-soft p-4 text-sm font-bold text-ds-danger">
           {errorOnCreate}
         </div>
       )}
 
       {/* Main Table with User Details/Credentials */}
-      <div className="bg-white rounded-3xl border border-slate-100 shadow-xs overflow-hidden premium-shadow">
+      <Card className="min-w-0 overflow-hidden p-0">
         {loading ? (
-          <div className="p-16 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <div className="flex items-center justify-center p-16">
+            <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-ds-brand" />
           </div>
         ) : users.length === 0 ? (
-          <div className="p-8 text-center text-slate-400 space-y-3">
-            <UsersIcon className="w-12 h-12 mx-auto opacity-30 text-indigo-500" />
-            <p className="text-sm font-bold">Aucun utilisateur trouvé</p>
-          </div>
+          <EmptyState icon={<UsersIcon className="h-12 w-12" />} title="Aucun utilisateur trouvé" />
         ) : (
           <div className="overflow-x-auto">
             <table className="responsive-card-table w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/50">
-                  <th className="py-4 px-6 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Utilisateur & ID</th>
-                  <th className="py-4 px-6 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Coordonnées de connexion</th>
-                  <th className="py-4 px-6 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Code sécurité</th>
-                  <th className="py-4 px-6 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Rôle</th>
-                  <th className="py-4 px-6 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Menus visibles</th>
-                  <th className="py-4 px-6 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Statut</th>
-                  <th className="py-4 px-6 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">Actions</th>
+              <thead className="bg-ds-surface-2">
+                <tr className="border-b border-ds-border">
+                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-ds-muted">Utilisateur & ID</th>
+                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-ds-muted">Coordonnées de connexion</th>
+                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-ds-muted">Code sécurité</th>
+                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-ds-muted">Rôle</th>
+                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-ds-muted">Menus visibles</th>
+                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-ds-muted">Statut</th>
+                  <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-ds-muted">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-ds-border">
                 {users.map((profile) => {
                   const isSelf = profile.uid === userProfile?.uid;
                   const allowed = profile.allowedMenus || (
@@ -792,31 +778,29 @@ export default function Users({ userProfile }: UsersProps) {
 
                   return (
                     <tr key={profile.uid} className={cn(
-                      "group transition-colors",
-                      isSelf 
-                        ? "bg-indigo-50/30 hover:bg-indigo-50/50 border-l-2 border-indigo-300" 
-                        : "hover:bg-slate-50/20"
+                      "group transition-colors hover:bg-ds-surface-2",
+                      isSelf && "border-l-2 border-ds-brand bg-ds-brand-soft/50"
                     )}>
                       {/* Left Block: Avatar and Email/UID info */}
                       <td data-label="Utilisateur & identifiant" className="py-4 px-6">
                         <div className="flex items-center gap-3">
                           <div className={cn(
-                            "w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center font-black text-xs border border-indigo-100/50",
-                            profile.role === 'admin' ? "text-purple-600 bg-purple-50/70 border-purple-100" : "text-indigo-600"
+                            "flex h-10 w-10 items-center justify-center rounded-ds-md border border-ds-brand/20 bg-ds-brand-soft text-xs font-black text-ds-brand",
+                            profile.role === 'admin' && "bg-ds-brand text-ds-brand-contrast"
                           )}>
                             {profile.name ? profile.name[0].toUpperCase() : (profile.email ? profile.email[0].toUpperCase() : '?')}
                           </div>
                           <div>
-                            <div className="font-bold text-xs text-slate-800 flex items-center gap-1.5 leading-none">
+                            <div className="flex items-center gap-1.5 text-sm font-bold leading-none text-ds-text">
                               {profile.name || 'Sans Nom'}
                               {isSelf && (
-                                <span className="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-[8px] font-black uppercase tracking-wider rounded-md border border-indigo-200">
+                                <Badge variant="info" className="min-h-0 px-1.5 py-0.5 text-[10px]">
                                   Vous
-                                </span>
+                                </Badge>
                               )}
                             </div>
-                            <span className="text-[10px] font-medium text-slate-500 mt-1 block">{profile.email}</span>
-                            <div className="text-[9px] text-slate-400 font-mono mt-1 space-y-0.5">
+                            <span className="mt-1 block break-all text-sm font-medium text-ds-muted">{profile.email}</span>
+                            <div className="mt-1 space-y-0.5 break-all font-mono text-xs text-ds-muted">
                               <div>UID: {profile.uid}</div>
                               <div>Owner ID: {profile.ownerId || 'Non défini'}</div>
                               {profile.creatorId && <div>Créateur: {profile.creatorId}</div>}
@@ -830,29 +814,33 @@ export default function Users({ userProfile }: UsersProps) {
                         <div className="space-y-1 text-xs">
                           {/* Email Copy Line */}
                           <div className="flex items-center gap-2 group/btn">
-                            <span className="text-[10px] uppercase font-black text-slate-400 w-10">Email:</span>
-                            <span className="font-semibold text-slate-700 text-xs">{profile.email}</span>
-                            <button
+                            <span className="w-10 text-xs font-black uppercase text-ds-muted">Email:</span>
+                            <span className="break-all text-sm font-semibold text-ds-text">{profile.email}</span>
+                            <Button
+                              variant="ghost"
                               onClick={() => copyToClipboard(profile.email, `${profile.uid}-email`)}
-                              className="p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-all opacity-0 group-hover/btn:opacity-100"
+                              className="min-w-ds-touch-target"
+                              size="sm"
+                              aria-label="Copier l'adresse email"
                               title="Copier l'adresse email"
                             >
                               {copiedField === `${profile.uid}-email` ? (
-                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                <Check className="h-4 w-4 text-ds-success" />
                               ) : (
-                                <Copy className="w-3.5 h-3.5" />
+                                <Copy className="h-4 w-4" />
                               )}
-                            </button>
+                            </Button>
                           </div>
 
                           <div className="flex items-center gap-2 group/btn">
-                            <button
+                            <Button
+                              variant="secondary"
                               onClick={() => void sendPasswordResetLink(profile.email)}
-                              className="inline-flex items-center gap-1 rounded-lg bg-indigo-50 px-2 py-1 text-[9px] font-bold text-indigo-700 hover:bg-indigo-100"
+                              size="sm"
                               title="Envoyer un lien de réinitialisation"
                             >
-                              <Mail className="h-3 w-3" /> Envoyer un lien de réinitialisation
-                            </button>
+                              <Mail className="h-4 w-4" /> Envoyer un lien de réinitialisation
+                            </Button>
                           </div>
                         </div>
                       </td>
@@ -861,34 +849,34 @@ export default function Users({ userProfile }: UsersProps) {
                       <td data-label="Code sécurité" className="py-4 px-6">
                         {profile.securityCode ? (
                           <div className="flex items-center gap-2 group/btn">
-                            <Shield className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-                            <span className="font-mono bg-rose-50 text-rose-700 px-1.5 py-0.5 rounded-md border border-rose-100 text-xs font-black tracking-widest">
+                            <Shield className="h-4 w-4 shrink-0 text-ds-brand" />
+                            <Badge variant="neutral" className="min-h-0 rounded-ds-sm px-1.5 py-0.5 font-mono font-black tracking-widest">
                               {visibleCodes[profile.uid] ? profile.securityCode : '••••'}
-                            </span>
-                            <button
+                            </Badge>
+                            <Button
+                              variant="ghost"
                               onClick={() => toggleCodeVisibility(profile.uid)}
-                              className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md opacity-0 group-hover/btn:opacity-100 transition-all"
+                              size="sm"
+                              aria-label={visibleCodes[profile.uid] ? 'Masquer le code de sécurité' : 'Afficher le code de sécurité'}
                               title={visibleCodes[profile.uid] ? 'Masquer' : 'Afficher le code'}
                             >
-                              {visibleCodes[profile.uid] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                            </button>
+                              {visibleCodes[profile.uid] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </Button>
                           </div>
                         ) : (
-                          <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider">Non défini</span>
+                          <span className="text-xs font-bold uppercase tracking-wider text-ds-muted">Non défini</span>
                         )}
                       </td>
 
                       {/* Rôle Badge */}
                       <td data-label="Rôle" className="py-4 px-6">
-                        <span className={cn(
-                          "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5",
-                          profile.role === 'admin'
-                            ? "bg-purple-50 text-purple-700 border border-purple-100" 
-                            : "bg-blue-50 text-blue-700 border border-blue-100"
-                        )}>
-                          <Shield className="w-3 h-3" />
+                        <Badge
+                          variant={profile.role === 'admin' ? 'neutral' : isTechnicianProfile(profile, allowed) ? 'info' : 'neutral'}
+                          className={cn("min-h-0 gap-1.5 px-2.5 py-1 uppercase tracking-wider", profile.role === 'admin' && "border-ds-brand/20 bg-ds-brand-soft text-ds-brand")}
+                        >
+                          <Shield className="h-3.5 w-3.5" />
                           {profile.role === 'admin' ? 'Administrateur' : isTechnicianProfile(profile, allowed) ? 'Technicien' : 'Casier'}
-                        </span>
+                        </Badge>
                       </td>
 
                       {/* Allowed Menus List */}
@@ -897,18 +885,17 @@ export default function Users({ userProfile }: UsersProps) {
                           {MENU_OPTIONS.map((menu) => {
                             const isAllowed = allowed.includes(menu.id);
                             return (
-                              <span 
+                              <Badge
                                 key={menu.id} 
+                                variant={isAllowed ? 'success' : 'neutral'}
                                 className={cn(
-                                  "text-[9px] px-1.5 py-0.5 rounded-md font-bold transition-all border",
-                                  isAllowed 
-                                    ? "bg-emerald-50 text-emerald-700 border-emerald-100" 
-                                    : "bg-slate-100 text-slate-400 border-transparent opacity-40 line-through"
+                                  "min-h-0 rounded-ds-sm px-1.5 py-0.5 text-xs font-bold transition-all",
+                                  !isAllowed && "opacity-60 line-through"
                                 )}
                                 title={menu.description}
                               >
                                 {menu.name.split(' ')[0]}
-                              </span>
+                              </Badge>
                             );
                           })}
                         </div>
@@ -916,73 +903,67 @@ export default function Users({ userProfile }: UsersProps) {
 
                       {/* Statut Badge */}
                       <td data-label="Statut" className="py-4 px-6">
-                        <span className={cn(
-                          "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5",
-                          profile.status === 'banned' 
-                            ? "bg-rose-50 text-rose-700 border border-rose-100" 
-                            : "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                        )}>
-                          <span className={cn("w-1.5 h-1.5 rounded-full", profile.status === 'banned' ? "bg-rose-500" : "bg-emerald-500")} />
-                          {profile.status === 'banned' ? 'Banni' : 'Actif'}
-                        </span>
+                        <Badge variant={profile.status === 'banned' ? 'danger' : 'success'} className="min-h-0 px-2.5 py-1 uppercase tracking-wider">
+                          {profile.status === 'banned' ? 'Inactif' : 'Actif'}
+                        </Badge>
                       </td>
 
                       {/* Combined Actions: Edit, Toggle Status, Delete */}
                       <td data-label="Actions" className="py-4 px-6 text-right">
                         {isSelf ? (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 text-[9px] font-black uppercase tracking-wider rounded-xl border border-indigo-100">
-                            <Shield className="w-3 h-3" />
+                          <Badge variant="info" className="min-h-0 gap-1.5 rounded-ds-md px-3 py-1.5 uppercase tracking-wider">
+                            <Shield className="h-4 w-4" />
                             Compte principal
-                          </span>
+                          </Badge>
                         ) : (
                         <div className="flex items-center justify-end gap-2">
                           <div className="flex max-w-[360px] flex-wrap justify-end gap-1.5">
-                            <button
+                            <Button
+                              variant="secondary"
                               onClick={() => handleOpenEdit(profile)}
-                              className="inline-flex min-h-10 items-center gap-1 px-2.5 py-1.5 bg-slate-105 hover:bg-indigo-50 hover:text-indigo-650 rounded-xl text-[10px] font-extrabold uppercase tracking-wider border border-slate-100 hover:border-indigo-150 transition-colors"
+                              size="sm"
                               title="Modifier ce profil"
                             >
-                              <Edit2 className="w-3 h-3" />
+                              <Edit2 className="h-4 w-4" />
                               Modifier
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                              variant="secondary"
                               onClick={() => { setPasswordUser(profile); setNewPassword(''); setConfirmNewPassword(''); setErrorOnCreate(null); }}
-                              className="inline-flex min-h-10 items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider border border-indigo-100 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+                              size="sm"
                             >
-                              <Lock className="w-3 h-3" />
+                              <Lock className="h-4 w-4" />
                               Changer le mot de passe
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                              variant="secondary"
                               onClick={() => void sendPasswordResetLink(profile.email)}
                               disabled={actionLoading === profile.uid}
-                              className="inline-flex min-h-10 items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                              size="sm"
                             >
-                              <Mail className="w-3 h-3" />
+                              <Mail className="h-4 w-4" />
                               Envoyer un lien de réinitialisation
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                              variant={profile.status === 'banned' ? 'secondary' : 'danger'}
                               onClick={() => void handleToggleStatus(profile)}
                               disabled={actionLoading === profile.uid}
-                              className={cn(
-                                "inline-flex min-h-10 items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider border transition-colors disabled:opacity-50",
-                                profile.status === 'banned'
-                                  ? "bg-emerald-50/50 text-emerald-600 border-emerald-100 hover:bg-emerald-50"
-                                  : "bg-slate-100 text-slate-600 border-transparent hover:bg-rose-50 hover:text-rose-600 hover:border-rose-105"
-                              )}
+                              size="sm"
                               title={profile.status === 'banned' ? 'Débloquer cet utilisateur' : 'Bloquer cet utilisateur'}
                             >
-                              <Ban className="w-3.5 h-3.5" />
+                              <Ban className="h-4 w-4" />
                               {profile.status === 'banned' ? 'Débloquer' : 'Bloquer'}
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                              variant="danger"
                               onClick={() => { setDeletingUser(profile); setDeleteConfirmation(''); setErrorOnCreate(null); }}
                               disabled={actionLoading === profile.uid}
-                              className="inline-flex min-h-10 items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-extrabold uppercase tracking-wider border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 disabled:opacity-50"
+                              size="sm"
                               title="Supprimer définitivement l'utilisateur"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="h-4 w-4" />
                               Supprimer définitivement
-                            </button>
+                            </Button>
                           </div>
                         </div>
                         )}
@@ -994,60 +975,56 @@ export default function Users({ userProfile }: UsersProps) {
             </table>
           </div>
         )}
-      </div>
+      </Card>
 
       {passwordUser && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" role="presentation">
-          <form onSubmit={handleChangeUserPassword} className="w-full max-w-md space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="change-user-password-title">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-ds-text/60 p-4 backdrop-blur-sm" role="presentation">
+          <form onSubmit={handleChangeUserPassword} className="w-full min-w-0 max-w-md space-y-4 rounded-ds-lg border border-ds-border bg-ds-surface p-6 shadow-ds-md" role="dialog" aria-modal="true" aria-labelledby="change-user-password-title">
             <div>
-              <h2 id="change-user-password-title" className="text-lg font-black text-slate-900">Changer le mot de passe</h2>
-              <p className="mt-1 text-sm text-slate-600">{passwordUser.email}</p>
+              <h2 id="change-user-password-title" className="text-lg font-black text-ds-text">Changer le mot de passe</h2>
+              <p className="mt-1 break-all text-sm text-ds-muted">{passwordUser.email}</p>
             </div>
-            <label className="block space-y-1 text-xs font-bold text-slate-600">Nouveau mot de passe
-              <input type="password" autoComplete="new-password" minLength={8} required value={newPassword} onChange={event => setNewPassword(event.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600" />
-            </label>
-            <label className="block space-y-1 text-xs font-bold text-slate-600">Confirmer le nouveau mot de passe
-              <input type="password" autoComplete="new-password" minLength={8} required value={confirmNewPassword} onChange={event => setConfirmNewPassword(event.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600" />
-            </label>
-            {errorOnCreate && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-xs font-semibold text-rose-700">{errorOnCreate}</p>}
+            <Input label="Nouveau mot de passe" type="password" autoComplete="new-password" minLength={8} required value={newPassword} onChange={event => setNewPassword(event.target.value)} />
+            <Input label="Confirmer le nouveau mot de passe" type="password" autoComplete="new-password" minLength={8} required value={confirmNewPassword} onChange={event => setConfirmNewPassword(event.target.value)} />
+            {errorOnCreate && <p role="alert" className="rounded-ds-md bg-ds-danger-soft p-3 text-sm font-semibold text-ds-danger">{errorOnCreate}</p>}
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => { setPasswordUser(null); setErrorOnCreate(null); }} className="min-h-10 rounded-xl border border-slate-300 px-4 text-sm font-bold text-slate-700">Annuler</button>
-              <button type="submit" disabled={actionLoading === passwordUser.uid || newPassword.length < 8 || newPassword !== confirmNewPassword} className="min-h-10 rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white disabled:opacity-50">{actionLoading === passwordUser.uid ? 'Modification…' : 'Confirmer'}</button>
+              <Button type="button" variant="secondary" onClick={() => { setPasswordUser(null); setErrorOnCreate(null); }}>Annuler</Button>
+              <Button type="submit" disabled={actionLoading === passwordUser.uid || newPassword.length < 8 || newPassword !== confirmNewPassword}>{actionLoading === passwordUser.uid ? 'Modification…' : 'Confirmer'}</Button>
             </div>
           </form>
         </div>
       )}
 
       {deletingUser && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" role="presentation">
-          <section className="w-full max-w-md space-y-4 rounded-2xl border border-rose-200 bg-white p-6 shadow-2xl" role="alertdialog" aria-modal="true" aria-labelledby="delete-user-title">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-ds-text/60 p-4 backdrop-blur-sm" role="presentation">
+          <section className="w-full min-w-0 max-w-md space-y-4 rounded-ds-lg border border-ds-danger/20 bg-ds-surface p-6 shadow-ds-md" role="alertdialog" aria-modal="true" aria-labelledby="delete-user-title">
             <div className="flex items-start gap-3">
-              <div className="rounded-xl bg-rose-100 p-2 text-rose-700"><AlertCircle className="h-5 w-5" /></div>
+              <div className="rounded-ds-md bg-ds-danger-soft p-2 text-ds-danger"><AlertCircle className="h-5 w-5" /></div>
               <div>
-                <h2 id="delete-user-title" className="text-lg font-black text-slate-900">Supprimer définitivement</h2>
-                <p className="mt-2 text-sm leading-relaxed text-slate-700">Êtes-vous sûr ? Cette action est définitive : le compte et l'accès de l'utilisateur seront supprimés.</p>
+                <h2 id="delete-user-title" className="text-lg font-black text-ds-text">Supprimer définitivement</h2>
+                <p className="mt-2 text-sm leading-relaxed text-ds-text">Êtes-vous sûr ? Cette action est définitive : le compte et l'accès de l'utilisateur seront supprimés.</p>
               </div>
             </div>
-            <p className="text-sm text-slate-600">Saisissez l’email <strong className="text-slate-900">{deletingUser.email}</strong> pour confirmer.</p>
-            <input autoFocus value={deleteConfirmation} onChange={event => setDeleteConfirmation(event.target.value)} aria-label="Confirmation de suppression" className="w-full rounded-xl border border-slate-300 px-3 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-600" />
-            {deletingUser.role === 'admin' && users.filter(profile => profile.role === 'admin' && (profile.ownerId || profile.uid) === (userProfile?.ownerId || userProfile?.uid)).length <= 1 && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-xs font-semibold text-rose-700">Impossible de supprimer le dernier administrateur du magasin.</p>}
-            {errorOnCreate && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-xs font-semibold text-rose-700">{errorOnCreate}</p>}
+            <p className="text-sm text-ds-muted">Saisissez l’email <strong className="text-ds-text">{deletingUser.email}</strong> pour confirmer.</p>
+            <Input autoFocus value={deleteConfirmation} onChange={event => setDeleteConfirmation(event.target.value)} aria-label="Confirmation de suppression" />
+            {deletingUser.role === 'admin' && users.filter(profile => profile.role === 'admin' && (profile.ownerId || profile.uid) === (userProfile?.ownerId || userProfile?.uid)).length <= 1 && <p role="alert" className="rounded-ds-md bg-ds-danger-soft p-3 text-sm font-semibold text-ds-danger">Impossible de supprimer le dernier administrateur du magasin.</p>}
+            {errorOnCreate && <p role="alert" className="rounded-ds-md bg-ds-danger-soft p-3 text-sm font-semibold text-ds-danger">{errorOnCreate}</p>}
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => { setDeletingUser(null); setDeleteConfirmation(''); setErrorOnCreate(null); }} className="min-h-10 rounded-xl border border-slate-300 px-4 text-sm font-bold text-slate-700">Annuler</button>
-              <button type="button" onClick={() => void handleDeleteProfileAndAuth(deletingUser)} disabled={actionLoading === deletingUser.uid || deleteConfirmation.trim().toLowerCase() !== deletingUser.email.toLowerCase() || (deletingUser.role === 'admin' && users.filter(profile => profile.role === 'admin' && (profile.ownerId || profile.uid) === (userProfile?.ownerId || userProfile?.uid)).length <= 1)} className="min-h-10 rounded-xl bg-rose-700 px-4 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">{actionLoading === deletingUser.uid ? 'Suppression…' : 'Supprimer définitivement'}</button>
+              <Button type="button" variant="secondary" onClick={() => { setDeletingUser(null); setDeleteConfirmation(''); setErrorOnCreate(null); }}>Annuler</Button>
+              <Button type="button" variant="danger" onClick={() => void handleDeleteProfileAndAuth(deletingUser)} disabled={actionLoading === deletingUser.uid || deleteConfirmation.trim().toLowerCase() !== deletingUser.email.toLowerCase() || (deletingUser.role === 'admin' && users.filter(profile => profile.role === 'admin' && (profile.ownerId || profile.uid) === (userProfile?.ownerId || userProfile?.uid)).length <= 1)}>{actionLoading === deletingUser.uid ? 'Suppression…' : 'Supprimer définitivement'}</Button>
             </div>
           </section>
         </div>
       )}
 
       {migrationConfirmOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/60 p-4" role="presentation">
-          <section className="w-full max-w-md space-y-4 rounded-2xl bg-white p-6 shadow-2xl" role="alertdialog" aria-modal="true">
-            <h2 className="text-lg font-black text-slate-900">Confirmer la migration</h2>
-            <p className="text-sm text-slate-600">Les permissions des comptes prévisualisés seront mises à jour. Une sauvegarde JSON a été téléchargée.</p>
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-ds-text/60 p-4" role="presentation">
+          <section className="w-full min-w-0 max-w-md space-y-4 rounded-ds-lg bg-ds-surface p-6 shadow-ds-md" role="alertdialog" aria-modal="true">
+            <h2 className="text-lg font-black text-ds-text">Confirmer la migration</h2>
+            <p className="text-sm text-ds-muted">Les permissions des comptes prévisualisés seront mises à jour. Une sauvegarde JSON a été téléchargée.</p>
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => setMigrationConfirmOpen(false)} className="min-h-10 rounded-xl border border-slate-300 px-4 text-sm font-bold">Annuler</button>
-              <button type="button" onClick={() => void confirmPermissionMigration()} className="min-h-10 rounded-xl bg-amber-700 px-4 text-sm font-bold text-white">Confirmer la migration</button>
+              <Button type="button" variant="secondary" onClick={() => setMigrationConfirmOpen(false)}>Annuler</Button>
+              <Button type="button" onClick={() => void confirmPermissionMigration()}>Confirmer la migration</Button>
             </div>
           </section>
         </div>
@@ -1055,99 +1032,55 @@ export default function Users({ userProfile }: UsersProps) {
 
       {/* Creation Modal (Add User) */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg my-8 overflow-hidden border border-slate-100 animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-55/30">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-ds-text/60 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="my-8 w-full min-w-0 max-w-lg overflow-hidden rounded-ds-lg border border-ds-border bg-ds-surface shadow-ds-md animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-ds-border bg-ds-surface-2 px-6 py-4">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+                <div className="rounded-ds-md bg-ds-brand-soft p-2 text-ds-brand">
                   <UserPlus className="w-4 h-4" />
                 </div>
-                <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider">Ajouter un Utilisateur</h2>
+                <h2 className="text-sm font-black uppercase tracking-wider text-ds-text">Ajouter un Utilisateur</h2>
               </div>
-              <button 
+              <Button
+                type="button"
+                variant="ghost"
                 onClick={() => setIsModalOpen(false)} 
-                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-55 rounded-xl transition-all"
+                aria-label="Fermer"
               >
-                <X className="w-5 h-5" />
-              </button>
+                <X className="h-5 w-5" />
+              </Button>
             </div>
 
-            <form onSubmit={handleCreateUser} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+            <form onSubmit={handleCreateUser} className="max-h-[80vh] min-w-0 space-y-4 overflow-y-auto p-6">
               {errorOnCreate && (
-                <div className="p-3.5 bg-rose-50 border border-rose-100 rounded-xl text-rose-700 text-xs font-bold leading-normal flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                <div role="alert" className="flex items-center gap-2 rounded-ds-md border border-ds-danger/20 bg-ds-danger-soft p-3.5 text-sm font-bold leading-normal text-ds-danger">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
                   {errorOnCreate}
                 </div>
               )}
 
-              {/* Nom complet */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Nom complet</label>
-                <div className="relative">
-                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    required
-                    value={nameInput}
-                    onChange={(e) => setNameInput(e.target.value)}
-                    placeholder="Ex: Jean Dupont"
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-shadow"
-                  />
-                </div>
-              </div>
+              <Input label="Nom complet" type="text" required value={nameInput} onChange={(e) => setNameInput(e.target.value)} placeholder="Ex: Jean Dupont" />
 
-              {/* Email */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Adresse Email de connexion</label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="email"
-                    required
-                    value={emailInput}
-                    onChange={(e) => setEmailInput(e.target.value)}
-                    placeholder="caissier1@example.com"
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-shadow"
-                  />
-                </div>
-              </div>
+              <Input label="Adresse Email de connexion" type="email" required value={emailInput} onChange={(e) => setEmailInput(e.target.value)} placeholder="caissier1@example.com" />
 
-              {/* Password */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Mot de passe (Min 6 caractères)</label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="password"
-                    required
-                    value={passwordInput}
-                    onChange={(e) => setPasswordInput(e.target.value)}
-                    placeholder="Mot de passe à définir dans Firebase Auth"
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-shadow"
-                  />
-                </div>
-              </div>
+              <Input label="Mot de passe (Min 6 caractères)" type="password" required value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} placeholder="Mot de passe à définir dans Firebase Auth" />
 
-              {/* Base Role */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Rôle de Base</label>
-                <select
+              <Select
+                  label="Rôle de Base"
                   value={roleInput}
                   onChange={(e) => handleRoleChangeOnCreate(e.target.value as UserFormRole)}
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-shadow"
                 >
                   <option value="user">Compte à menus personnalisés</option>
                   <option value="cashier-repair">Casier + Réparation</option>
                   <option value="technician">Technicien (Réparation et pièces)</option>
                   <option value="admin">Administrateur (Accès Intégral)</option>
-                </select>
-              </div>
+                </Select>
 
               {/* Menus Accesses Checkboxes */}
-              <div className="border-t border-slate-100 pt-4 space-y-2">
+              <div className="space-y-2 border-t border-ds-border pt-4">
                 <div>
-                  <label className="text-[10px] font-black text-indigo-600 uppercase tracking-widest block">Menus latéraux autorisés</label>
-                  <span className="text-[9px] text-slate-400 font-medium">
+                  <label className="block text-sm font-black uppercase tracking-wider text-ds-text">Menus latéraux autorisés</label>
+                  <span className="text-sm font-medium text-ds-muted">
                     {roleInput === 'technician'
                       ? 'Le technicien gère réparations, pièces, articles/services et clients, sans prix d’achat ni encaissement.'
                       : 'Configurez les sections auxquelles cet utilisateur aura accès :'}
@@ -1164,28 +1097,30 @@ export default function Users({ userProfile }: UsersProps) {
                     return (
                       <button
                         type="button"
+                        role="checkbox"
+                        aria-checked={isChecked}
                         key={menu.id}
                         onClick={() => { if (roleInput !== 'technician' || TECHNICIAN_MENUS.includes(menu.id)) handleToggleMenuSelection(menu.id); }}
                         className={cn(
-                          "p-3 rounded-2xl text-left border transition-all flex items-start gap-2.5 hover:bg-slate-50",
+                          "flex min-w-0 items-start gap-2.5 rounded-ds-md border p-3 text-left transition-colors hover:bg-ds-surface-2",
                           isChecked 
-                            ? "bg-indigo-50/40 border-indigo-200 text-indigo-900" 
-                            : "bg-white border-slate-100 text-slate-600"
+                            ? "border-ds-brand/30 bg-ds-brand-soft text-ds-brand"
+                            : "border-ds-border bg-ds-surface text-ds-text"
                         )}
                       >
                         <div className={cn(
-                          "w-4 h-4 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-all",
+                          "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors",
                           isChecked 
-                            ? "bg-indigo-600 border-indigo-600 text-white" 
-                            : "bg-white border-slate-350"
+                            ? "border-ds-brand bg-ds-brand text-ds-brand-contrast"
+                            : "border-ds-border bg-ds-surface"
                         )}>
                           {isChecked && <Check className="w-3 h-3 stroke-[3.5]" />}
                         </div>
                         <div>
-                          <div className="text-xs font-extrabold leading-tight">
+                          <div className="text-sm font-extrabold leading-tight">
                             {menu.id === 'reparation' ? 'Partie Réparation' : menu.name}
                           </div>
-                          <p className="text-[9px] text-slate-400 leading-normal mt-0.5">{menu.description}</p>
+                          <p className="mt-0.5 text-sm leading-normal text-ds-muted">{menu.description}</p>
                         </div>
                       </button>
                     );
@@ -1195,21 +1130,22 @@ export default function Users({ userProfile }: UsersProps) {
               </div>
 
               {/* Submit / Action Buttons */}
-              <div className="pt-4 flex gap-3 border-t border-slate-100 font-sans">
-                <button
+              <div className="flex gap-3 border-t border-ds-border pt-4 font-sans">
+                <Button
                   type="button"
+                  variant="secondary"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black uppercase tracking-wider rounded-xl transition-colors"
+                  className="flex-1"
                 >
                   Annuler
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={actionLoading !== null}
-                  className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-indigo-600/15"
+                  className="flex-1"
                 >
                   {actionLoading === 'creating' ? 'Création en cours...' : 'Créer le compte'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -1218,98 +1154,73 @@ export default function Users({ userProfile }: UsersProps) {
 
       {/* Unified Edit Modal */}
       {editingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg my-8 overflow-hidden border border-slate-100 animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-ds-text/60 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="my-8 w-full min-w-0 max-w-lg overflow-hidden rounded-ds-lg border border-ds-border bg-ds-surface shadow-ds-md animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-ds-border bg-ds-surface-2 px-6 py-4">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+                <div className="rounded-ds-md bg-ds-brand-soft p-2 text-ds-brand">
                   <Edit2 className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider">Modifier l'Utilisateur</h2>
-                  <p className="text-[10px] text-slate-400 font-bold mt-0.5">{editingUser.email}</p>
+                  <h2 className="text-sm font-black uppercase tracking-wider text-ds-text">Modifier l'Utilisateur</h2>
+                  <p className="mt-0.5 break-all text-sm font-bold text-ds-muted">{editingUser.email}</p>
                 </div>
               </div>
-              <button 
+              <Button
+                type="button"
+                variant="ghost"
                 onClick={() => setEditingUser(null)} 
-                className="p-2 text-slate-400 hover:text-slate-650 hover:bg-slate-50 rounded-xl transition-all"
+                aria-label="Fermer"
               >
-                <X className="w-5 h-5" />
-              </button>
+                <X className="h-5 w-5" />
+              </Button>
             </div>
 
-            <form onSubmit={handleSaveEdit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+            <form onSubmit={handleSaveEdit} className="max-h-[80vh] min-w-0 space-y-4 overflow-y-auto p-6">
               {errorOnEdit && (
-                <div className="p-3.5 bg-rose-50 border border-rose-100 rounded-xl text-rose-700 text-xs font-bold leading-normal flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                <div role="alert" className="flex items-center gap-2 rounded-ds-md border border-ds-danger/20 bg-ds-danger-soft p-3.5 text-sm font-bold leading-normal text-ds-danger">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
                   {errorOnEdit}
                 </div>
               )}
 
-              {/* Nom complet */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Nom complet</label>
-                <div className="relative">
-                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    required
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    placeholder="Ex: Jean Dupont"
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-shadow"
-                  />
-                </div>
-              </div>
+              <Input label="Nom complet" type="text" required value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Ex: Jean Dupont" />
 
-              {/* Email */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Email de connexion</label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="email"
-                    value={editEmail}
-                    readOnly
-                    className="w-full cursor-not-allowed pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
-                  />
-                </div>
-              </div>
+              <Input label="Email de connexion" type="email" value={editEmail} readOnly />
 
-              <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-ds-md border border-ds-info/20 bg-ds-accent-soft p-3 text-sm text-ds-text">
                 <span>Le changement de mot de passe se fait via le lien sécurisé envoyé à cette adresse.</span>
-                <button type="button" onClick={() => void sendPasswordResetLink(editingUser.email)} className="shrink-0 rounded-lg bg-amber-700 px-3 py-2 font-bold text-white hover:bg-amber-800">
+                <Button type="button" variant="secondary" onClick={() => void sendPasswordResetLink(editingUser.email)} className="shrink-0">
                   Envoyer un lien de réinitialisation
-                </button>
+                </Button>
               </div>
 
               {/* Code de sécurité individuel (modification/suppression) */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-rose-500 uppercase tracking-widest block font-bold flex items-center gap-1.5">
+                <label className="flex items-center gap-1.5 text-sm font-black uppercase tracking-wider text-ds-danger">
                   <Shield className="w-3.5 h-3.5" />
                   Code de sécurité (4 chiffres)
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-rose-400" />
-                  <input
+                  <Input
+                    aria-label="Code de sécurité (4 chiffres)"
                     type="text"
                     maxLength={4}
                     inputMode="numeric"
                     value={editSecurityCode}
                     onChange={(e) => setEditSecurityCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
                     placeholder="Ex: 1234 (laisser vide = aucun)"
-                    className="w-full pl-10 pr-4 py-2.5 bg-rose-50/30 border border-rose-100 rounded-xl text-xs font-mono font-black tracking-[0.3em] outline-none focus:ring-2 focus:ring-rose-500/10 focus:border-rose-500 transition-shadow"
+                    className="font-mono font-black tracking-[0.3em]"
                   />
                 </div>
-                <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
+                <p className="text-sm font-medium leading-relaxed text-ds-muted">
                   Ce code sera demandé à cet utilisateur avant toute modification ou suppression. Laisser vide pour ne définir aucun code.
                 </p>
               </div>
 
               {/* Role */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Rôle</label>
-                <select
+              <Select
+                  label="Rôle"
                   value={editRole}
                   onChange={(e) => {
                     const newRole = e.target.value as UserFormRole;
@@ -1327,33 +1238,28 @@ export default function Users({ userProfile }: UsersProps) {
                     }
                     setEditPermissions(permissionsForPreset(presetFromRole(newRole)));
                   }}
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-shadow"
                 >
                   <option value="user">Compte à menus personnalisés</option>
                   <option value="cashier-repair">Casier + Réparation</option>
                   <option value="technician">Technicien (Réparation et pièces)</option>
                   <option value="admin">Administrateur (Accès Intégral)</option>
-                </select>
-              </div>
+                </Select>
 
               {/* Status */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Statut du compte</label>
-                <select
+              <Select
+                  label="Statut du compte"
                   value={editStatus}
                   onChange={(e) => setEditStatus(e.target.value as 'active' | 'banned')}
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-shadow"
                 >
                   <option value="active">Actif (Accès autorisé)</option>
                   <option value="banned">Bloqué / Banni (Accès refusé)</option>
-                </select>
-              </div>
+                </Select>
 
               {/* Menu privileges checkboxes */}
-              <div className="border-t border-slate-100 pt-4 space-y-2">
+              <div className="space-y-2 border-t border-ds-border pt-4">
                 <div>
-                  <label className="text-[10px] font-black text-indigo-600 uppercase tracking-widest block font-bold">Modifier les Menus Autorisés</label>
-                  <span className="text-[9px] text-slate-400 font-medium">Cochez les sections visibles dans la barre latérale pour cet utilisateur :</span>
+                  <label className="block text-sm font-black uppercase tracking-wider text-ds-text">Modifier les Menus Autorisés</label>
+                  <span className="text-sm font-medium text-ds-muted">Cochez les sections visibles dans la barre latérale pour cet utilisateur :</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1366,28 +1272,30 @@ export default function Users({ userProfile }: UsersProps) {
                     return (
                       <button
                         type="button"
+                        role="checkbox"
+                        aria-checked={isChecked}
                         key={menu.id}
                         onClick={() => { if (editRole !== 'technician' || TECHNICIAN_MENUS.includes(menu.id)) handleToggleEditMenuSelection(menu.id); }}
                         className={cn(
-                          "p-3 rounded-2xl text-left border transition-all flex items-start gap-2.5 hover:bg-slate-50",
+                          "flex min-w-0 items-start gap-2.5 rounded-ds-md border p-3 text-left transition-colors hover:bg-ds-surface-2",
                           isChecked 
-                            ? "bg-indigo-50/40 border-indigo-200 text-indigo-900" 
-                            : "bg-white border-slate-100 text-slate-600"
+                            ? "border-ds-brand/30 bg-ds-brand-soft text-ds-brand"
+                            : "border-ds-border bg-ds-surface text-ds-text"
                         )}
                       >
                         <div className={cn(
-                          "w-4 h-4 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-all",
+                          "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors",
                           isChecked 
-                            ? "bg-indigo-600 border-indigo-600 text-white" 
-                            : "bg-white border-slate-350"
+                            ? "border-ds-brand bg-ds-brand text-ds-brand-contrast"
+                            : "border-ds-border bg-ds-surface"
                         )}>
                           {isChecked && <Check className="w-3 h-3 stroke-[3.5]" />}
                         </div>
                         <div>
-                          <div className="text-xs font-extrabold leading-tight">
+                          <div className="text-sm font-extrabold leading-tight">
                             {menu.id === 'reparation' ? 'Partie Réparation' : menu.name}
                           </div>
-                          <p className="text-[9px] text-slate-400 leading-normal mt-0.5">{menu.description}</p>
+                          <p className="mt-0.5 text-sm leading-normal text-ds-muted">{menu.description}</p>
                         </div>
                       </button>
                     );
@@ -1397,21 +1305,22 @@ export default function Users({ userProfile }: UsersProps) {
               </div>
 
               {/* Save Buttons */}
-              <div className="pt-4 flex gap-3 border-t border-slate-100">
-                <button
+              <div className="flex gap-3 border-t border-ds-border pt-4">
+                <Button
                   type="button"
+                  variant="secondary"
                   onClick={() => setEditingUser(null)}
-                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black uppercase tracking-wider rounded-xl transition-colors"
+                  className="flex-1"
                 >
                   Annuler
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={actionLoading !== null}
-                  className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-indigo-600/15"
+                  className="flex-1"
                 >
                   {actionLoading === 'editing' ? 'Enregistrement...' : 'Enregistrer'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

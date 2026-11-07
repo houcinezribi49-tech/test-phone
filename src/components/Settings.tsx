@@ -5,7 +5,7 @@ import { db, auth } from '../firebase';
 import { APP_NAME, APP_NAME_SLUG } from '../config/brand';
 import { StoreSettings, UserProfile } from '../types';
 import { handleFirestoreError, OperationType, hasMenuAccess } from '../App';
-import { Edit2, X, Settings as SettingsIcon, CheckCircle2, Store, Save, Download, Trash2, Database, AlertTriangle, Calendar, Eye, FileText, KeyRound, Lock, ShieldCheck, Music2 } from 'lucide-react';
+import { Edit2, X, CheckCircle2, Store, Save, Download, Trash2, Database, AlertTriangle, Calendar, Eye, FileText, KeyRound, Lock, ShieldCheck, Music2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import * as XLSX from 'xlsx';
 import { can } from '../lib/permissions';
@@ -15,6 +15,7 @@ import { useStartup } from './StartupProvider';
 import { adhkarLibrary } from '../data/adhkar';
 import { verses } from '../data/verses';
 import { isDirectAudioUrl } from '../lib/startup';
+import { Badge, Button, Card, Input, PageHeader, Select } from './ui';
 
 interface SettingsProps {
   userProfile: UserProfile | null;
@@ -101,25 +102,24 @@ function SecurityCodeCard({ userProfile }: { userProfile: UserProfile | null }) 
     }
   };
 
-  const codeInputClass = "w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold transition-all outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 tracking-[0.5em] text-center";
+  const codeInputClass = "text-center font-mono tracking-[0.5em]";
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-100 shadow-xs overflow-hidden premium-shadow">
-      <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
-        <div className="p-2 bg-rose-50 text-rose-600 rounded-xl">
+    <Card className="min-w-0 overflow-hidden p-0">
+      <div className="flex items-center gap-3 border-b border-ds-border bg-ds-surface-2 p-6">
+        <div className="rounded-ds-md bg-ds-brand-soft p-2 text-ds-brand">
           <KeyRound className="w-5 h-5" />
         </div>
         <div>
-          <h2 className="font-bold text-slate-800 text-sm">Mon Code de Sécurité</h2>
-          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Code à 4 chiffres pour les actions protégées</p>
+          <h2 className="text-sm font-bold text-ds-text">Mon Code de Sécurité</h2>
+          <p className="text-xs font-bold uppercase tracking-wider text-ds-muted">Code à 4 chiffres pour les actions protégées</p>
         </div>
       </div>
 
       <div className="p-6 space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Nouveau code (4 chiffres)</label>
-            <input
+          <Input
+              label="Nouveau code (4 chiffres)"
               type="password"
               inputMode="numeric"
               autoComplete="off"
@@ -129,10 +129,8 @@ function SecurityCodeCard({ userProfile }: { userProfile: UserProfile | null }) 
               className={codeInputClass}
               placeholder="••••"
             />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Confirmer le nouveau code</label>
-            <input
+          <Input
+              label="Confirmer le nouveau code"
               type="password"
               inputMode="numeric"
               autoComplete="off"
@@ -142,50 +140,42 @@ function SecurityCodeCard({ userProfile }: { userProfile: UserProfile | null }) 
               className={codeInputClass}
               placeholder="••••"
             />
-          </div>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Votre mot de passe</label>
-          <div className="relative">
-            <Lock className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold transition-all outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500"
-              placeholder="Mot de passe de votre compte"
-            />
-          </div>
-          <p className="text-[10px] text-slate-400 font-medium">Votre mot de passe est requis pour confirmer le changement de code.</p>
+          <Input
+            label="Votre mot de passe"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Mot de passe de votre compte"
+          />
+          <p className="text-sm font-medium text-ds-muted">Votre mot de passe est requis pour confirmer le changement de code.</p>
         </div>
 
         {error && (
-          <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-100 rounded-xl">
-            <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-            <p className="text-[11px] text-red-600 font-semibold">{error}</p>
+          <div role="alert" className="flex items-start gap-2 rounded-ds-md border border-ds-danger/20 bg-ds-danger-soft p-3 text-ds-danger">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <p className="text-sm font-semibold">{error}</p>
           </div>
         )}
 
         {successMsg && (
-          <div className="flex items-start gap-2 p-3 bg-emerald-50 border border-emerald-100 rounded-xl">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-            <p className="text-[11px] text-emerald-600 font-semibold">{successMsg}</p>
-          </div>
+          <Badge variant="success" role="status">{successMsg}</Badge>
         )}
 
-        <button
+        <Button
           type="button"
           onClick={handleChangeCode}
           disabled={saving || newCode.length !== 4 || confirmCode.length !== 4 || !password}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider"
+          className="w-full"
         >
           <ShieldCheck className="w-4 h-4" />
           {saving ? 'Vérification...' : 'Changer mon code'}
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -197,18 +187,18 @@ function InstallAppCard({
 }: Pick<SettingsProps, 'deferredPrompt' | 'handleInstallApp' | 'isIOS' | 'isStandalone'>) {
   if (isStandalone || (!deferredPrompt && !isIOS)) return null;
   return (
-    <section className="rounded-3xl border border-indigo-100 bg-white p-6 shadow-xs">
-      <h2 className="text-sm font-bold text-slate-800">Installer l'application</h2>
+    <Card>
+      <h2 className="text-sm font-bold text-ds-text">Installer l'application</h2>
       {deferredPrompt ? (
-        <button type="button" onClick={handleInstallApp} className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-indigo-700">
+        <Button type="button" onClick={handleInstallApp} className="mt-3">
           Installer l'application
-        </button>
+        </Button>
       ) : (
-        <p className="mt-2 text-xs leading-relaxed text-slate-600">
+        <p className="mt-2 text-sm leading-relaxed text-ds-muted">
           Sur iPhone ou iPad : appuyez sur Partager, puis sur Sur l’écran d’accueil.
         </p>
       )}
-    </section>
+    </Card>
   );
 }
 
@@ -265,39 +255,30 @@ function AccountPasswordCard() {
   };
 
   return (
-    <section className="bg-white rounded-3xl border border-slate-100 shadow-xs overflow-hidden premium-shadow">
-      <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
-        <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl"><Lock className="w-5 h-5" /></div>
+    <Card className="min-w-0 overflow-hidden p-0">
+      <div className="flex items-center gap-3 border-b border-ds-border bg-ds-surface-2 p-6">
+        <div className="rounded-ds-md bg-ds-brand-soft p-2 text-ds-brand"><Lock className="w-5 h-5" /></div>
         <div>
-          <h2 className="font-bold text-slate-800 text-sm">Mon compte</h2>
-          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Changer mon mot de passe</p>
+          <h2 className="text-sm font-bold text-ds-text">Mon compte</h2>
+          <p className="text-xs font-bold uppercase tracking-wider text-ds-muted">Changer mon mot de passe</p>
         </div>
       </div>
       <form onSubmit={handleSubmit} className="p-6 space-y-4">
-        <label className="block space-y-1.5 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-          Mot de passe actuel
-          <input type="password" autoComplete="current-password" required value={currentPassword} onChange={event => setCurrentPassword(event.target.value)} className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium normal-case tracking-normal outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
-        </label>
-        <label className="block space-y-1.5 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-          Nouveau mot de passe
-          <input type="password" autoComplete="new-password" required minLength={8} value={newPassword} onChange={event => setNewPassword(event.target.value)} className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium normal-case tracking-normal outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
-        </label>
+        <Input label="Mot de passe actuel" type="password" autoComplete="current-password" required value={currentPassword} onChange={event => setCurrentPassword(event.target.value)} />
+        <Input label="Nouveau mot de passe" type="password" autoComplete="new-password" required minLength={8} value={newPassword} onChange={event => setNewPassword(event.target.value)} />
         <div aria-live="polite" className="space-y-1">
           <div className="flex gap-1" aria-hidden="true">
-            {[1, 2, 3, 4].map(level => <span key={level} className={`h-1.5 flex-1 rounded-full ${strength >= level ? (strength <= 1 ? 'bg-rose-500' : strength === 2 ? 'bg-amber-500' : strength === 3 ? 'bg-lime-600' : 'bg-emerald-600') : 'bg-slate-100'}`} />)}
+            {[1, 2, 3, 4].map(level => <span key={level} className={`h-1.5 flex-1 rounded-full ${strength >= level ? (strength <= 1 ? 'bg-ds-danger' : strength === 2 ? 'bg-ds-warning' : 'bg-ds-success') : 'bg-ds-surface-2'}`} />)}
           </div>
-          <p className="text-[11px] text-slate-500">Force : {newPassword ? strengthLabel : '—'} · 8 caractères minimum</p>
+          <p className="text-sm text-ds-muted">Force : {newPassword ? strengthLabel : '—'} · 8 caractères minimum</p>
         </div>
-        <label className="block space-y-1.5 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-          Confirmer le nouveau mot de passe
-          <input type="password" autoComplete="new-password" required minLength={8} value={confirmation} onChange={event => setConfirmation(event.target.value)} className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium normal-case tracking-normal outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
-        </label>
-        {message && <p role={message.success ? 'status' : 'alert'} className={`rounded-xl border p-3 text-xs font-semibold ${message.success ? 'border-emerald-100 bg-emerald-50 text-emerald-800' : 'border-rose-100 bg-rose-50 text-rose-700'}`}>{message.text}</p>}
-        <button type="submit" disabled={saving || !currentPassword || newPassword.length < 8 || newPassword !== confirmation} className="min-h-10 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-indigo-100 disabled:text-indigo-400">
+        <Input label="Confirmer le nouveau mot de passe" type="password" autoComplete="new-password" required minLength={8} value={confirmation} onChange={event => setConfirmation(event.target.value)} />
+        {message && <Badge variant={message.success ? 'success' : 'danger'} role={message.success ? 'status' : 'alert'} className="min-h-0 rounded-ds-md">{message.text}</Badge>}
+        <Button type="submit" disabled={saving || !currentPassword || newPassword.length < 8 || newPassword !== confirmation}>
           {saving ? 'Modification…' : 'Changer mon mot de passe'}
-        </button>
+        </Button>
       </form>
-    </section>
+    </Card>
   );
 }
 
@@ -942,44 +923,35 @@ export default function Settings({
 
   return (
     <div className="mx-auto w-full min-w-0 max-w-4xl space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-            <SettingsIcon className="w-7 h-7 text-indigo-600 fill-indigo-100/40" />
-            {canAccessStoreSettings ? 'Paramètres du Magasin' : 'Paramètres'}
-          </h1>
-          <p className="text-xs text-slate-500 font-medium">
-            {canAccessStoreSettings
-              ? "Configurez les informations d'en-tête, la devise, les coordonnées de contact et la gestion de la TVA."
-              : 'Gérez votre compte et les paramètres de l’application.'}
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title={canAccessStoreSettings ? 'Paramètres du Magasin' : 'Paramètres'}
+        description={canAccessStoreSettings
+          ? "Configurez les informations d'en-tête, la devise, les coordonnées de contact et la gestion de la TVA."
+          : 'Gérez votre compte et les paramètres de l’application.'}
+      />
 
       {loading ? (
-        <div className="bg-white rounded-3xl border border-slate-100 p-16 flex items-center justify-center premium-shadow">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-        </div>
+        <Card className="flex items-center justify-center p-16">
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-ds-brand" />
+        </Card>
       ) : (
         <div className="min-w-0 space-y-6">
-          <div className="sticky top-16 z-20 -mx-3 bg-[#F6F7FB] px-3 py-2 sm:-mx-4 sm:px-4" role="tablist" aria-label="Sections des paramètres">
-            <div className="flex max-w-full gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1">
+          <div className="sticky top-16 z-20 -mx-3 min-w-0 max-w-full bg-ds-bg px-3 py-2 sm:-mx-4 sm:px-4" role="tablist" aria-label="Sections des paramètres">
+            <div className="flex min-w-0 max-w-full gap-2 overflow-x-auto rounded-ds-lg border border-ds-border bg-ds-surface p-1">
               {settingsTabs.map(({ id, label }) => (
-                <button
+                <Button
                   key={id}
                   type="button"
+                  variant={activeTab === id ? 'primary' : 'ghost'}
                   role="tab"
                   id={`settings-tab-${id}`}
                   aria-controls={`settings-panel-${id}`}
                   aria-selected={activeTab === id}
                   onClick={() => selectSettingsTab(id)}
-                  className={cn(
-                    'min-h-11 shrink-0 rounded-xl px-4 text-xs font-bold transition-colors',
-                    activeTab === id ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50',
-                  )}
+                  className="min-h-ds-touch-target shrink-0 rounded-ds-md px-4 text-xs"
                 >
                   {label}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -1014,93 +986,80 @@ export default function Settings({
             tabIndex={0}
             className={cn('min-w-0', activeTab !== 'boutique' && 'hidden')}
           >
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-xs overflow-hidden premium-shadow">
-            <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
-              <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+          <Card className="min-w-0 overflow-hidden p-0">
+            <div className="flex items-center gap-3 border-b border-ds-border bg-ds-surface-2 p-6">
+              <div className="rounded-ds-md bg-ds-brand-soft p-2 text-ds-brand">
                 <Store className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="font-bold text-slate-800 text-sm">Informations Générales</h2>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Coordonnées de l'activité imprimées sur les reçus</p>
+                <h2 className="text-sm font-bold text-ds-text">Informations Générales</h2>
+                <p className="text-xs font-bold uppercase tracking-wider text-ds-muted">Coordonnées de l'activité imprimées sur les reçus</p>
               </div>
             </div>
 
             <div className="p-6">
               <form onSubmit={handleStoreSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Nom du Boutique / Magasin</label>
-                    <input 
-                      type="text" 
+                  <Input
+                      label="Nom du Boutique / Magasin"
+                      type="text"
                       required
                       value={storeFormData.storeName}
                       onChange={(e) => setStoreFormData({ ...storeFormData, storeName: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold transition-all outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500"
                       placeholder="Ex: Mon Supermarché"
                     />
-                  </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Devise du Magasin</label>
-                    <input 
-                      type="text" 
+                  <Input
+                      label="Devise du Magasin"
+                      type="text"
                       required
                       value={storeFormData.currency}
                       onChange={(e) => setStoreFormData({ ...storeFormData, currency: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold transition-all outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500"
                       placeholder="Ex: DT"
                     />
-                  </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Adresse</label>
-                    <input 
-                      type="text" 
+                  <Input
+                      label="Adresse"
+                      type="text"
                       value={storeFormData.address}
                       onChange={(e) => setStoreFormData({ ...storeFormData, address: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold transition-all outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500"
                       placeholder="Ex: Avenue Habib Bourguiba, Tunis"
                     />
-                  </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Téléphone du Magasin</label>
-                    <input 
-                      type="text" 
+                  <Input
+                      label="Téléphone du Magasin"
+                      type="text"
                       value={storeFormData.phone}
                       onChange={(e) => setStoreFormData({ ...storeFormData, phone: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold transition-all outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500"
                       placeholder="Ex: 71 000 000 ou 22 123 456"
                     />
-                  </div>
                   {userProfile?.role === 'admin' && (
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Indicatif téléphonique par défaut</label>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-slate-500">+</span>
-                        <input
+                        <span className="text-sm font-bold text-ds-muted">+</span>
+                        <Input
+                          label="Indicatif téléphonique par défaut"
                           type="text"
                           inputMode="numeric"
                           required
                           value={storeFormData.whatsappCountryCode}
                           onChange={(e) => setStoreFormData({ ...storeFormData, whatsappCountryCode: e.target.value.replace(/\D/g, '').slice(0, 4) })}
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold transition-all outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500"
                           placeholder="216"
                         />
                       </div>
-                      <p className="text-[10px] text-slate-500">Par défaut : Tunisie (+216). Un numéro déjà international est conservé.</p>
+                      <p className="text-sm text-ds-muted">Par défaut : Tunisie (+216). Un numéro déjà international est conservé.</p>
                     </div>
                   )}
                 </div>
 
                 {userProfile?.role === 'admin' && (
-                  <section className="space-y-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                  <section className="space-y-3 rounded-ds-lg border border-ds-border bg-ds-surface-2 p-4">
                     <div>
-                      <h3 className="text-xs font-black uppercase tracking-wider text-slate-700">Modèles WhatsApp / SMS</h3>
-                      <p className="mt-1 text-[10px] text-slate-500">Variables disponibles : {'{client}'}, {'{appareil}'}, {'{numero}'}, {'{montant_restant}'}, {'{nom_magasin}'}.</p>
+                      <h3 className="text-sm font-black uppercase tracking-wider text-ds-text">Modèles WhatsApp / SMS</h3>
+                      <p className="mt-1 text-sm text-ds-muted">Variables disponibles : {'{client}'}, {'{appareil}'}, {'{numero}'}, {'{montant_restant}'}, {'{nom_magasin}'}.</p>
                     </div>
                     {MESSAGE_TEMPLATE_OPTIONS.map(({ key, label }) => (
-                      <label key={key} className="block space-y-1 text-[10px] font-black uppercase tracking-wider text-slate-500">
+                      <label key={key} className="block space-y-1 text-sm font-bold text-ds-text">
                         {label}
                         <textarea
                           value={storeFormData.messageTemplates[key]}
@@ -1110,81 +1069,74 @@ export default function Settings({
                           })}
                           rows={3}
                           maxLength={1000}
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-slate-700"
+                          className="w-full min-w-0 rounded-ds-md border border-ds-border bg-ds-surface px-3 py-2 text-base font-medium text-ds-text"
                         />
                       </label>
                     ))}
                   </section>
                 )}
 
-                <div className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100 my-2">
+                <label className="flex min-h-ds-touch-target items-center justify-between gap-3 rounded-ds-lg border border-ds-border bg-ds-surface-2 p-4 my-2">
                   <div>
-                    <label className="text-xs font-bold text-slate-800 block">Facturation de la TVA</label>
-                    <span className="text-[10px] text-slate-400 font-medium block leading-tight mt-0.5">Calculer et appliquer la taxe sur la valeur ajoutée sur les ventes</span>
+                    <span className="block text-sm font-bold text-ds-text">Facturation de la TVA</span>
+                    <span className="mt-0.5 block text-sm font-medium leading-tight text-ds-muted">Calculer et appliquer la taxe sur la valeur ajoutée sur les ventes</span>
                   </div>
                   <input 
                     type="checkbox"
                     checked={storeFormData.tvaEnabled}
                     onChange={(e) => setStoreFormData({ ...storeFormData, tvaEnabled: e.target.checked })}
-                    className="w-5 h-5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+                    className="h-5 w-5 shrink-0 rounded border-ds-border accent-ds-brand"
                   />
-                </div>
+                </label>
 
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Taux de TVA (%)</label>
-                  <input 
+                <Input
+                    label="Taux de TVA (%)"
                     type="number" 
                     disabled={!storeFormData.tvaEnabled}
                     value={storeFormData.tva}
                     onChange={(e) => setStoreFormData({ ...storeFormData, tva: Number(e.target.value) })}
-                    className={cn(
-                      "w-full px-4 py-2.5 border rounded-xl text-xs font-semibold transition-all outline-none",
-                      storeFormData.tvaEnabled
-                        ? "bg-white border-indigo-200 focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500" 
-                        : "bg-slate-50 border-slate-100 text-slate-400 cursor-not-allowed opacity-60"
-                    )}
                   />
-                </div>
 
                 {/* Seuil d'alerte de stock minimum par défaut */}
-                <div className="space-y-2 p-4 bg-amber-50/50 rounded-2xl border border-amber-200/60 my-2">
+                <div className="space-y-2 rounded-ds-lg border border-ds-warning/20 bg-ds-warning-soft p-4 my-2">
                   <div className="flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-ds-warning" />
                     <div>
-                      <label className="text-xs font-bold text-slate-800 block">
+                      <label className="block text-sm font-bold text-ds-text">
                         Seuil d'Alerte de Stock Minimum Global
                       </label>
-                      <span className="text-[10px] text-slate-500 font-medium block leading-tight mt-0.5">
+                      <span className="mt-0.5 block text-sm font-medium leading-tight text-ds-muted">
                         Déclenche une notification et une bannière visuelle dans le tableau de bord lorsqu'un produit atteint ou passe sous ce seuil.
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 pt-1">
-                    <input 
-                      type="number" 
+                  <div className="flex min-w-0 items-center gap-3 pt-1">
+                    <Input
+                      aria-label="Seuil d'alerte de stock minimum"
+                      type="number"
                       min="0"
                       max="1000"
                       value={storeFormData.minStockAlert}
                       onChange={(e) => setStoreFormData({ ...storeFormData, minStockAlert: Math.max(0, parseInt(e.target.value) || 0) })}
-                      className="w-28 px-3.5 py-2 bg-white border border-amber-300 rounded-xl text-xs font-black text-slate-800 transition-all outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono"
+                      className="max-w-28 font-mono font-black"
                       placeholder="Ex: 5"
                     />
-                    <span className="text-xs font-bold text-slate-600">unités en stock</span>
+                    <span className="text-sm font-bold text-ds-muted">unités en stock</span>
                   </div>
                 </div>
 
                 <div className="pt-2">
-                  <button
+                  <Button
                     type="submit"
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md shadow-indigo-600/10 active:scale-[0.99]"
+                    className="w-full"
                   >
                     <Save className="w-4 h-4" />
                     Enregistrer les modifications
-                  </button>
+                  </Button>
                 </div>
               </form>
             </div>
-          </div>
+          </Card>
 
           </section>
           )}
@@ -1198,175 +1150,179 @@ export default function Settings({
             tabIndex={0}
             className={cn('min-w-0', activeTab !== 'donnees' && 'hidden')}
           >
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-xs overflow-hidden premium-shadow space-y-6 p-6">
-            <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-              <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+          <Card className="min-w-0 space-y-6">
+            <div className="flex items-center gap-3 border-b border-ds-border pb-4">
+              <div className="rounded-ds-md bg-ds-info/10 p-2 text-ds-info">
                 <Database className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="font-bold text-slate-800 text-sm">Base de données & Maintenance</h2>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Outils d'archivage et d'allègement du magasin</p>
+                <h2 className="text-sm font-bold text-ds-text">Base de données & Maintenance</h2>
+                <p className="text-xs font-bold uppercase tracking-wider text-ds-muted">Outils d'archivage et d'allègement du magasin</p>
               </div>
             </div>
 
             {/* Rubrique 1: Sauvegarde Excel */}
             <div className="space-y-3">
               <div className="space-y-1">
-                <h3 className="text-xs font-black uppercase tracking-wider text-slate-700">1. Sauvegarde Complète (Excel)</h3>
-                <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
+                <h3 className="text-sm font-black uppercase tracking-wider text-ds-text">1. Sauvegarde Complète (Excel)</h3>
+                <p className="text-sm font-medium leading-relaxed text-ds-muted">
                   Générez un fichier Excel multi-feuille contenant l'intégralité de la base de données (produits en stock, liste complète des clients, historique des ventes et factures).
                 </p>
               </div>
-              <button
+              <Button
                 type="button"
                 onClick={handleExportExcel}
                 disabled={isExporting}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md shadow-emerald-500/10 active:scale-[0.99]"
+                variant="secondary"
+                className="w-full"
               >
-                <Download className="w-4 h-4 animate-bounce" />
+                <Download className="h-4 w-4" />
                 {isExporting ? 'Exportation en cours...' : 'Exporter toute la base de données (.xlsx)'}
-              </button>
+              </Button>
             </div>
 
-            <hr className="border-slate-100" />
+            <hr className="border-ds-border" />
 
             {/* Rubrique 2: Nettoyage et Allègement de l'historique */}
             <div className="space-y-4">
               <div className="space-y-1">
-                <h3 className="text-xs font-black uppercase tracking-wider text-slate-700">2. Nettoyage de l'historique</h3>
-                <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
+                <h3 className="text-sm font-black uppercase tracking-wider text-ds-text">2. Nettoyage de l'historique</h3>
+                <p className="text-sm font-medium leading-relaxed text-ds-muted">
                   Allégez la base de données en supprimant définitivement les rapports de transactions (ventes et factures) antérieurs à une date limite de votre choix.
                 </p>
               </div>
 
               {/* Date limite */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Transactions antérieures ou égales au :</label>
+                <label className="block text-sm font-bold text-ds-text">Transactions antérieures ou égales au :</label>
                 <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                  <input
+                  <Calendar className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ds-muted" />
+                  <Input
                     type="date"
                     value={purgeDate}
                     onChange={(e) => setPurgeDate(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-rose-500/10 focus:border-rose-450 transition-shadow"
+                    className="pl-10"
                   />
                 </div>
               </div>
 
               {/* Toggles */}
               <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
-                <label className="flex items-center gap-2 p-3 bg-slate-50/50 rounded-xl border border-slate-100 cursor-pointer hover:bg-slate-50">
+                <label className="flex min-h-ds-touch-target items-center gap-2 rounded-ds-md border border-ds-border bg-ds-surface-2 p-3">
                   <input 
                     type="checkbox" 
                     checked={purgeSales}
                     onChange={(e) => setPurgeSales(e.target.checked)}
-                    className="w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500"
+                    className="h-5 w-5 rounded border-ds-border accent-ds-danger"
                   />
-                  <span className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Purger les Ventes</span>
+                  <span className="text-sm font-bold text-ds-text">Purger les Ventes</span>
                 </label>
-                <label className="flex items-center gap-2 p-3 bg-slate-50/50 rounded-xl border border-slate-100 cursor-pointer hover:bg-slate-50">
+                <label className="flex min-h-ds-touch-target items-center gap-2 rounded-ds-md border border-ds-border bg-ds-surface-2 p-3">
                   <input 
                     type="checkbox" 
                     checked={purgeInvoices}
                     onChange={(e) => setPurgeInvoices(e.target.checked)}
-                    className="w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500"
+                    className="h-5 w-5 rounded border-ds-border accent-ds-danger"
                   />
-                  <span className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Purger les Factures</span>
+                  <span className="text-sm font-bold text-ds-text">Purger les Factures</span>
                 </label>
               </div>
 
               {/* Warning Area */}
               {purgeDate && (
-                <div className="p-3.5 bg-rose-50 border border-rose-100 rounded-2xl flex items-start gap-2.5 text-rose-800 text-[11px] leading-relaxed animate-in fade-in duration-300">
-                  <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5 animate-pulse" />
+                <div className="flex items-start gap-2.5 rounded-ds-md border border-ds-danger/20 bg-ds-danger-soft p-3.5 text-sm leading-relaxed text-ds-danger animate-in fade-in duration-300">
+                  <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
                   <div>
-                    <span className="font-extrabold block uppercase tracking-wide text-[10px] text-rose-700">Alerte : Suppression définitive !</span>
+                    <span className="block text-xs font-extrabold uppercase tracking-wide">Alerte : Suppression définitive !</span>
                     Toutes les transactions correspondantes datées d'avant le <span className="font-bold underline">{new Date(purgeDate).toLocaleDateString('fr-FR')}</span> incluse seront définitivement supprimées afin d'alléger la base de données de caisse.
                   </div>
                 </div>
               )}
 
               {/* Action Button */}
-              <button
+              <Button
                 type="button"
                 onClick={handlePurgeDatabase}
                 disabled={isPurging || !purgeDate || (!purgeSales && !purgeInvoices)}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md shadow-rose-600/10 active:scale-[0.99]"
+                variant="danger"
+                className="w-full"
               >
                 <Trash2 className="w-4 h-4 font-bold" />
                 {isPurging ? 'Purge et allègement en cours...' : 'Purger et alléger de la base'}
-              </button>
+              </Button>
             </div>
 
-            <hr className="border-slate-100" />
+            <hr className="border-ds-border" />
 
             {/* Rubrique 3: Journal d'activité */}
             <div className="space-y-4">
               <div className="space-y-1">
-                <h3 className="text-xs font-black uppercase tracking-wider text-slate-700">3. Journal d'activité</h3>
-                <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
+                <h3 className="text-sm font-black uppercase tracking-wider text-ds-text">3. Journal d'activité</h3>
+                <p className="text-sm font-medium leading-relaxed text-ds-muted">
                   Téléchargez un fichier détaillé de l'historique d'activité (ventes, factures, créations/modifications/suppressions de produits) sur une période donnée. La période sélectionnée ne peut pas dépasser 1 mois.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Date de début</label>
+                  <label className="block text-sm font-bold text-ds-text">Date de début</label>
                   <div className="relative">
-                    <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                    <input
+                    <Calendar className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ds-muted" />
+                    <Input
                       type="date"
                       value={activityStartDate}
                       max={todayStr}
                       onChange={(e) => { setActivityStartDate(e.target.value); setActivityError(''); }}
-                      className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-450 transition-shadow"
+                      className="pl-10"
                     />
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Date de fin</label>
+                  <label className="block text-sm font-bold text-ds-text">Date de fin</label>
                   <div className="relative">
-                    <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                    <input
+                    <Calendar className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ds-muted" />
+                    <Input
                       type="date"
                       value={activityEndDate}
                       max={todayStr}
                       onChange={(e) => { setActivityEndDate(e.target.value); setActivityError(''); }}
-                      className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-450 transition-shadow"
+                      className="pl-10"
                     />
                   </div>
                 </div>
               </div>
 
               {activityError && (
-                <div className="p-3.5 bg-rose-50 border border-rose-100 rounded-2xl flex items-start gap-2.5 text-rose-800 text-[11px] leading-relaxed animate-in fade-in duration-300">
-                  <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                <div role="alert" className="flex items-start gap-2.5 rounded-ds-md border border-ds-danger/20 bg-ds-danger-soft p-3.5 text-sm leading-relaxed text-ds-danger animate-in fade-in duration-300">
+                  <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
                   <span className="font-semibold">{activityError}</span>
                 </div>
               )}
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <button
+                <Button
                   type="button"
                   onClick={handleViewActivityLog}
                   disabled={isLoadingActivityView || !activityStartDate || !activityEndDate}
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-slate-800 hover:bg-slate-900 disabled:opacity-40 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md shadow-slate-800/10 active:scale-[0.99]"
+                  variant="secondary"
+                  className="w-full"
                 >
                   <Eye className="w-4 h-4" />
                   {isLoadingActivityView ? 'Chargement...' : 'Afficher dans l\'app'}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={handleDownloadActivityLog}
                   disabled={isGeneratingActivity || !activityStartDate || !activityEndDate}
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md shadow-indigo-600/10 active:scale-[0.99]"
+                  variant="secondary"
+                  className="w-full"
                 >
                   <FileText className="w-4 h-4" />
                   {isGeneratingActivity ? 'Génération...' : 'Télécharger (.xlsx)'}
-                </button>
+                </Button>
               </div>
             </div>
-          </div>
+          </Card>
           </section>
           )}
 
@@ -1381,28 +1337,27 @@ export default function Settings({
           tabIndex={0}
           className={cn('min-w-0', activeTab !== 'coran-adhkar' && 'hidden')}
         >
-        <section id="startup-settings" className="space-y-4 rounded-3xl border border-indigo-100 bg-white p-6 shadow-xs">
+        <Card id="startup-settings" className="min-w-0 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-indigo-50 p-2 text-indigo-600"><Music2 className="h-5 w-5" /></div>
+            <div className="rounded-ds-md bg-ds-brand-soft p-2 text-ds-brand"><Music2 className="h-5 w-5" /></div>
             <div>
-              <h2 className="text-sm font-bold text-slate-800">Coran &amp; Adhkar</h2>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Écran d’accueil et récitation audio</p>
+              <h2 className="text-sm font-bold text-ds-text">Coran &amp; Adhkar</h2>
+              <p className="text-xs font-bold uppercase tracking-wider text-ds-muted">Écran d’accueil et récitation audio</p>
             </div>
-            <label className="ml-auto flex items-center gap-2 text-xs font-bold text-slate-700">
+            <label className="ml-auto flex min-h-ds-touch-target items-center gap-2 text-sm font-bold text-ds-text">
               <input
                 type="checkbox"
                 checked={startupEnabled}
                 onChange={(event) => setStartupEnabled(event.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-indigo-600"
+                className="h-5 w-5 rounded border-ds-border accent-ds-brand"
               />
               Activer
             </label>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="space-y-1 text-xs font-bold text-slate-600">
-              Choisir une āya ou un adhkar
-              <select
+            <Select
+                label="Choisir une āya ou un adhkar"
                 value={selectedWelcomeChoice}
                 onChange={(event) => {
                   const choice = welcomeChoices.find((item) => item.id === event.target.value);
@@ -1411,26 +1366,21 @@ export default function Settings({
                   setWelcomeText(choice.text);
                   setWelcomeSource(choice.source);
                 }}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 font-medium"
               >
                 <option value="custom">Texte personnalisé</option>
                 {welcomeChoices.map((choice) => (
                   <option key={choice.id} value={choice.id}>{choice.title}</option>
                 ))}
-              </select>
-            </label>
-            <label className="space-y-1 text-xs font-bold text-slate-600">
-              Titre
-              <input
+              </Select>
+            <Input
+                label="Titre"
                 value={welcomeTitle}
                 onChange={(event) => setWelcomeTitle(event.target.value)}
                 maxLength={200}
-                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 font-medium"
               />
-            </label>
           </div>
 
-          <label className="block space-y-1 text-xs font-bold text-slate-600">
+          <label className="block space-y-1 text-sm font-medium text-ds-text">
             Texte affiché
             <textarea
               value={welcomeText}
@@ -1439,33 +1389,31 @@ export default function Settings({
               dir="rtl"
               lang="ar"
               rows={3}
-              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-right font-arabic text-lg font-medium"
+              className="w-full min-w-0 rounded-ds-md border border-ds-border bg-ds-surface px-3 py-2.5 text-right text-base font-arabic font-medium text-ds-text"
             />
           </label>
-          <label className="block space-y-1 text-xs font-bold text-slate-600">
+          <label className="block space-y-1 text-sm font-medium text-ds-text">
             Source (facultative)
-            <input
+            <Input
               value={welcomeSource}
               onChange={(event) => setWelcomeSource(event.target.value)}
               maxLength={500}
-              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 font-medium"
             />
           </label>
 
-          <label className="block space-y-1 text-xs font-bold text-slate-600">
+          <label className="block space-y-1 text-sm font-medium text-ds-text">
             رابط URL للمقطع الصوتي (HTTPS direct : .mp3, .m4a, .ogg ou .wav)
-            <input
+            <Input
               type="url"
               value={startupAudioUrl}
               onChange={(event) => setStartupAudioUrl(event.target.value)}
               placeholder="https://…/recitation.mp3"
-              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 font-medium"
             />
           </label>
           <div className="space-y-2">
-            <button type="button" onClick={testStartupAudio} className="inline-flex min-h-10 items-center rounded-xl border border-indigo-200 px-4 py-2 text-xs font-bold text-indigo-700">
+            <Button type="button" variant="secondary" onClick={testStartupAudio}>
               Tester la lecture
-            </button>
+            </Button>
             <audio
               ref={startupAudioPreview}
               controls
@@ -1474,77 +1422,77 @@ export default function Settings({
               onError={() => setStartupAudioTestMessage('Fichier illisible ou inaccessible. Vérifiez le lien direct et les autorisations CORS de l’hébergeur.')}
               className="w-full"
             />
-            {startupAudioTestMessage && <p role="status" className="text-xs font-semibold text-slate-600">{startupAudioTestMessage}</p>}
+            {startupAudioTestMessage && <Badge variant="danger" role="status" className="min-h-0 rounded-ds-md">{startupAudioTestMessage}</Badge>}
           </div>
-          <aside className="rounded-xl border border-sky-200 bg-sky-50 p-3 text-[11px] text-sky-950">
+          <aside className="rounded-ds-md border border-ds-info/20 bg-ds-accent-soft p-3 text-sm text-ds-text">
             Hébergez gratuitement votre fichier audio avec le palier gratuit de Cloudflare R2 ou sur Internet Archive. Après l’envoi, copiez le lien public direct du fichier (et non la page de partage) ; l’hébergeur doit autoriser la lecture depuis le navigateur (CORS). Aucun fichier n’est téléversé dans Firebase.
           </aside>
-          <p className="text-[11px] text-slate-500">L’audio ne démarre qu’après le bouton « دخول » de l’écran d’accueil.</p>
-          {startupMessage && <p role="status" className="text-xs font-semibold text-indigo-700">{startupMessage}</p>}
-          <button
+          <p className="text-sm text-ds-muted">L’audio ne démarre qu’après le bouton « دخول » de l’écran d’accueil.</p>
+          {startupMessage && <Badge variant="info" role="status" className="min-h-0 rounded-ds-md">{startupMessage}</Badge>}
+          <Button
             type="button"
             onClick={() => void saveStartupSettings()}
             disabled={startupSaving}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50"
           >
             <Save className="h-4 w-4" />
             {startupSaving ? 'Enregistrement…' : 'Enregistrer Coran & Adhkar'}
-          </button>
-        </section>
+          </Button>
+        </Card>
         </section>
       )}
 
       {/* Modal Journal d'activité (affichage en ligne, style fichier log) */}
       {showActivityLogModal && (
-        <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-ds-text/50 p-4 animate-in fade-in duration-200">
+          <Card className="flex max-h-[85vh] w-full min-w-0 max-w-3xl flex-col overflow-hidden p-0">
+            <div className="flex items-center justify-between border-b border-ds-border px-5 py-4">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 bg-slate-800 text-white rounded-xl">
+                <div className="rounded-ds-md bg-ds-brand p-2 text-ds-brand-contrast">
                   <FileText className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-800 text-sm">Journal d'activité</h3>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                  <h3 className="text-sm font-bold text-ds-text">Journal d'activité</h3>
+                  <p className="text-xs font-bold uppercase tracking-wider text-ds-muted">
                     Du {activityStartDate} au {activityEndDate} — {activityLogLines.length} entrée{activityLogLines.length > 1 ? 's' : ''}
                   </p>
                 </div>
               </div>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => setShowActivityLogModal(false)}
-                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+                aria-label="Fermer le journal d'activité"
               >
                 <X className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
 
-            <div className="flex-1 overflow-y-auto bg-slate-950 p-4">
-              <pre className="text-[11px] leading-relaxed text-emerald-400 font-mono whitespace-pre-wrap break-words">
+            <div className="min-w-0 flex-1 overflow-y-auto bg-ds-surface-2 p-4">
+              <pre className="whitespace-pre-wrap break-words font-mono text-sm leading-relaxed text-ds-text">
                 {activityLogLines.join('\n')}
               </pre>
             </div>
 
-            <div className="px-5 py-3.5 border-t border-slate-100 flex justify-end">
-              <button
+            <div className="flex justify-end border-t border-ds-border px-5 py-3.5">
+              <Button
                 type="button"
+                variant="secondary"
                 onClick={() => setShowActivityLogModal(false)}
-                className="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-colors uppercase tracking-wider"
               >
                 Fermer
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Success Toast */}
       {success && (
         <div className="fixed bottom-8 right-8 z-[100] animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 border border-slate-850">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-            <span className="text-xs font-extrabold">{success}</span>
-          </div>
+          <Badge variant="success" role="status" className="rounded-ds-md bg-ds-success p-4 text-ds-brand-contrast shadow-ds-md">
+            <CheckCircle2 className="mr-2 h-5 w-5 shrink-0" />
+            {success}
+          </Badge>
         </div>
       )}
     </div>

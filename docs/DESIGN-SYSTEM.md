@@ -1,6 +1,6 @@
 # Design system
 
-This design system is adopted incrementally. The shared tokens and components are used by the application shell (sidebar, header, and login screen), Dashboard, POS, Products, Sales, Invoices, Clients, Repairs, Expenses, and Reports. CashSession, Parts, Notes, Settings, and Users remain unmigrated; supplier management is part of Invoices. `Statistics.tsx` is not connected to an application route.
+This design system is adopted incrementally. The shared tokens and components are used by the application shell (sidebar, header, and login screen), Dashboard, POS, Products, Sales, Invoices, Clients, Repairs, Expenses, Reports, Settings, and Users. CashSession, Parts, and Notes remain unmigrated; supplier management is part of Invoices. `Statistics.tsx` is not connected to an application route.
 
 ## Tokens
 
@@ -246,3 +246,16 @@ The migrated sections use `PageHeader`, `Card`, `Badge`, `Button`, `Input`, `Sel
 Expenses had 55 named Tailwind palette-color utility matches before and 0 after; Reports had 36 before and 0 after. Both files had 0 hex colors before and after. No printed, PDF, or canvas output exists in either page. Reports currently renders summary cards and text breakdowns rather than charts, and neither page currently provides export actions; this migration did not add those behaviors.
 
 Firestore subscriptions and transaction writes, summary calculations, filters, role checks, cash-session requirements, and existing navigation were preserved. Lint and production build pass; desktop/mobile rendering and the expense dialog interaction still require visual verification.
+
+## Migration 5D: Settings and Users
+
+Migrated files:
+
+- `src/components/Settings.tsx`: page heading, settings tab strip, store/account/security, maintenance, Coran & Adhkar, PWA, and activity-log surfaces and forms.
+- `src/components/Users.tsx`: page heading, user table, role/status/allowed-menu badges, password and delete dialogs, create/edit forms, and permission controls.
+
+Settings sections remain mounted and inactive panels are hidden. The existing permission gates, `activeTab` state, tab hash synchronization, and sticky horizontally scrollable tablist remain intact. Containers and dialogs use `min-w-0`/`max-w-*` constraints; the Users table is contained in an `overflow-x-auto` wrapper. Text-entry controls use shared 16px `Input`/`Select` styles, and checkbox labels and buttons use touch-sized targets. User roles use badges, active/inactive status uses success/danger badges, and account deletion uses the danger button variant.
+
+Settings had 246 named Tailwind palette-color utility matches and 1 hex color before migration; Users had 296 and 0. Both files now have 0 palette-color matches and 0 hex colors. Modal overlays use the `ds-text` token. No generated print, PDF, iframe, or canvas content was changed.
+
+Authentication flows, Firestore queries and writes, user role/permission data, store settings fields, data export/purge behavior, and existing confirmations were not changed. The 5D changes pass lint/build; desktop/mobile rendering and all role-specific Settings/Users flows still require visual verification.
