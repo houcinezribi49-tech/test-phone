@@ -223,3 +223,13 @@ Printing remains outside the migrated token styles: the existing `PrintableTicke
 Firestore subscriptions, query conditions, calculations, permissions, invoice/client workflows, and print/PDF handlers were preserved. Desktop/mobile rendering and the complete print flow still require visual verification.
 
 The existing Clients page has no client purchase-history/detail view in its baseline, so this visual migration did not add one or introduce a new history query.
+
+## Migration 5B: Repairs
+
+Migrated `src/components/Repairs.tsx`: page header and summaries, collapsible mobile filters, repair cards, status choices, detail sheet, forms, and confirmation/dialog surfaces now use Design System components and tokens. Existing repair cards are retained as the mobile list presentation, with contained widths and shared 16px form controls.
+
+Repair status colors use one mapping throughout the list, form choices, and detail actions: received uses brand violet; diagnostics and in-progress use informational blue; waiting for parts uses warning orange; finished and delivered use success green; irreparable and cancelled use danger red. Outstanding balances use warning tokens, while errors, out-of-stock states, and destructive actions use danger tokens.
+
+`src/components/RepairTicket.tsx` and `src/index.css` print rules were not changed. The ticket intentionally keeps fixed black text/borders and a white background so printing remains high contrast and independent of application tokens. `Repairs.tsx` had 323 hex-color occurrences before and 0 after; it had no named Tailwind palette-shade utilities before or after.
+
+Repair creation/editing, stock and financial calculations, subscriptions/queries, role restrictions, status transitions, delivery/cash flows, and print handlers were not changed. The application lint/build pass; desktop/mobile interaction and physical print output still require visual verification.
