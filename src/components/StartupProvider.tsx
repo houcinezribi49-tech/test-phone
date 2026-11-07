@@ -9,12 +9,19 @@ import {
   type ReactNode,
 } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { Pause, Play, Volume2, VolumeX, X } from 'lucide-react';
+import { Pause, Play, Volume2, VolumeX } from 'lucide-react';
 import { db } from '../firebase';
-import type { StartupConfig, StartupItem, StartupSection, UserProfile } from '../types';
+import type { StartupConfig, StartupItem, UserProfile } from '../types';
 import { can } from '../lib/permissions';
 import { isDirectAudioUrl } from '../lib/startup';
 import { verses } from '../data/verses';
+import { StartupDailyOverlay } from './StartupDailyOverlay';
+import {
+  DEFAULT_STARTUP_PREFERENCES,
+  readStartupPreferences,
+  writeStartupPreferences,
+  type StartupPreferences,
+} from './StartupPreferences';
 
 const firstVerse = verses[0];
 const DEFAULT_CONFIG: StartupConfig = {
@@ -53,12 +60,14 @@ function normalizeConfig(data: Partial<StartupConfig>): StartupConfig {
   };
 }
 
-interface StartupContextValue {
+export interface StartupContextValue {
   config: StartupConfig;
   items: StartupItem[];
   loading: boolean;
   error: string | null;
   canManage: boolean;
+  personalPreferences: StartupPreferences;
+  updatePersonalPreferences: (updates: Partial<StartupPreferences>) => void;
   audioAllowed: boolean;
   openNow: () => void;
   audioPlaying: boolean;
@@ -72,37 +81,6 @@ interface StartupContextValue {
 
 const StartupContext = createContext<StartupContextValue | null>(null);
 
-function getLocalMinutes(value: string): number {
-  const [hour, minute] = value.split(':').map(Number);
-  return hour * 60 + minute;
-}
-
-function scheduleIncludes(schedule: StartupConfig['schedule'][StartupSection], now: Date): boolean {
-  if (schedule.allDay) return true;
-  const minutes = now.getHours() * 60 + now.getMinutes();
-  const start = getLocalMinutes(schedule.start);
-  const end = getLocalMinutes(schedule.end);
-  return start <= end ? minutes >= start && minutes <= end : minutes >= start || minutes <= end;
-}
-
-function shouldOpen(config: StartupConfig, ownerId: string): boolean {
-  if (!config.enabled) return false;
-  const now = new Date();
-  const activePeriods = (['matin', 'soir', 'rizq', 'coran'] as StartupSection[])
-    .filter((section) => scheduleIncludes(config.schedule[section], now));
-  if (!activePeriods.length) return false;
-  if (config.frequency === 'each_open') return true;
-  const period = activePeriods.includes('soir') && !activePeriods.includes('matin') ? 'soir' : 'jour';
-  const key = `phone-clinic-startup:${ownerId}:${now.toLocaleDateString('sv-SE')}:${period}`;
-  try {
-    if (localStorage.getItem(key)) return false;
-    localStorage.setItem(key, '1');
-  } catch {
-    return true;
-  }
-  return true;
-}
-
 export function StartupProvider({
   userProfile,
   online,
@@ -113,7 +91,7 @@ export function StartupProvider({
   children: ReactNode;
 }) {
   const ownerId = userProfile?.ownerId || userProfile?.uid || '';
-  const showScreen = can(userProfile, 'startup', 'showScreen');
+  const userId = userProfile?.uid || '';
   const audioAllowed = can(userProfile, 'startup', 'playAudio');
   const canManage = userProfile?.role === 'admin' && ownerId === userProfile.uid;
   const [config, setConfig] = useState<StartupConfig>(DEFAULT_CONFIG);
@@ -121,6 +99,8 @@ export function StartupProvider({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [overlayOpen, setOverlayOpen] = useState(false);
+  const [personalPreferences, setPersonalPreferences] = useState<StartupPreferences>(DEFAULT_STARTUP_PREFERENCES);
+  const [preferencesForUser, setPreferencesForUser] = useState('');
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [audioBlocked, setAudioBlocked] = useState(false);
   const [audioMessage, setAudioMessage] = useState<string | null>(null);
@@ -135,12 +115,30 @@ export function StartupProvider({
   const openedRef = useRef(false);
 
   useEffect(() => {
+    setPreferencesForUser('');
+    if (!userId) {
+      setPersonalPreferences(DEFAULT_STARTUP_PREFERENCES);
+      return;
+    }
+    setPersonalPreferences(readStartupPreferences(userId));
+    setPreferencesForUser(userId);
+  }, [userId]);
+
+  const updatePersonalPreferences = useCallback((updates: Partial<StartupPreferences>) => {
+    setPersonalPreferences((previous) => {
+      const next = { ...previous, ...updates };
+      writeStartupPreferences(userId, next);
+      return next;
+    });
+  }, [userId]);
+
+  useEffect(() => {
     setLoading(true);
     setError(null);
     setConfig(DEFAULT_CONFIG);
     setItems([]);
     openedRef.current = false;
-    if (!ownerId || !online || (!showScreen && !audioAllowed && !canManage)) {
+    if (!ownerId || !online) {
       setLoading(false);
       return;
     }
@@ -159,18 +157,22 @@ export function StartupProvider({
     );
 
     return () => unsubscribeConfig();
-  }, [ownerId, online, showScreen, audioAllowed, canManage]);
+  }, [ownerId, online]);
 
   const openNow = useCallback(() => {
-    if (!showScreen || !online || loading || error || !shouldOpen(config, ownerId)) return;
+    if (!personalPreferences.enabled || !config.enabled || !online || loading || error) return;
     setOverlayOpen(true);
-  }, [showScreen, online, loading, error, config, ownerId]);
+  }, [personalPreferences.enabled, config.enabled, online, loading, error]);
 
   useEffect(() => {
-    if (loading || !ownerId || !showScreen || !online || openedRef.current) return;
+    if (loading || !ownerId || !online || preferencesForUser !== userId || openedRef.current) return;
     openedRef.current = true;
     openNow();
-  }, [loading, ownerId, showScreen, online, openNow]);
+  }, [loading, ownerId, userId, preferencesForUser, online, openNow]);
+
+  useEffect(() => {
+    if (!personalPreferences.enabled || !config.enabled) setOverlayOpen(false);
+  }, [personalPreferences.enabled, config.enabled]);
 
   const selectedAudioUrl = useMemo(
     () => audioAllowed && isDirectAudioUrl(config.audioUrl || '') ? config.audioUrl || '' : '',
@@ -277,18 +279,14 @@ export function StartupProvider({
   };
 
   const closeOverlay = () => setOverlayOpen(false);
-  const enterApp = () => {
-    if (audioAllowed && selectedAudioUrl) void playAudio();
-    else if (audioAllowed) setAudioMessage('أضف مقطعًا صوتيًا من الإعدادات');
-    setOverlayOpen(false);
-  };
-
   const value: StartupContextValue = {
     config,
     items,
     loading,
     error,
     canManage,
+    personalPreferences,
+    updatePersonalPreferences,
     audioAllowed,
     openNow,
     audioPlaying,
@@ -305,13 +303,10 @@ export function StartupProvider({
       {children}
       <StartupMiniPlayer />
       {overlayOpen && (
-        <StartupOverlay
-          config={config}
-          audioAllowed={audioAllowed}
-          hasAudio={Boolean(selectedAudioUrl)}
-          audioMessage={audioMessage}
+        <StartupDailyOverlay
+          preferences={personalPreferences}
+          onPreferencesChange={updatePersonalPreferences}
           onClose={closeOverlay}
-          onEnter={enterApp}
         />
       )}
     </StartupContext.Provider>
@@ -322,78 +317,6 @@ export function useStartup(): StartupContextValue {
   const value = useContext(StartupContext);
   if (!value) throw new Error('useStartup must be used inside StartupProvider');
   return value;
-}
-
-function StartupOverlay({
-  config,
-  audioAllowed,
-  hasAudio,
-  audioMessage,
-  onClose,
-  onEnter,
-}: {
-  config: StartupConfig;
-  audioAllowed: boolean;
-  hasAudio: boolean;
-  audioMessage: string | null;
-  onClose: () => void;
-  onEnter: () => void;
-}) {
-  useEffect(() => {
-    const handleKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="Coran & Adhkar"
-      tabIndex={-1}
-      className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-ds-bg px-5 text-ds-text"
-    >
-      <div className="pointer-events-none absolute inset-0 opacity-[0.13]" aria-hidden="true">
-        <svg width="100%" height="100%">
-          <defs>
-            <pattern id="startup-geometry" width="72" height="72" patternUnits="userSpaceOnUse">
-              <path d="M36 0 72 36 36 72 0 36z M36 12 60 36 36 60 12 36z M0 0l72 72m0-72L0 72" fill="none" stroke="currentColor" strokeWidth="1" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#startup-geometry)" />
-        </svg>
-      </div>
-      <button onClick={onClose} className="absolute right-5 top-5 z-10 rounded-full border border-ds-border bg-ds-surface-2 p-3 text-ds-text hover:bg-ds-border" aria-label="Fermer">
-        <X className="h-5 w-5" />
-      </button>
-      <main className="relative flex w-full max-w-5xl flex-col items-center text-center">
-        <p className="mb-8 text-xs font-semibold uppercase tracking-[0.35em] text-ds-brand">Coran &amp; Adhkar</p>
-        <article className="animate-in fade-in duration-700">
-          <h1 className="font-arabic mb-6 text-2xl font-semibold text-ds-brand md:text-3xl" dir="rtl" lang="ar">
-            {config.welcomeTitle || firstVerse.title}
-          </h1>
-          <p className="font-arabic text-3xl leading-[1.9] md:text-5xl md:leading-[1.9]" dir="rtl" lang="ar">
-            {config.welcomeText || firstVerse.text}
-          </p>
-          {config.welcomeSource && <p className="mt-6 text-xs text-ds-muted">{config.welcomeSource}</p>}
-        </article>
-        {!audioAllowed ? (
-          <p className="mt-8 text-sm text-ds-muted">الصوت غير مفعّل لهذا الحساب.</p>
-        ) : !hasAudio ? (
-          <p className="mt-8 text-sm text-ds-accent">أضف مقطعًا صوتيًا من الإعدادات</p>
-        ) : audioMessage ? (
-          <p role="status" className="mt-8 text-sm text-ds-accent">{audioMessage}</p>
-        ) : null}
-        <button
-          onClick={onEnter}
-          className="mt-10 rounded-full bg-ds-brand px-10 py-4 text-lg font-black text-ds-brand-contrast shadow-ds-md transition hover:bg-ds-brand-hover"
-        >
-          دخول
-        </button>
-      </main>
-    </div>
-  );
 }
 
 export function StartupMiniPlayer() {

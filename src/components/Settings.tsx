@@ -18,6 +18,7 @@ import { Badge, Button, Card, Input, PageHeader, Select } from './ui';
 import { useTheme, type ThemePreference } from './ThemeProvider';
 import { useBrand } from './BrandProvider';
 import { slugifyAppName } from '../lib/brand';
+import { StartupPreferencesPanel } from './StartupPreferences';
 
 interface SettingsProps {
   userProfile: UserProfile | null;
@@ -299,12 +300,17 @@ function SettingsContent({
   const brand = useBrand();
 
   const ownerId = (userProfile?.role === 'admin' ? userProfile?.uid : userProfile?.ownerId) || userProfile?.uid || auth.currentUser?.uid;
-  const { config: startupConfig, canManage: canManageStartup } = useStartup();
+  const {
+    config: startupConfig,
+    canManage: canManageStartup,
+    personalPreferences,
+    updatePersonalPreferences,
+  } = useStartup();
   const canAccessStoreSettings = hasMenuAccess(userProfile, 'settings');
   const isAdmin = userProfile?.role === 'admin';
   const isTabAvailable = (tab: SettingsTab) => {
     if (tab === 'compte-securite' || tab === 'application') return true;
-    if (tab === 'coran-adhkar') return canAccessStoreSettings && canManageStartup;
+    if (tab === 'coran-adhkar') return true;
     if (tab === 'donnees') return isAdmin;
     return canAccessStoreSettings;
   };
@@ -974,7 +980,7 @@ function SettingsContent({
 
   const settingsTabs: { id: SettingsTab; label: string }[] = [
     ...(canAccessStoreSettings ? [{ id: 'boutique' as const, label: 'Boutique' }] : []),
-    ...(canAccessStoreSettings && canManageStartup ? [{ id: 'coran-adhkar' as const, label: 'Coran & Adhkar' }] : []),
+    { id: 'coran-adhkar', label: 'Coran & Adhkar' },
     { id: 'compte-securite', label: 'Compte & sécurité' },
     ...(isAdmin ? [{ id: 'donnees' as const, label: 'Données' }] : []),
     { id: 'application', label: 'Application' },
@@ -1430,15 +1436,18 @@ function SettingsContent({
         </div>
       )}
 
-      {canAccessStoreSettings && canManageStartup && (
-        <section
+      <section
           id="settings-panel-coran-adhkar"
           role="tabpanel"
           aria-labelledby="settings-tab-coran-adhkar"
           tabIndex={0}
           className={cn('min-w-0', activeTab !== 'coran-adhkar' && 'hidden')}
         >
-        <Card id="startup-settings" className="min-w-0 space-y-4">
+        <StartupPreferencesPanel
+          preferences={personalPreferences}
+          onChange={updatePersonalPreferences}
+        />
+        {canManageStartup && <Card id="startup-settings" className="min-w-0 space-y-4">
           <div className="flex items-center gap-3">
             <div className="rounded-ds-md bg-ds-brand-soft p-2 text-ds-brand"><Music2 className="h-5 w-5" /></div>
             <div>
@@ -1539,8 +1548,8 @@ function SettingsContent({
             {startupSaving ? 'Enregistrement…' : 'Enregistrer Coran & Adhkar'}
           </Button>
         </Card>
-        </section>
-      )}
+        }
+      </section>
 
       {/* Modal Journal d'activité (affichage en ligne, style fichier log) */}
       {showActivityLogModal && (
