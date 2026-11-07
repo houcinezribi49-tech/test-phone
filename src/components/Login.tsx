@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithRedirect, GoogleAuthProvider, signOut, sendPasswordResetEmail } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
-import { Mail, Lock, AlertCircle, Chrome } from 'lucide-react';
+import { AlertCircle, Chrome } from 'lucide-react';
 import { ALLOW_SELF_SIGNUP } from '../config/firebase';
-import { APP_LOGO_URL, APP_NAME, APP_TAGLINE } from '../config/brand';
+import { APP_LOGO_URL, APP_NAME } from '../config/brand';
 import BrandLogo from './BrandLogo';
+import { Button, Card, Input } from './ui';
 
 export default function Login({ initialMessage = '' }: { initialMessage?: string }) {
   const [email, setEmail] = useState('');
@@ -127,84 +128,74 @@ export default function Login({ initialMessage = '' }: { initialMessage?: string
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#F6F7FB] p-4">
-      <div className="app-card max-w-md w-full rounded-3xl p-6 sm:p-8">
+    <div className="flex min-h-screen items-center justify-center bg-ds-bg p-4">
+      <Card className="w-full max-w-md p-6 sm:p-8">
         <div className="text-center mb-8">
           <BrandLogo variant="full" logoUrl={APP_LOGO_URL} className="mb-5 justify-center" />
           <h1 className="sr-only">{APP_NAME}</h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-2 font-medium">
+          <p className="mt-2 text-xs font-medium text-ds-muted sm:text-sm">
             Connectez-vous à votre espace magasin
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3 text-red-700 text-xs sm:text-sm">
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
-            <p>{error}</p>
+          <div role="alert" className="mb-6 flex items-center gap-3 rounded-ds-lg border border-ds-danger/20 bg-ds-danger-soft p-4 text-xs text-ds-danger sm:text-sm">
+            <AlertCircle className="h-5 w-5 shrink-0" />
+            <p className="min-w-0">{error}</p>
           </div>
         )}
 
         {/* Primary Google Login Button */}
         <div className="space-y-3">
-          <button
+          <Button
             onClick={handleGoogleLogin}
-            disabled={loading}
-            className="w-full py-3.5 sm:py-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-extrabold rounded-2xl transition-all flex items-center justify-center gap-3 shadow-lg shadow-indigo-600/25 text-sm sm:text-base cursor-pointer disabled:opacity-50"
+            loading={loading}
+            className="w-full rounded-ds-lg py-3.5 text-sm font-extrabold shadow-ds-sm sm:py-4 sm:text-base"
           >
-            <div className="w-6 h-6 flex items-center justify-center bg-white rounded-full">
-              <Chrome className="w-4 h-4 text-indigo-600" />
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-ds-surface">
+              <Chrome className="h-4 w-4 text-ds-brand" />
             </div>
             <span>Se connecter avec Google</span>
-          </button>
-          <p className="text-[11px] text-center text-slate-400 font-medium">
+          </Button>
+          <p className="text-center text-[11px] font-medium text-ds-muted">
             Connexion sécurisée en 1 clic (Compte Super Admin pris en charge)
           </p>
         </div>
 
         <div className="my-6 flex items-center gap-4">
-          <div className="flex-1 h-px bg-slate-200"></div>
-          <span className="text-[10px] text-slate-400 font-black uppercase tracking-wider">Ou avec identifiants</span>
-          <div className="flex-1 h-px bg-slate-200"></div>
+          <div className="h-px flex-1 bg-ds-border"></div>
+          <span className="text-[10px] font-black uppercase tracking-wider text-ds-muted">Ou avec identifiants</span>
+          <div className="h-px flex-1 bg-ds-border"></div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">Email</label>
-            <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="app-field w-full pl-10 pr-4 bg-slate-50 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none text-sm font-medium"
-                placeholder="contact@example.com"
-              />
-            </div>
-          </div>
+          <Input
+            label="Email"
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="contact@example.com"
+          />
 
-          <div>
-            <label className="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wider">Mot de passe</label>
-            <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="app-field w-full pl-10 pr-4 bg-slate-50 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none text-sm font-medium"
-                placeholder="••••••••"
-              />
-            </div>
-          </div>
+          <Input
+            label="Mot de passe"
+            type="password"
+            autoComplete={isRegistering ? 'new-password' : 'current-password'}
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+          />
 
-          <button
+          <Button
             type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm text-xs sm:text-sm cursor-pointer"
+            loading={loading}
+            className="w-full text-xs font-bold shadow-ds-sm sm:text-sm"
           >
             {loading ? 'Chargement...' : isRegistering ? "Créer un compte par Email" : 'Se connecter par Email'}
-          </button>
+          </Button>
         </form>
 
         <div className="mt-4 text-center">
@@ -212,22 +203,22 @@ export default function Login({ initialMessage = '' }: { initialMessage?: string
             type="button"
             onClick={() => void handlePasswordReset()}
             disabled={loading}
-            className="min-h-10 px-3 text-xs font-semibold text-indigo-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-lg disabled:opacity-50"
+            className="min-h-11 rounded-ds-sm px-3 text-xs font-semibold text-ds-brand underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand disabled:opacity-50"
           >
             Mot de passe oublié ?
           </button>
-          {resetMessage && <p role="status" className="mt-2 text-xs font-semibold text-emerald-700">{resetMessage}</p>}
+          {resetMessage && <p role="status" className="mt-2 text-xs font-semibold text-ds-success">{resetMessage}</p>}
         </div>
 
         {ALLOW_SELF_SIGNUP && <div className="mt-6 text-center">
           <button
             onClick={() => setIsRegistering(!isRegistering)}
-            className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors cursor-pointer"
+            className="min-h-11 px-2 text-xs font-semibold text-ds-brand transition-colors hover:text-ds-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand"
           >
             {isRegistering ? 'Déjà un compte ? Se connecter par Email' : "Besoin de créer un compte par Email ? S'inscrire"}
           </button>
         </div>}
-      </div>
+      </Card>
     </div>
   );
 }

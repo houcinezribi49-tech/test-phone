@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { cn } from './lib/utils';
 import type { UserProfile, Note, CashSession as CashSessionRecord } from './types';
+import { Badge } from './components/ui';
 import { getPendingOperations, syncPendingOperations } from './lib/offlineManager';
 import { hasMenuAccess } from './lib/permissions';
 import BrandLogo from './components/BrandLogo';
@@ -40,7 +41,7 @@ export { hasMenuAccess } from './lib/permissions';
 
 const NAV_SECTIONS = [
   {
-    title: 'VENTE',
+    title: 'Ventes',
     items: [
       { id: 'dashboard', name: 'Tableau de bord', path: '/', icon: LayoutDashboard },
       { id: 'pos', name: 'Vente (Caisse)', path: '/pos', icon: ShoppingCart },
@@ -50,28 +51,28 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    title: 'ATELIER',
+    title: 'Atelier',
     items: [
       { id: 'reparation', name: 'Réparations', path: '/repairs', icon: Wrench },
       { id: 'pieces', name: 'Pièces détachées', path: '/parts', icon: Package },
     ],
   },
   {
-    title: 'CATALOGUE',
+    title: 'Catalogue',
     items: [
       { id: 'products', name: 'Articles / Services', path: '/products', icon: Package },
       { id: 'clients', name: 'Clients', path: '/clients', icon: Users },
     ],
   },
   {
-    title: 'OUTILS',
+    title: 'Outils',
     items: [
       { id: 'notes', name: 'Mémos & Notes', path: '/notes', icon: StickyNote },
       { id: 'startup', name: 'Coran & Adhkar', path: '/settings#startup-settings', icon: BookOpen, adminOnly: true },
     ],
   },
   {
-    title: 'ADMINISTRATION',
+    title: 'Administration',
     items: [
       { id: 'users', name: 'Utilisateurs', path: '/users', icon: UserCheck, adminOnly: true },
       { id: 'reports', name: 'Rapports', path: '/reports', icon: BarChart3, adminOnly: true },
@@ -100,6 +101,15 @@ function getAccessibleNavigation(userProfile: UserProfile | null) {
 
 function getFirstAccessiblePath(userProfile: UserProfile | null): string {
   return getAccessibleNavigation(userProfile).flatMap(section => section.items)[0]?.path || '/settings';
+}
+
+function CurrentPageTitle({ userProfile }: { userProfile: UserProfile | null }) {
+  const location = useLocation();
+  const currentItem = getAccessibleNavigation(userProfile)
+    .flatMap(section => section.items)
+    .find(item => item.path === `${location.pathname}${location.hash}` || item.path === location.pathname);
+
+  return <h1 className="truncate text-base font-bold text-ds-text sm:text-lg">{currentItem?.name || 'Paramètres'}</h1>;
 }
 
 // Components
@@ -236,21 +246,21 @@ function Sidebar({
       {/* Mobile Backdrop */}
       {isOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-[#20263A]/25 backdrop-blur-sm transition-opacity duration-300 lg:hidden"
+          className="fixed inset-0 z-40 bg-ds-text/25 backdrop-blur-sm transition-opacity duration-300 lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
       
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-[min(18rem,calc(100vw-1rem))] border-r border-[#E6E9F2] bg-white text-[#20263A] shadow-xl shadow-[#20263A]/10 transition-transform duration-300 lg:translate-x-0 lg:w-72 lg:shadow-none",
-        isOpen ? "translate-x-0" : "-translate-x-full"
+        "fixed inset-y-0 start-0 z-50 w-[min(18rem,calc(100vw-1rem))] border-e border-ds-border bg-ds-surface text-ds-text shadow-xl shadow-ds-text/10 transition-transform duration-300 lg:translate-x-0 lg:w-72 lg:shadow-none",
+        isOpen ? "translate-x-0 rtl:translate-x-0" : "-translate-x-full rtl:translate-x-full"
       )}>
         <div className="h-full flex flex-col">
-          <div className="flex items-center justify-between border-b border-[#E6E9F2] px-5 py-5">
+          <div className="flex items-center justify-between border-b border-ds-border px-5 py-5">
             <div className="min-w-0">
               <BrandLogo variant="full" logoUrl={APP_LOGO_URL} />
             </div>
-            <button onClick={() => setIsOpen(false)} aria-label="Fermer le menu" className="ml-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[#5F667A] transition-colors hover:bg-[#F6F7FB] lg:hidden">
+            <button onClick={() => setIsOpen(false)} aria-label="Fermer le menu" className="ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ds-muted transition-colors hover:bg-ds-surface-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand lg:hidden">
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -258,7 +268,7 @@ function Sidebar({
           <nav aria-label="Navigation principale" className="flex-1 space-y-3 overflow-y-auto px-4 py-5">
             {navSections.map(section => (
               <section key={section.title} aria-label={section.title}>
-                <h2 className="px-3 pb-2 pt-3 text-[10px] font-bold uppercase tracking-[0.15em] text-[#5F667A]">{section.title}</h2>
+                <h2 className="px-3 pb-2 pt-3 text-[10px] font-bold uppercase tracking-[0.15em] text-ds-muted">{section.title}</h2>
                 <div className="space-y-1">
                   {section.items.map((item) => {
                     const Icon = item.icon;
@@ -271,20 +281,17 @@ function Sidebar({
                         to={item.path}
                         onClick={() => setIsOpen(false)}
                         className={cn(
-                                  "group relative flex min-h-11 items-center gap-3 rounded-2xl px-3 text-[13px] font-semibold transition-colors duration-160",
+                          "group relative flex min-h-11 items-center gap-3 rounded-ds-md px-3 text-[13px] font-semibold transition-colors duration-160 before:absolute before:inset-y-2 before:start-0 before:w-1 before:rounded-e-full before:bg-ds-brand before:content-[''] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand",
                           isActive
-                                    ? "bg-indigo-600 font-bold text-white shadow-md shadow-indigo-600/20"
-                                    : "text-[#64748B] hover:bg-indigo-50 hover:text-slate-900"
+                            ? "bg-ds-brand-soft font-bold text-ds-brand before:opacity-100"
+                            : "text-ds-muted before:opacity-0 hover:bg-ds-surface-2 hover:text-ds-text"
                         )}
                         aria-current={isActive ? 'page' : undefined}
                       >
-                        <Icon className={cn("h-[18px] w-[18px] shrink-0", isActive ? "text-white" : "text-slate-400")} />
+                        <Icon className={cn("h-[18px] w-[18px] shrink-0", isActive ? "text-ds-brand" : "text-ds-muted")} />
                         <span className="flex-1">{item.name}</span>
                         {item.id === 'notes' && todayNotesCount > 0 && (
-                          <span className={cn(
-                            "min-w-[18px] rounded-full px-2 py-0.5 text-center text-[10px] font-black",
-                            isActive ? "bg-white/20 text-white" : "bg-rose-50 text-rose-700"
-                          )}>
+                          <span className={cn("min-w-[18px] rounded-full px-2 py-0.5 text-center text-[10px] font-black", isActive ? "bg-ds-brand text-ds-brand-contrast" : "bg-ds-danger-soft text-ds-danger")}>
                             {todayNotesCount}
                           </span>
                         )}
@@ -298,48 +305,49 @@ function Sidebar({
 
           {/* PWA / Offline Status Cards in Sidebar */}
           <div className="space-y-3 px-4 py-3">
-            <div className="flex flex-col gap-3 rounded-2xl border border-[#E6E9F2] bg-[#F6F7FB] p-4">
+            <div className="flex flex-col gap-3 rounded-ds-lg border border-ds-border bg-ds-surface-2 p-4">
               <div className="flex items-center gap-2.5">
-                <span className={cn("h-2.5 w-2.5 rounded-full", cashSession ? "bg-[#168568]" : "bg-[#A4AABC]")} />
-                <span className="text-xs font-bold uppercase tracking-[0.06em] text-[#20263A]">{cashSession ? 'Caisse ouverte' : cashSessionLoading ? 'Chargement de la caisse…' : 'Aucune caisse ouverte'}</span>
+                <Badge variant={cashSession ? 'success' : 'neutral'} className="min-h-7 px-2 text-[10px] uppercase tracking-wide">
+                  {cashSession ? 'Caisse ouverte' : cashSessionLoading ? 'Chargement de la caisse…' : 'Aucune caisse ouverte'}
+                </Badge>
               </div>
-              {cashSession && <p className="text-[12px] font-medium text-[#5F667A]">Session depuis {cashSession.openedAt?.toDate?.().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) || '—'}, par {userProfile?.name || userProfile?.email || 'Utilisateur'}</p>}
-              <Link to="/cash-session" onClick={() => setIsOpen(false)} className="flex min-h-11 items-center justify-center rounded-xl bg-[#5846E8] px-3 text-sm font-bold text-white transition-colors hover:bg-[#4937D3] focus-visible:outline-offset-2">
+              {cashSession && <p className="text-[12px] font-medium text-ds-muted">Session depuis {cashSession.openedAt?.toDate?.().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) || '—'}, par {userProfile?.name || userProfile?.email || 'Utilisateur'}</p>}
+              <Link to="/cash-session" onClick={() => setIsOpen(false)} className="flex min-h-11 items-center justify-center rounded-ds-md bg-ds-brand px-3 text-sm font-bold text-ds-brand-contrast transition-colors hover:bg-ds-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand">
                 {cashSession ? 'Clôturer la caisse' : 'Ouvrir la caisse'}
               </Link>
             </div>
           </div>
 
-          <div className="border-t border-[#E6E9F2] px-4 py-3">
+          <div className="border-t border-ds-border px-4 py-3">
             {/* Connection and Sync Status */}
             {!isOnline ? (
-              <div className="rounded-xl border border-[#F2D9B6] bg-[#FFF6E9] p-3 text-xs text-[#67430F]">
-                <div className="mb-1 flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-[#67430F]">
-                  <WifiOff className="h-3.5 w-3.5 animate-pulse text-[#A96500]" />
-                  Mode Hors-ligne
+              <div className="rounded-ds-md border border-ds-warning/20 bg-ds-warning-soft p-3 text-xs text-ds-warning">
+                <div className="mb-1 flex items-center gap-2 text-[10px] font-black uppercase tracking-wider">
+                  <WifiOff className="h-3.5 w-3.5 animate-pulse" />
+                  <Badge variant="warning" className="min-h-7 px-2">Mode Hors-ligne</Badge>
                 </div>
-                <p className="text-[11px] font-medium leading-relaxed text-[#67430F]">
+                <p className="text-[11px] font-medium leading-relaxed">
                   Modifications sauvegardées localement. {pendingCount > 0 ? `${pendingCount} opération(s) en attente.` : 'Prêt pour reconnexion.'}
                 </p>
               </div>
             ) : pendingCount > 0 ? (
-              <div className="rounded-xl border border-[#DCD8FF] bg-[#F3F1FF] p-3 text-xs text-[#4937D3]">
-                <div className="mb-1 flex items-center justify-between text-[10px] font-black uppercase tracking-wider">
+              <div className="rounded-ds-md border border-ds-brand/20 bg-ds-brand-soft p-3 text-xs text-ds-brand">
+                <div className="mb-1 flex items-center justify-between gap-2 text-[10px] font-black uppercase tracking-wider">
                   <span className="flex items-center gap-1.5">
-                    <RefreshCcw className={cn("h-3.5 w-3.5 text-[#5846E8]", syncing && "animate-spin")} />
-                    Synchronisation
+                    <RefreshCcw className={cn("h-3.5 w-3.5", syncing && "animate-spin")} />
+                    <Badge variant="info" className="min-h-7 px-2">Synchronisation</Badge>
                   </span>
-                  <span className="rounded-full bg-[#5846E8] px-1.5 py-0.5 text-[9px] text-white">
+                  <span className="rounded-full bg-ds-brand px-1.5 py-0.5 text-[9px] text-ds-brand-contrast">
                     {pendingCount}
                   </span>
                 </div>
-                <p className="mb-2 text-[11px] font-medium leading-relaxed text-[#5F667A]">
+                <p className="mb-2 text-[11px] font-medium leading-relaxed text-ds-muted">
                   Des modifications locales sont en attente d'envoi.
                 </p>
                 <button
                   disabled={syncing}
                   onClick={handleTriggerSync}
-                  className="min-h-11 w-full rounded-lg border border-[#5846E8] px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-[#5846E8] transition-colors hover:bg-[#5846E8] hover:text-white disabled:opacity-50"
+                  className="min-h-11 w-full rounded-ds-sm border border-ds-brand px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-ds-brand transition-colors hover:bg-ds-brand hover:text-ds-brand-contrast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand disabled:opacity-50"
                 >
                   {syncing ? 'En cours...' : 'Synchroniser maintenant'}
                 </button>
@@ -348,16 +356,16 @@ function Sidebar({
 
             {/* Install Prompt for Android / Desktop */}
             {deferredPrompt && (
-              <div className="rounded-xl border border-[#E6E9F2] bg-white p-3 text-xs text-[#20263A]">
-                <div className="mb-1 text-[10px] font-black uppercase tracking-wider text-[#20263A]">
+              <div className="rounded-ds-md border border-ds-border bg-ds-surface p-3 text-xs text-ds-text">
+                <div className="mb-1 text-[10px] font-black uppercase tracking-wider text-ds-text">
                   ✨ Installer l'App
                 </div>
-                <p className="mb-2.5 text-[11px] font-medium leading-relaxed text-[#5F667A]">
+                <p className="mb-2.5 text-[11px] font-medium leading-relaxed text-ds-muted">
                   Lancez {APP_NAME} en plein écran directement depuis votre écran d'accueil.
                 </p>
                 <button
                   onClick={handleInstallApp}
-                  className="flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#5846E8] px-3 py-2 text-[10px] font-black uppercase tracking-wider text-white transition-colors hover:bg-[#4937D3]"
+                  className="flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-ds-sm bg-ds-brand px-3 py-2 text-[10px] font-black uppercase tracking-wider text-ds-brand-contrast transition-colors hover:bg-ds-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand"
                 >
                   <Package className="w-3.5 h-3.5" />
                   Installer maintenant
@@ -367,25 +375,25 @@ function Sidebar({
 
             {/* Install Prompt Guide for iOS */}
             {isIOS && !isStandalone && (
-              <div className="rounded-xl border border-[#E6E9F2] bg-white p-3 text-xs text-[#20263A]">
-                <div className="mb-1 text-[10px] font-black uppercase tracking-wider text-[#20263A]">
+              <div className="rounded-ds-md border border-ds-border bg-ds-surface p-3 text-xs text-ds-text">
+                <div className="mb-1 text-[10px] font-black uppercase tracking-wider text-ds-text">
                   📲 Installer sur iPhone
                 </div>
-                <p className="text-[11px] font-medium leading-relaxed text-[#5F667A]">
+                <p className="text-[11px] font-medium leading-relaxed text-ds-muted">
                   Appuyez sur <span className="font-bold">Partager</span> (<span className="text-[13px]">⎋</span>) puis sur <span className="font-bold">"Sur l'écran d'accueil"</span> (<span className="text-[13px]">⊕</span>).
                 </p>
               </div>
             )}
           </div>
 
-          <div className="border-t border-[#E6E9F2] p-4">
+          <div className="border-t border-ds-border p-4">
             <div className="mb-3 flex items-center gap-3 px-1.5 py-1">
-              <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#F0EEFF] font-display text-base font-bold text-[#5846E8]">
+              <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-ds-brand-soft font-display text-base font-bold text-ds-brand">
                 {(userProfile?.name || userProfile?.email || 'U').slice(0, 1).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-bold text-[#20263A]">{userProfile?.name || userProfile?.email || 'Utilisateur'}</p>
-                <p className="mt-0.5 text-xs font-medium text-[#5F667A]">{userProfile?.role === 'admin' ? 'Administrateur' : 'Utilisateur'}</p>
+                <p className="truncate text-sm font-bold text-ds-text">{userProfile?.name || userProfile?.email || 'Utilisateur'}</p>
+                <p className="mt-0.5 text-xs font-medium text-ds-muted">{userProfile?.role === 'admin' ? 'Administrateur' : userProfile?.allowedMenus?.includes('reparation') && !userProfile.allowedMenus.includes('products') ? 'Technicien' : 'Casier'}</p>
               </div>
             </div>
             <button
@@ -395,9 +403,9 @@ function Sidebar({
                 await signOut(auth);
                 window.location.reload();
               }}
-              className="flex min-h-11 w-full items-center gap-3 rounded-xl px-4 py-3 text-xs font-extrabold uppercase tracking-wider text-rose-600 transition-colors hover:bg-rose-50 hover:text-rose-700"
+              className="flex min-h-11 w-full items-center gap-3 rounded-ds-md px-4 py-3 text-xs font-extrabold uppercase tracking-wider text-ds-danger transition-colors hover:bg-ds-danger-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-danger"
             >
-              <LogOut className="h-4 w-4 text-[#7B8294]" />
+              <LogOut className="h-4 w-4 text-ds-muted" />
               Déconnexion
             </button>
           </div>
@@ -798,17 +806,18 @@ export default function App() {
     hasMenuAccess(userProfile, 'reparation') ||
     hasMenuAccess(userProfile, 'sales') ||
     hasMenuAccess(userProfile, 'invoices');
-  const headerNotificationItems = [
-    { id: 'lowStock', label: 'Articles sous le seuil de stock', count: headerNotifications.lowStock, path: '/products', color: 'text-rose-700 bg-rose-50' },
-    { id: 'readyRepairs', label: 'Réparations prêtes à être récupérées', count: headerNotifications.readyRepairs, path: '/repairs', color: 'text-amber-700 bg-amber-50' },
-    { id: 'unpaid', label: 'Ventes ou réparations avec impayé', count: headerNotifications.unpaidSales + headerNotifications.unpaidRepairs, path: hasMenuAccess(userProfile, 'sales') ? '/sales' : '/repairs', color: 'text-indigo-700 bg-indigo-50' },
-  ].filter(item => item.count > 0);
+  const allHeaderNotificationItems: { id: string; label: string; count: number; path: string; variant: 'warning' | 'success' | 'danger' }[] = [
+    { id: 'lowStock', label: 'Articles sous le seuil de stock', count: headerNotifications.lowStock, path: '/products', variant: 'warning' },
+    { id: 'readyRepairs', label: 'Réparations prêtes à être récupérées', count: headerNotifications.readyRepairs, path: '/repairs', variant: 'success' },
+    { id: 'unpaid', label: 'Ventes ou réparations avec impayé', count: headerNotifications.unpaidSales + headerNotifications.unpaidRepairs, path: hasMenuAccess(userProfile, 'sales') ? '/sales' : '/repairs', variant: 'danger' },
+  ];
+  const headerNotificationItems = allHeaderNotificationItems.filter(item => item.count > 0);
   const headerNotificationCount = todayNotes.length + headerNotificationItems.reduce((sum, item) => sum + item.count, 0);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className="flex min-h-screen items-center justify-center bg-ds-bg">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-ds-brand"></div>
       </div>
     );
   }
@@ -826,7 +835,7 @@ export default function App() {
     <ErrorBoundary>
       <Router>
         <StartupProvider userProfile={userProfile} online={isOnline}>
-        <div className="flex min-h-screen bg-[#F6F7FB]" onClick={() => {
+        <div className="flex min-h-screen min-w-0 bg-ds-bg" onClick={() => {
           if (showNotesPopover) setShowNotesPopover(false);
         }}>
           <Sidebar 
@@ -844,22 +853,22 @@ export default function App() {
             cashSessionLoading={cashSessionLoading}
           />
           
-          <main className="flex min-h-screen min-w-0 flex-1 flex-col lg:pl-72">
-            <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-2 border-b border-[#E6E9F2] bg-white px-4 py-3 text-[#1E293B] lg:px-8">
+          <main className="flex min-h-screen min-w-0 flex-1 flex-col lg:ps-72">
+            <header className="sticky top-0 z-30 flex min-h-16 min-w-0 items-center justify-between gap-2 border-b border-ds-border bg-ds-surface px-3 py-2 text-ds-text sm:px-4 lg:px-8">
               <button 
                 onClick={() => setSidebarOpen(true)}
                 aria-label="Ouvrir le menu"
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#E6E9F2] bg-white text-[#64748B] transition-colors hover:bg-[#F8F9FD] lg:hidden"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-ds-md border border-ds-border bg-ds-surface text-ds-muted transition-colors hover:bg-ds-surface-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand lg:hidden"
               >
                 <Menu className="h-5 w-5" />
               </button>
-              <div className="flex min-w-0 flex-1 items-center gap-2.5 lg:hidden">
-                <BrandLogo variant="icon" logoUrl={APP_LOGO_URL} className="h-9 w-9 rounded-xl p-2" />
+              <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                <BrandLogo variant="icon" logoUrl={APP_LOGO_URL} className="h-9 w-9 shrink-0 rounded-xl p-2" />
                 <div className="min-w-0">
-                  <p className="truncate bg-gradient-to-r from-indigo-600 to-cyan-500 bg-clip-text font-display text-[15px] font-extrabold leading-tight tracking-tight text-transparent">{APP_NAME}</p>
-                  <p className="flex items-center gap-1.5 text-[10px] font-semibold text-[#5F667A]">
-                  <span className={cn("h-2 w-2 rounded-full", activeCashSession ? "bg-[#168568]" : "bg-[#A4AABC]")} />
-                  {activeCashSession ? 'Caisse ouverte' : cashSessionLoading ? 'Chargement de la caisse…' : 'Aucune caisse ouverte'}
+                  <CurrentPageTitle userProfile={userProfile} />
+                  <p className="flex items-center gap-1.5 truncate text-[10px] font-semibold text-ds-muted lg:hidden">
+                    <span className={cn("h-2 w-2 shrink-0 rounded-full", activeCashSession ? "bg-ds-success" : "bg-ds-text-muted")} />
+                    {activeCashSession ? 'Caisse ouverte' : cashSessionLoading ? 'Chargement de la caisse…' : 'Aucune caisse ouverte'}
                   </p>
                 </div>
               </div>
@@ -867,15 +876,15 @@ export default function App() {
               {/* Online/Offline Status Indicator */}
               <div className="hidden items-center gap-2 lg:flex">
                 {isOnline ? (
-                  <div className="flex min-h-10 items-center gap-2 rounded-full bg-emerald-50 px-3.5 text-[11px] font-bold uppercase tracking-[0.08em] text-emerald-800">
-                    <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-600" />
-                    <span className="hidden sm:inline">En ligne</span>
-                  </div>
+                  <Badge variant="success" className="min-h-10 gap-2 uppercase tracking-[0.08em]">
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-ds-success" />
+                    En ligne
+                  </Badge>
                 ) : (
-                  <div className="flex min-h-10 items-center gap-2 rounded-full bg-rose-50 px-3.5 text-[11px] font-bold uppercase tracking-[0.08em] text-rose-800">
-                    <span className="h-2 w-2 animate-pulse rounded-full bg-rose-600" />
-                    <span>Hors ligne</span>
-                  </div>
+                  <Badge variant="danger" className="min-h-10 gap-2 uppercase tracking-[0.08em]">
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-ds-danger" />
+                    Hors ligne
+                  </Badge>
                 )}
 
                 {pendingCount > 0 && (
@@ -883,23 +892,23 @@ export default function App() {
                     onClick={handleTriggerSync}
                     disabled={syncing || !isOnline}
                     className={cn(
-                      "flex min-h-10 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all",
+                      "flex min-h-11 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand",
                       isOnline
-                        ? "cursor-pointer border-[#E6E9F2] bg-white text-[#5F667A] hover:bg-[#F6F7FB]"
-                        : "cursor-not-allowed border-[#E6E9F2] bg-[#F6F7FB] text-[#5F667A]"
+                        ? "cursor-pointer border-ds-border bg-ds-surface text-ds-muted hover:bg-ds-surface-2"
+                        : "cursor-not-allowed border-ds-border bg-ds-surface-2 text-ds-muted"
                     )}
                     title={isOnline ? "Des opérations sont en attente de synchronisation. Cliquez pour synchroniser." : "Les opérations seront synchronisées dès le retour de la connexion."}
                   >
-                    <RefreshCcw className={cn("h-3.5 w-3.5 text-[#5846E8]", syncing && "animate-spin")} />
+                    <RefreshCcw className={cn("h-3.5 w-3.5 text-ds-brand", syncing && "animate-spin")} />
                     <span>{pendingCount} en attente</span>
                   </button>
                 )}
               </div>
               
               {/* Interactive Date & Notes Notification Badge widget */}
-              <div className="relative ml-auto flex items-center gap-2 lg:ml-4 lg:gap-3.5" onClick={(e) => e.stopPropagation()}>
-                <div className="hidden min-h-10 items-center gap-2 rounded-full border border-[#E6E9F2] bg-white px-3.5 font-mono text-[11px] font-medium text-[#64748B] lg:flex">
-                  <Calendar className="h-4 w-4 text-[#5846E8]" />
+              <div className="relative ms-auto flex shrink-0 items-center gap-2 lg:ms-4 lg:gap-3.5" onClick={(e) => e.stopPropagation()}>
+                <div className="hidden min-h-10 items-center gap-2 rounded-full border border-ds-border bg-ds-surface px-3.5 font-mono text-[11px] font-medium text-ds-muted lg:flex">
+                  <Calendar className="h-4 w-4 text-ds-brand" />
                   <span>{getFormattedDate()}</span>
                 </div>
 
@@ -908,68 +917,68 @@ export default function App() {
                   <button
                     onClick={() => setShowNotesPopover(!showNotesPopover)}
                     className={cn(
-                      "relative flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-300",
+                      "relative flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand",
                       headerNotificationCount > 0
-                        ? "border-[#E6E9F2] bg-white text-[#20263A] hover:bg-[#F6F7FB]"
-                        : "border-[#E6E9F2] bg-white text-[#5F667A] hover:bg-[#F6F7FB]"
+                        ? "border-ds-border bg-ds-surface text-ds-text hover:bg-ds-surface-2"
+                        : "border-ds-border bg-ds-surface text-ds-muted hover:bg-ds-surface-2"
                     )}
                     title={headerNotificationCount > 0 ? `${headerNotificationCount} notification(s)` : "Aucune notification"}
                     aria-label={`Notifications${headerNotificationCount ? ` (${headerNotificationCount})` : ''}`}
                   >
                     <Bell className="h-[18px] w-[18px]" />
                     {headerNotificationCount > 0 && (
-                      <span className="absolute right-1 top-1 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-[#D94B55] px-1 text-[10px] font-bold text-white">
+                      <span className="absolute end-1 top-1 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-ds-danger px-1 text-[10px] font-bold text-ds-brand-contrast">
                         {headerNotificationCount}
                       </span>
                     )}
                   </button>
 
                   {showNotesPopover && (
-                    <div className="absolute left-0 z-50 mt-2.5 w-76 rounded-2xl border border-[#E6E9F2] bg-white p-4 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200 sm:w-80">
-                      <div className="mb-2.5 flex items-center justify-between border-b border-[#E6E9F2] pb-2.5">
-                        <span className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#20263A]">
-                          <Bell className="h-4 w-4 text-[#5846E8]" />
+                    <div className="absolute end-0 z-50 mt-2.5 w-[min(20rem,calc(100vw-1.5rem))] rounded-ds-lg border border-ds-border bg-ds-surface p-4 shadow-ds-md animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="mb-2.5 flex items-center justify-between border-b border-ds-border pb-2.5">
+                        <span className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-ds-text">
+                          <Bell className="h-4 w-4 text-ds-brand" />
                           Notifications
                         </span>
-                        <span className="rounded-md border border-[#E6E9F2] bg-[#F6F7FB] px-2 py-0.5 text-[10px] font-black uppercase text-[#5F667A]">
+                        <Badge variant="neutral" className="min-h-7 rounded-ds-sm px-2 py-0.5 text-[10px] uppercase">
                           {headerNotificationCount} active{headerNotificationCount > 1 ? 's' : ''}
-                        </span>
+                        </Badge>
                       </div>
 
                       <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                        {headerNotificationError && <p role="alert" className="rounded-lg bg-[#FCEAEC] p-2 text-[10px] font-semibold text-[#992C36]">{headerNotificationError}</p>}
+                        {headerNotificationError && <p role="alert" className="rounded-ds-sm bg-ds-danger-soft p-2 text-[10px] font-semibold text-ds-danger">{headerNotificationError}</p>}
                         {headerNotificationItems.map(item => (
                           <Link key={item.id} to={item.path} onClick={() => setShowNotesPopover(false)}
-                            className={cn("flex items-center justify-between gap-3 rounded-xl p-2.5 text-xs font-semibold hover:opacity-85", item.color)}>
-                            <span>{item.label}</span>
-                            <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-black">{item.count}</span>
+                            className="flex min-h-11 items-center justify-between gap-3 rounded-ds-md p-2.5 text-xs font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand">
+                            <span className="min-w-0">{item.label}</span>
+                            <Badge variant={item.variant} className="min-h-7 shrink-0 px-2">{item.count}</Badge>
                           </Link>
                         ))}
                         {hasMenuAccess(userProfile, 'notes') && (
-                          <div className="border-t border-[#E6E9F2] pt-2">
-                            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wide text-[#5F667A]"><StickyNote className="h-3.5 w-3.5 text-[#5846E8]" /> Mémos d’aujourd’hui</p>
-                            {todayNotes.length === 0 ? <p className="px-1 text-[10px] text-[#5F667A]">Aucun mémo pour aujourd’hui.</p> : todayNotes.map(note => (
-                              <div key={note.id} className="mb-2 rounded-xl border border-[#E6E9F2] bg-[#F6F7FB] p-2.5">
-                                <p className="text-xs font-extrabold text-[#20263A]">{note.title}</p>
-                                <p className="mt-1 line-clamp-3 text-[10px] leading-relaxed text-[#5F667A]">{note.content}</p>
+                          <div className="border-t border-ds-border pt-2">
+                            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wide text-ds-muted"><StickyNote className="h-3.5 w-3.5 text-ds-brand" /> Mémos d’aujourd’hui</p>
+                            {todayNotes.length === 0 ? <p className="px-1 text-[10px] text-ds-muted">Aucun mémo pour aujourd’hui.</p> : todayNotes.map(note => (
+                              <div key={note.id} className="mb-2 rounded-ds-md border border-ds-border bg-ds-surface-2 p-2.5">
+                                <p className="text-xs font-extrabold text-ds-text">{note.title}</p>
+                                <p className="mt-1 line-clamp-3 text-[10px] leading-relaxed text-ds-muted">{note.content}</p>
                               </div>
                             ))}
                           </div>
                         )}
                         {headerNotificationItems.length === 0 && todayNotes.length === 0 && !headerNotificationError ? (
-                          <div className="py-4 text-center text-[#5F667A]">
-                            <CheckCircle className="mx-auto mb-1.5 h-7 w-7 text-[#168568]" />
-                            <p className="text-[10px] font-[900] uppercase tracking-wide text-[#5F667A]">Tout est en ordre</p>
-                            <p className="mt-0.5 text-[9px] font-semibold text-[#5F667A]">Aucune notification à traiter.</p>
+                          <div className="py-4 text-center text-ds-muted">
+                            <CheckCircle className="mx-auto mb-1.5 h-7 w-7 text-ds-success" />
+                            <p className="text-[10px] font-[900] uppercase tracking-wide text-ds-muted">Tout est en ordre</p>
+                            <p className="mt-0.5 text-[9px] font-semibold text-ds-muted">Aucune notification à traiter.</p>
                           </div>
                         ) : null}
                       </div>
 
-                      {hasMenuAccess(userProfile, 'notes') && <div className="mt-3 border-t border-[#E6E9F2] pt-2.5 text-center">
+                      {hasMenuAccess(userProfile, 'notes') && <div className="mt-3 border-t border-ds-border pt-2.5 text-center">
                         <Link
                           to="/notes"
                           onClick={() => setShowNotesPopover(false)}
-                          className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#5846E8] py-2 text-[10px] font-extrabold uppercase tracking-wider text-white transition-colors hover:bg-[#4937D3]"
+                          className="inline-flex min-h-11 w-full items-center justify-center rounded-ds-md bg-ds-brand py-2 text-[10px] font-extrabold uppercase tracking-wider text-ds-brand-contrast transition-colors hover:bg-ds-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand"
                         >
                           Gérer tous les mémos
                         </Link>
@@ -983,7 +992,7 @@ export default function App() {
                     aria-label="Notifications"
                     title="Notifications"
                     disabled
-                    className="flex h-11 w-11 cursor-not-allowed items-center justify-center rounded-full border border-[#E6E9F2] bg-white text-[#5F667A]"
+                    className="flex h-11 w-11 cursor-not-allowed items-center justify-center rounded-full border border-ds-border bg-ds-surface text-ds-muted"
                   >
                     <Bell className="w-4 h-4" />
                   </button>
@@ -995,21 +1004,21 @@ export default function App() {
                   to="/pos"
                   aria-label="Ouvrir la caisse"
                   title="Ouvrir la caisse"
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-ds-md bg-ds-brand text-ds-brand-contrast shadow-ds-sm transition-colors hover:bg-ds-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand"
                 >
                   <CircleDollarSign className="h-5 w-5" />
                 </Link>
               )}
 
               <div className="hidden items-center gap-2.5 lg:flex">
-                <span className="max-w-56 truncate text-[12px] font-medium text-[#5F667A]">{user.email}</span>
-                <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#F0EEFF] text-sm font-bold text-[#5846E8]">
+                <span className="max-w-56 truncate text-[12px] font-medium text-ds-muted">{user.email}</span>
+                <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-ds-brand-soft text-sm font-bold text-ds-brand">
                   {(user.displayName || user.email || 'U').slice(0, 1).toUpperCase()}
                 </div>
               </div>
             </header>
  
-            <div className="mx-auto w-full max-w-[1600px] min-w-0 flex-1 p-3 sm:p-4 lg:px-10 lg:py-7">
+            <div className="mx-auto w-full max-w-[1600px] min-w-0 flex-1 bg-ds-bg p-3 sm:p-4 lg:px-10 lg:py-7">
               <Routes>
                 <Route path="/" element={getFirstAccessiblePath(userProfile) === '/' ? <Dashboard userProfile={userProfile} cashSession={activeCashSession} /> : <Navigate to={getFirstAccessiblePath(userProfile)} replace />} />
                 <Route path="/products" element={hasMenuAccess(userProfile, 'products') ? <Products userProfile={userProfile} /> : <Navigate to="/" replace />} />
@@ -1039,9 +1048,9 @@ export default function App() {
           </main>
 
           {updateAvailable && (
-            <div role="status" className="fixed bottom-4 left-1/2 z-[120] flex w-[min(94vw,34rem)] -translate-x-1/2 items-center justify-between gap-3 rounded-2xl border border-indigo-200 bg-white p-3 shadow-xl">
-              <p className="text-sm font-semibold text-slate-800">Nouvelle version disponible, actualiser</p>
-              <button type="button" onClick={() => window.location.reload()} className="min-h-10 shrink-0 rounded-xl bg-indigo-600 px-4 text-xs font-bold text-white hover:bg-indigo-700">Actualiser</button>
+            <div role="status" className="fixed bottom-4 left-1/2 z-[120] flex w-[min(94vw,34rem)] -translate-x-1/2 items-center justify-between gap-3 rounded-ds-lg border border-ds-border bg-ds-surface p-3 shadow-ds-md">
+              <p className="text-sm font-semibold text-ds-text">Nouvelle version disponible, actualiser</p>
+              <button type="button" onClick={() => window.location.reload()} className="min-h-11 shrink-0 rounded-ds-md bg-ds-brand px-4 text-xs font-bold text-ds-brand-contrast hover:bg-ds-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand">Actualiser</button>
             </div>
           )}
           {!isOnline && <OfflineBlocker />}
