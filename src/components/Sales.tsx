@@ -649,7 +649,7 @@ export default function Sales({ userProfile }: SalesProps) {
 
             <div className="flex-1 overflow-y-auto p-8 space-y-6">
               {/* Client + Date */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
                   <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-2">Client</p>
                   <div className="flex items-center gap-2">
@@ -675,8 +675,8 @@ export default function Sales({ userProfile }: SalesProps) {
                 <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-3 flex items-center gap-2">
                   <ShoppingBag className="w-3.5 h-3.5" /> Articles vendus
                 </p>
-                <div className="rounded-2xl border border-slate-100 overflow-hidden">
-                  <table className="w-full text-left">
+                <div className="overflow-x-auto rounded-2xl border border-slate-100">
+                  <table className="w-full min-w-[420px] text-left">
                     <thead>
                       <tr className="bg-slate-50 border-b border-slate-100">
                         <th className="px-5 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Produit</th>

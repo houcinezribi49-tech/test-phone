@@ -1247,7 +1247,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
             ))}
           </div>
         </div>
-        <div className={cn('grid grid-cols-2 gap-3', canShowMargin ? 'xl:grid-cols-4' : 'lg:grid-cols-3')}>
+        <div className={cn('grid grid-cols-1 gap-3 sm:grid-cols-2', canShowMargin ? 'xl:grid-cols-4' : 'lg:grid-cols-3')}>
           {financialCards.map(({ label, value, unit, icon: Icon, count }, index) => {
             const accent = ['#5846E8', '#4385F5', '#FF8A3D', '#159B72'][index % 4];
             return (
@@ -1469,7 +1469,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
       )}
 
       {/* Main Stats Grid with responsive 2-column layout and optimized sizing */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5 sm:gap-5">
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 sm:gap-5">
         
         {/* CARD 1: Chiffre d'Affaires - BLEU */}
         <div 
@@ -2103,7 +2103,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
                   <p className="text-slate-400 font-medium text-[11px] mt-1 max-w-xs">Ajustez la recherche pour visualiser d'autres articles ou données.</p>
                 </div>
               ) : (
-                <div className="p-6">
+                <div className="overflow-x-auto p-3 sm:p-6">
                   <table className="w-full border-collapse text-left text-xs">
                     <thead>
                       <tr className="border-b border-slate-150 text-[10px] font-black uppercase tracking-wider text-slate-450 bg-slate-50/70">
@@ -2484,7 +2484,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
             </div>
 
             {/* Modal Table Content */}
-            <div className="overflow-y-auto grow font-sans p-6">
+            <div className="grow overflow-auto font-sans p-3 sm:p-6">
               {expensesTab === 'daily' ? (
                 // Tab 1: Daily grouping list
                 dailySuppliesRecords.length === 0 ? (
