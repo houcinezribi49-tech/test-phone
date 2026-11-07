@@ -216,8 +216,10 @@ Migrated files:
 
 `PageHeader`, `Card`, `Badge`, `Button`, `Input`, `Select`, and `EmptyState` are used where they replace existing presentation blocks. Primary actions and selected filters use `ds-brand`; paid/received/success states use `ds-success`; partial debts and outstanding balances use `ds-warning`; deletion, cancellation, and errors use `ds-danger`; neutral surfaces, text, controls, and dividers use the corresponding `ds-*` roles. Forms use the shared 16px controls, and data tables remain horizontally scrollable on narrow screens.
 
-The baseline had 210, 326, and 154 Tailwind palette-color utility matches in Sales, Invoices, and Clients, respectively. All three now have zero palette-shade matches and zero hex colors. Translucent black modal overlays and white alpha highlights/loader borders remain as intentional neutral overlays or high-contrast spinner details, not as content-state colors.
+The baseline had 210, 326, and 154 Tailwind palette-color utility matches in Sales, Invoices, and Clients, respectively. Using the same inventory, the remaining counts are 4, 7, and 2; these are only translucent black modal overlays and white-alpha highlights/loader borders. All chromatic palette-shade utilities and hex colors were removed (0 hex colors before and after), while the neutral overlays remain intentionally fixed for contrast.
 
 Printing remains outside the migrated token styles: the existing `PrintableTicket` component and its portal markup were not changed, browser print handlers remain in place, and the purchase image-compression canvas is untouched. No `ds-*` or `var(--ds-*)` references were added to printable content or canvas output.
 
 Firestore subscriptions, query conditions, calculations, permissions, invoice/client workflows, and print/PDF handlers were preserved. Desktop/mobile rendering and the complete print flow still require visual verification.
+
+The existing Clients page has no client purchase-history/detail view in its baseline, so this visual migration did not add one or introduce a new history query.
