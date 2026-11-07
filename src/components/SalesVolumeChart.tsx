@@ -22,6 +22,7 @@ import {
   ShoppingCart,
   Activity
 } from 'lucide-react';
+import { Card } from './ui';
 
 interface SalesVolumeChartProps {
   sales: Sale[];
@@ -130,45 +131,45 @@ export default function SalesVolumeChart({ sales, saleCostSnapshots, currency = 
     if (active && payload && payload.length) {
       const dataPoint = payload[0].payload;
       return (
-        <div className="z-50 min-w-[200px] rounded-2xl border border-slate-700 bg-slate-900/95 p-3.5 text-xs text-white shadow-xl backdrop-blur-md">
-          <div className="mb-2 flex items-center gap-2 border-b border-slate-700 pb-2">
-            <Calendar className="h-3.5 w-3.5 text-[#B8B8B8]" />
-            <span className="font-bold capitalize tracking-wide text-slate-100">
+        <div className="z-50 min-w-[200px] rounded-ds-lg border border-ds-border bg-ds-surface p-3.5 text-xs text-ds-text shadow-ds-md">
+          <div className="mb-2 flex items-center gap-2 border-b border-ds-border pb-2">
+            <Calendar className="h-3.5 w-3.5 text-ds-brand" />
+            <span className="font-bold capitalize tracking-wide text-ds-text">
               {dataPoint.fullDateLabel}
             </span>
           </div>
 
           <div className="space-y-1.5 font-medium">
             <div className="flex items-center justify-between gap-4">
-              <span className="flex items-center gap-1.5 text-[#D0D0D0]">
-                <span className="h-2 w-2 rounded-full bg-[#B8B8B8]"></span>
+              <span className="flex items-center gap-1.5 text-ds-muted">
+                <span className="h-2 w-2 rounded-full bg-ds-brand"></span>
                 Volume de ventes:
               </span>
-              <span className="font-mono text-sm font-black text-white">
-                {dataPoint.volume} <span className="font-sans text-[10px] font-semibold text-[#B8B8B8]">ventes</span>
+              <span className="font-mono text-sm font-black text-ds-text">
+                {dataPoint.volume} <span className="font-sans text-[10px] font-semibold text-ds-muted">ventes</span>
               </span>
             </div>
 
             <div className="flex items-center justify-between gap-4">
-              <span className="flex items-center gap-1.5 text-[#D0D0D0]">
-                <span className="h-2 w-2 rounded-full bg-[#8A8A8A]"></span>
+              <span className="flex items-center gap-1.5 text-ds-muted">
+                <span className="h-2 w-2 rounded-full bg-ds-accent"></span>
                 Chiffre d'affaires:
               </span>
-              <span className="font-mono text-sm font-black text-white">
-                {dataPoint.revenue.toFixed(3)} <span className="font-sans text-[10px] text-[#B8B8B8]">{currency}</span>
+              <span className="font-mono text-sm font-black text-ds-text">
+                {dataPoint.revenue.toFixed(3)} <span className="font-sans text-[10px] text-ds-muted">{currency}</span>
               </span>
             </div>
 
             {showProfit && dataPoint.profit !== null && dataPoint.profit !== 0 && (
-              <div className="flex items-center justify-between gap-4 border-t border-slate-700 pt-1 text-[11px]">
-                <span className="text-[#B8B8B8]">Bénéfice brut:</span>
-                <span className={`font-mono font-bold ${dataPoint.profit < 0 ? 'text-[#F6C9BE]' : 'text-[#E3EFE4]'}`}>
+              <div className="flex items-center justify-between gap-4 border-t border-ds-border pt-1 text-[11px]">
+                <span className="text-ds-muted">Bénéfice brut:</span>
+                <span className={`font-mono font-bold ${dataPoint.profit < 0 ? 'text-ds-danger' : 'text-ds-success'}`}>
                   {dataPoint.profit > 0 ? '+' : ''}{dataPoint.profit.toFixed(3)} {currency}
                 </span>
               </div>
             )}
             {showProfit && dataPoint.profitIncomplete && (
-              <p className="pt-1 text-[10px] font-semibold text-[#F6C9BE]">Coûts historiques incomplets ; bénéfice indisponible.</p>
+              <p className="pt-1 text-[10px] font-semibold text-ds-danger">Coûts historiques incomplets ; bénéfice indisponible.</p>
             )}
           </div>
         </div>
@@ -178,19 +179,19 @@ export default function SalesVolumeChart({ sales, saleCostSnapshots, currency = 
   };
 
   return (
-    <div className="rounded-[24px] border border-[#E6E9F2] bg-white p-5 shadow-[0_12px_36px_-24px_rgba(15,23,42,0.24),0_1px_3px_rgba(15,23,42,0.05)] transition-all sm:p-6">
+    <Card className="min-w-0 rounded-ds-lg p-5 shadow-ds-sm transition-all sm:p-6">
       {/* Header with Title and Mode Switcher */}
-      <div className="mb-5 flex flex-col justify-between gap-4 border-b border-[#E6E9F2] pb-4 sm:flex-row sm:items-center">
+      <div className="mb-5 flex flex-col justify-between gap-4 border-b border-ds-border pb-4 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#F0EEFF] text-[#5846E8]">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-ds-brand-soft text-ds-brand">
               <BarChart3 className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="font-display text-sm font-bold uppercase tracking-wider text-[#20263A]">
+              <h2 className="font-display text-sm font-bold uppercase tracking-wider text-ds-text">
                 Volume des Ventes (7 Derniers Jours)
               </h2>
-              <p className="mt-0.5 text-[11px] font-semibold uppercase text-[#5F667A]">
+              <p className="mt-0.5 text-[11px] font-semibold uppercase text-ds-muted">
                 Évolution journalière du nombre de transactions et des encaissements
               </p>
             </div>
@@ -198,14 +199,14 @@ export default function SalesVolumeChart({ sales, saleCostSnapshots, currency = 
         </div>
 
         {/* Mode Selector Tabs */}
-        <div className="flex max-w-full items-center gap-1 overflow-x-auto self-start rounded-full border border-[#E6E9F2] bg-[#F6F7FB] p-1 sm:self-auto">
+        <div className="flex max-w-full items-center gap-1 overflow-x-auto self-start rounded-full border border-ds-border bg-ds-surface-2 p-1 sm:self-auto">
           <button
             type="button"
             onClick={() => setChartMode('combined')}
             className={`min-h-11 shrink-0 rounded-full px-4 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
               chartMode === 'combined'
-                ? 'bg-[#5846E8] text-white font-extrabold'
-                : 'text-[#5F667A] hover:text-[#20263A]'
+                ? 'bg-ds-brand text-ds-brand-contrast font-extrabold'
+                : 'text-ds-muted hover:text-ds-text'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -216,8 +217,8 @@ export default function SalesVolumeChart({ sales, saleCostSnapshots, currency = 
             onClick={() => setChartMode('volume')}
             className={`min-h-11 shrink-0 rounded-full px-4 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
               chartMode === 'volume'
-                ? 'bg-[#5846E8] text-white font-extrabold'
-                : 'text-[#5F667A] hover:text-[#20263A]'
+                ? 'bg-ds-brand text-ds-brand-contrast font-extrabold'
+                : 'text-ds-muted hover:text-ds-text'
             }`}
           >
             <ShoppingCart className="w-3.5 h-3.5" />
@@ -228,8 +229,8 @@ export default function SalesVolumeChart({ sales, saleCostSnapshots, currency = 
             onClick={() => setChartMode('revenue')}
             className={`min-h-11 shrink-0 rounded-full px-4 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
               chartMode === 'revenue'
-                ? 'bg-[#5846E8] text-white font-extrabold'
-                : 'text-[#5F667A] hover:text-[#20263A]'
+                ? 'bg-ds-brand text-ds-brand-contrast font-extrabold'
+                : 'text-ds-muted hover:text-ds-text'
             }`}
           >
             <Coins className="w-3.5 h-3.5" />
@@ -239,58 +240,58 @@ export default function SalesVolumeChart({ sales, saleCostSnapshots, currency = 
       </div>
 
       {/* KPI Highlights Bar */}
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="flex items-center gap-3 rounded-2xl border border-[#E6E9F2] bg-white p-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#F0EEFF] text-[#5846E8]">
+      <div className="mb-6 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="flex items-center gap-3 rounded-2xl border border-ds-border bg-ds-surface p-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-ds-brand-soft text-ds-brand">
             <ShoppingCart className="w-4 h-4" />
           </div>
           <div>
-            <span className="block text-[9px] font-black uppercase tracking-wider text-[#5F667A]">
+            <span className="block text-[9px] font-black uppercase tracking-wider text-ds-muted">
               Volume Total (7j)
             </span>
-            <span className="block font-display text-base font-bold tabular-nums text-[#20263A]">
-              {chartData.totalVolume} <span className="font-sans text-xs font-bold text-[#5F667A]">ventes</span>
+            <span className="block font-display text-base font-bold tabular-nums text-ds-text">
+              {chartData.totalVolume} <span className="font-sans text-xs font-bold text-ds-muted">ventes</span>
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 rounded-2xl border border-[#E6E9F2] bg-white p-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#EAF1FF] text-[#4385F5]">
+        <div className="flex items-center gap-3 rounded-2xl border border-ds-border bg-ds-surface p-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-ds-accent-soft text-ds-accent">
             <Coins className="w-4 h-4" />
           </div>
           <div>
-            <span className="block text-[9px] font-black uppercase tracking-wider text-[#5F667A]">
+            <span className="block text-[9px] font-black uppercase tracking-wider text-ds-muted">
               Total CA (7j)
             </span>
-            <span className="block font-display text-base font-bold tabular-nums text-[#20263A]">
-              {chartData.totalRevenue.toFixed(2)} <span className="font-sans text-xs font-bold text-[#5F667A]">{currency}</span>
+            <span className="block font-display text-base font-bold tabular-nums text-ds-text">
+              {chartData.totalRevenue.toFixed(2)} <span className="font-sans text-xs font-bold text-ds-muted">{currency}</span>
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 rounded-2xl border border-[#E6E9F2] bg-white p-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#FFF0E4] text-[#B85A12]">
+        <div className="flex items-center gap-3 rounded-2xl border border-ds-border bg-ds-surface p-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-ds-brand-soft text-ds-brand">
             <Activity className="w-4 h-4" />
           </div>
           <div>
-            <span className="block text-[9px] font-black uppercase tracking-wider text-[#5F667A]">
+            <span className="block text-[9px] font-black uppercase tracking-wider text-ds-muted">
               Moyenne / Jour
             </span>
-            <span className="block font-display text-base font-bold tabular-nums text-[#20263A]">
-              {chartData.avgDailyVolume} <span className="font-sans text-xs font-bold text-[#5F667A]">ventes/j</span>
+            <span className="block font-display text-base font-bold tabular-nums text-ds-text">
+              {chartData.avgDailyVolume} <span className="font-sans text-xs font-bold text-ds-muted">ventes/j</span>
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 rounded-2xl border border-[#E6E9F2] bg-white p-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#E7F4EF] text-[#168568]">
+        <div className="flex items-center gap-3 rounded-2xl border border-ds-border bg-ds-surface p-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-ds-success-soft text-ds-success">
             <Flame className="w-4 h-4" />
           </div>
           <div>
-            <span className="block text-[9px] font-black uppercase tracking-wider text-[#5F667A]">
+            <span className="block text-[9px] font-black uppercase tracking-wider text-ds-muted">
               Pic d'activité
             </span>
-            <span className="block truncate text-sm font-bold text-[#20263A]">
+            <span className="block truncate text-sm font-bold text-ds-text">
               {chartData.peakDay.dayLabel} ({chartData.peakDay.volume} v.)
             </span>
           </div>
@@ -304,24 +305,13 @@ export default function SalesVolumeChart({ sales, saleCostSnapshots, currency = 
             data={chartData.days}
             margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
           >
-            <defs>
-              <linearGradient id="volumeBarGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#6366F1" stopOpacity={0.95} />
-                <stop offset="100%" stopColor="#4F46E5" stopOpacity={0.75} />
-              </linearGradient>
-              <linearGradient id="revenueAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#059669" stopOpacity={0.22} />
-                <stop offset="100%" stopColor="#059669" stopOpacity={0.0} />
-              </linearGradient>
-            </defs>
-
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E6E9F2" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--ds-border)" />
 
             <XAxis 
               dataKey="dayLabel" 
               tickLine={false} 
-              axisLine={{ stroke: '#E6E9F2' }}
-              tick={{ fill: '#5F667A', fontSize: 11, fontWeight: 600 }}
+              axisLine={{ stroke: 'var(--ds-border)' }}
+              tick={{ fill: 'var(--ds-text-muted)', fontSize: 11, fontWeight: 600 }}
               dy={6}
             />
 
@@ -331,7 +321,7 @@ export default function SalesVolumeChart({ sales, saleCostSnapshots, currency = 
               allowDecimals={false}
               tickLine={false}
               axisLine={false}
-              tick={{ fill: '#5F667A', fontSize: 11, fontWeight: 600 }}
+              tick={{ fill: 'var(--ds-text-muted)', fontSize: 11, fontWeight: 600 }}
               width={35}
             />
 
@@ -342,7 +332,7 @@ export default function SalesVolumeChart({ sales, saleCostSnapshots, currency = 
                 orientation="right"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: '#5F667A', fontSize: 10, fontWeight: 700 }}
+                tick={{ fill: 'var(--ds-text-muted)', fontSize: 10, fontWeight: 700 }}
                 tickFormatter={(val) => `${val}`}
                 width={45}
               />
@@ -353,7 +343,7 @@ export default function SalesVolumeChart({ sales, saleCostSnapshots, currency = 
                 yAxisId="left" 
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: '#5F667A', fontSize: 10, fontWeight: 700 }}
+                tick={{ fill: 'var(--ds-text-muted)', fontSize: 10, fontWeight: 700 }}
                 tickFormatter={(val) => `${val}`}
                 width={45}
               />
@@ -366,8 +356,8 @@ export default function SalesVolumeChart({ sales, saleCostSnapshots, currency = 
               align="right"
               wrapperStyle={{ paddingBottom: '10px', fontSize: '11px', fontWeight: 600 }}
               formatter={(value) => {
-                if (value === 'volume') return <span className="font-bold text-indigo-600">Nombre de ventes</span>;
-                if (value === 'revenue') return <span className="font-bold text-emerald-700">Chiffre d'affaires ({currency})</span>;
+                if (value === 'volume') return <span className="font-bold text-ds-brand">Nombre de ventes</span>;
+                if (value === 'revenue') return <span className="font-bold text-ds-accent">Chiffre d'affaires ({currency})</span>;
                 return value;
               }}
             />
@@ -378,7 +368,7 @@ export default function SalesVolumeChart({ sales, saleCostSnapshots, currency = 
                 yAxisId="left"
                 dataKey="volume"
                 name="volume"
-                fill="url(#volumeBarGradient)"
+                fill="var(--ds-brand)"
                 radius={[8, 8, 0, 0]}
                 barSize={32}
                 animationDuration={800}
@@ -392,11 +382,11 @@ export default function SalesVolumeChart({ sales, saleCostSnapshots, currency = 
                 type="monotone"
                 dataKey="revenue"
                 name="revenue"
-                stroke="#059669"
+                stroke="var(--ds-accent)"
                 strokeWidth={3}
-                fill="url(#revenueAreaGradient)"
-                dot={{ r: 4, fill: '#059669', strokeWidth: 2, stroke: '#ffffff' }}
-                activeDot={{ r: 6, fill: '#4385F5', stroke: '#ffffff', strokeWidth: 2 }}
+                fill="var(--ds-accent-soft)"
+                dot={{ r: 4, fill: 'var(--ds-accent)', strokeWidth: 2, stroke: 'var(--ds-brand-contrast)' }}
+                activeDot={{ r: 6, fill: 'var(--ds-accent)', stroke: 'var(--ds-brand-contrast)', strokeWidth: 2 }}
                 animationDuration={1000}
               />
             )}
@@ -404,15 +394,15 @@ export default function SalesVolumeChart({ sales, saleCostSnapshots, currency = 
         </ResponsiveContainer>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#E6E9F2] pt-3 text-[11px] font-semibold text-[#5F667A]">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-ds-border pt-3 text-[11px] font-semibold text-ds-muted">
         <span className="flex items-center gap-1.5">
-          <TrendingUp className="h-3.5 w-3.5 text-[#4385F5]" />
+          <TrendingUp className="h-3.5 w-3.5 text-ds-accent" />
           Les barres bleues indiquent le volume de transactions enregistrées chaque jour.
         </span>
-        <span className="font-bold text-[#5F667A]">
+        <span className="font-bold text-ds-muted">
           Dernière mise à jour : temps réel
         </span>
       </div>
-    </div>
+    </Card>
   );
 }
