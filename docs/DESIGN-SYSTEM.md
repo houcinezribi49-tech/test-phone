@@ -1,6 +1,6 @@
 # Design system
 
-This design system is adopted incrementally. The shared tokens and components are used by the application shell (sidebar, header, and login screen), Dashboard, POS, Products, Sales, Invoices, and Clients; other business pages remain unmigrated.
+This design system is adopted incrementally. The shared tokens and components are used by the application shell (sidebar, header, and login screen), Dashboard, POS, Products, Sales, Invoices, Clients, Repairs, Expenses, and Reports. CashSession, Parts, Notes, Settings, and Users remain unmigrated; supplier management is part of Invoices. `Statistics.tsx` is not connected to an application route.
 
 ## Tokens
 
@@ -233,3 +233,16 @@ Repair status colors use one mapping throughout the list, form choices, and deta
 `src/components/RepairTicket.tsx` and `src/index.css` print rules were not changed. The ticket intentionally keeps fixed black text/borders and a white background so printing remains high contrast and independent of application tokens. `Repairs.tsx` had 323 hex-color occurrences before and 0 after; it had no named Tailwind palette-shade utilities before or after.
 
 Repair creation/editing, stock and financial calculations, subscriptions/queries, role restrictions, status transitions, delivery/cash flows, and print handlers were not changed. The application lint/build pass; desktop/mobile interaction and physical print output still require visual verification.
+
+## Migration 5C: Expenses and Reports
+
+Migrated files:
+
+- `src/components/Expenses.tsx`: page summary, add-expense dialog and form, search/month filters, expense table, and loading/empty states.
+- `src/components/Reports.tsx`: page header and period controls, summary cards, report breakdowns, and repair-status counts.
+
+The migrated sections use `PageHeader`, `Card`, `Badge`, `Button`, `Input`, `Select`, and `EmptyState`. Expense rows stay inside a horizontally scrollable/responsive table; shared form controls retain 16px text. Primary period selection uses the brand role, positive amounts/results use success, outstanding debt and missing historical cost warnings use warning, and neutral category/status surfaces use neutral tokens. The expense dialog overlay uses `ds-text` rather than a fixed palette color.
+
+Expenses had 55 named Tailwind palette-color utility matches before and 0 after; Reports had 36 before and 0 after. Both files had 0 hex colors before and after. No printed, PDF, or canvas output exists in either page. Reports currently renders summary cards and text breakdowns rather than charts, and neither page currently provides export actions; this migration did not add those behaviors.
+
+Firestore subscriptions and transaction writes, summary calculations, filters, role checks, cash-session requirements, and existing navigation were preserved. Lint and production build pass; desktop/mobile rendering and the expense dialog interaction still require visual verification.
