@@ -8,6 +8,7 @@ import { Plus, Search, Edit2, Trash2, X, Phone, MapPin, Wallet, Coins, AlertCirc
 import { can, hasMenuAccess } from '../lib/permissions';
 import { addCashSessionTotals, requireOpenCashSession, useCashSession } from '../lib/cashSessions';
 import MessageComposer from './MessageComposer';
+import { useBrand } from './BrandProvider';
 import { Badge, Button, Card, EmptyState, Input, PageHeader, Select } from './ui';
 
 interface ClientsProps {
@@ -15,6 +16,7 @@ interface ClientsProps {
 }
 
 export default function Clients({ userProfile }: ClientsProps) {
+  const brand = useBrand();
   const navigate = useNavigate();
   const { session: cashSession, loading: cashSessionLoading } = useCashSession(userProfile);
   const [clients, setClients] = useState<Client[]>([]);
@@ -335,7 +337,7 @@ export default function Clients({ userProfile }: ClientsProps) {
                           phone={client.phone}
                           clientName={client.name}
                           montantRestant={`${(Number(client.debt) || 0).toFixed(3)} ${storeSettings?.currency || 'DT'}`}
-                          nomMagasin={storeSettings?.storeName || ''}
+                          nomMagasin={storeSettings?.storeName || brand.storeName}
                           indicatif={storeSettings?.whatsappCountryCode || '216'}
                           templates={storeSettings?.messageTemplates}
                           defaultTemplate="rappel_paiement"

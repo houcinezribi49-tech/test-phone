@@ -6,7 +6,8 @@ import { handleFirestoreError, OperationType } from '../App';
 import { Plus, Minus, Search, Edit2, Trash2, X, AlertTriangle, Package, Tag, Barcode, Shield, Eye, EyeOff, AlertCircle, History, Loader2, ArrowDown, ArrowUp } from 'lucide-react';
 import { cn, decodeAzertyBarcode } from '../lib/utils';
 import { can } from '../lib/permissions';
-import { APP_NAME_SLUG } from '../config/brand';
+import { slugifyAppName } from '../lib/brand';
+import { useBrand } from './BrandProvider';
 import { Badge, Button, Card, EmptyState, Input, PageHeader, Select } from './ui';
 
 interface ProductsProps {
@@ -40,6 +41,7 @@ function ean13Svg(value: string): string {
 }
 
 export default function Products({ userProfile }: ProductsProps) {
+  const brand = useBrand();
   const ownerId = (userProfile?.role === 'admin' ? userProfile?.uid : userProfile?.ownerId) || userProfile?.uid || auth.currentUser?.uid;
   const isAdmin = userProfile?.role === 'admin';
   const canViewBuyPrice = can(userProfile, 'products', 'viewBuyPrice');
@@ -327,7 +329,7 @@ export default function Products({ userProfile }: ProductsProps) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${APP_NAME_SLUG}-products-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = `${slugifyAppName(brand.storeName)}-products-backup-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     setMigrationBackupDownloaded(true);

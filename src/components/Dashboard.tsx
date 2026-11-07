@@ -43,7 +43,8 @@ import { computeSaleProfit, computeTotals, normalizeFinancialSettings, type Sale
 import { computeWorkshopSummary, isWithinReportPeriod } from '../lib/workshopReports';
 import { computeExpectedCash } from '../lib/cashSessionMath';
 import type { CashSession } from '../types';
-import { APP_NAME_SLUG } from '../config/brand';
+import { slugifyAppName } from '../lib/brand';
+import { useBrand } from './BrandProvider';
 
 // Helper component for printing high-quality A4 reports
 interface PrintableReportProps {
@@ -56,6 +57,7 @@ interface PrintableReportProps {
 }
 
 function PrintableReport({ activeModal, records, storeSettings, currency, canViewBuyPrice, canViewCosts }: PrintableReportProps) {
+  const brand = useBrand();
   const canViewMargin = canViewBuyPrice && canViewCosts;
   const title = activeModal === 'revenue' ? "RAPPORT D'ACTIVITÉ : CHIFFRE D'AFFAIRES"
     : activeModal === 'profit' ? "RAPPORT D'ACTIVITÉ : BÉNÉFICE NET (PERFORMANCE)"
@@ -75,8 +77,8 @@ function PrintableReport({ activeModal, records, storeSettings, currency, canVie
     <div className="print-report-container print-container p-8 font-sans text-ds-text bg-ds-surface leading-relaxed text-xs">
       <div className="flex justify-between items-start border-b-2 border-ds-border pb-5 mb-5">
         <div>
-          <h1 className="text-base font-bold uppercase tracking-tight text-ds-text">{storeSettings?.storeName || 'Magasin de caisse'}</h1>
-          <p className="text-[10px] text-ds-muted">{storeSettings?.address || 'Superette & Commerce'}</p>
+          <h1 className="text-base font-bold uppercase tracking-tight text-ds-text">{storeSettings?.storeName || brand.storeName}</h1>
+          {storeSettings?.address && <p className="text-[10px] text-ds-muted">{storeSettings.address}</p>}
           {storeSettings?.phone && <p className="text-[10px] text-ds-muted">Tél: {storeSettings.phone}</p>}
         </div>
         <div className="text-right">
@@ -221,6 +223,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ userProfile, cashSession }: DashboardProps) {
+  const brand = useBrand();
   const [sales, setSales] = useState<Sale[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [saleCostSnapshots, setSaleCostSnapshots] = useState<Record<string, SaleCostLine[]>>({});
@@ -929,7 +932,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
         XLSX.utils.book_append_sheet(wb, wsSummary, 'Synthèse');
 
         XLSX.utils.book_append_sheet(wb, ws, 'Valorisation Stock');
-        XLSX.writeFile(wb, `${APP_NAME_SLUG}-rapport-valorisation-stock_${new Date().toISOString().split('T')[0]}.xlsx`);
+        XLSX.writeFile(wb, `${slugifyAppName(brand.storeName)}-rapport-valorisation-stock_${new Date().toISOString().split('T')[0]}.xlsx`);
         return;
       }
 
@@ -984,7 +987,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
       else if (activeModal === 'sales') tabName = 'Transactions';
 
       XLSX.utils.book_append_sheet(wb, ws, tabName.slice(0, 30));
-      XLSX.writeFile(wb, `${APP_NAME_SLUG}-rapport-caisse-${tabName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`);
+      XLSX.writeFile(wb, `${slugifyAppName(brand.storeName)}-rapport-caisse-${tabName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`);
     } catch (e) {
       console.error(e);
       alert("Une erreur est survenue lors de l'exportation vers Excel.");
@@ -1054,7 +1057,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
       const ws = XLSX.utils.json_to_sheet(rows);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Dépenses');
-      XLSX.writeFile(wb, `${APP_NAME_SLUG}-${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
+      XLSX.writeFile(wb, `${slugifyAppName(brand.storeName)}-${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
     } catch (e) {
       console.error(e);
       alert("Une erreur est survenue lors de l'exportation vers Excel.");

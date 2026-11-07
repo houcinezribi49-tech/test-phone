@@ -4,11 +4,12 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { AlertCircle, Chrome } from 'lucide-react';
 import { ALLOW_SELF_SIGNUP } from '../config/firebase';
-import { APP_LOGO_URL, APP_NAME } from '../config/brand';
 import BrandLogo from './BrandLogo';
+import { useBrand } from './BrandProvider';
 import { Button, Card, Input } from './ui';
 
 export default function Login({ initialMessage = '' }: { initialMessage?: string }) {
+  const { storeName } = useBrand();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
@@ -131,8 +132,8 @@ export default function Login({ initialMessage = '' }: { initialMessage?: string
     <div className="flex min-h-screen items-center justify-center bg-ds-bg p-4">
       <Card className="w-full max-w-md p-6 sm:p-8">
         <div className="text-center mb-8">
-          <BrandLogo variant="full" logoUrl={APP_LOGO_URL} className="mb-5 justify-center" />
-          <h1 className="sr-only">{APP_NAME}</h1>
+          <BrandLogo variant="full" className="mb-5 justify-center" />
+          <h1 className="sr-only">{storeName}</h1>
           <p className="mt-2 text-xs font-medium text-ds-muted sm:text-sm">
             Connectez-vous à votre espace magasin
           </p>

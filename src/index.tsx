@@ -2,9 +2,10 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import { DARK_THEME_COLOR, ThemeProvider } from './components/ThemeProvider';
+import { BrandProvider } from './components/BrandProvider';
 import './index.css';
 import '@fontsource-variable/inter';
-import { APP_BRAND_COLORS, APP_NAME, APP_SHORT_NAME, APP_TAGLINE } from './config/brand';
+import { APP_BRAND_COLORS } from './config/brand';
 
 // Purge any stale custom_session from obsolete runs
 try {
@@ -24,25 +25,19 @@ if (rootEl) {
   createRoot(rootEl).render(
     <StrictMode>
       <ThemeProvider>
-        <App />
+        <BrandProvider>
+          <App />
+        </BrandProvider>
       </ThemeProvider>
     </StrictMode>,
   );
 }
 
 document.documentElement.style.setProperty('--brand-primary', APP_BRAND_COLORS.primary);
-document.title = APP_NAME;
-const appDescription = APP_TAGLINE ? `${APP_NAME} — ${APP_TAGLINE}` : APP_NAME;
 const initialThemeColor = document.documentElement.dataset.theme === 'dark'
   ? DARK_THEME_COLOR
   : APP_BRAND_COLORS.primary;
 document.querySelector('meta[name="theme-color"]')?.setAttribute('content', initialThemeColor);
-document.querySelector('meta[name="apple-mobile-web-app-title"]')?.setAttribute('content', APP_SHORT_NAME);
-document.querySelector('meta[name="description"]')?.setAttribute('content', appDescription);
-document.querySelector('meta[property="og:title"]')?.setAttribute('content', APP_NAME);
-document.querySelector('meta[property="og:description"]')?.setAttribute('content', appDescription);
-document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', APP_NAME);
-document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', appDescription);
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {

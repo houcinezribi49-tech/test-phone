@@ -175,6 +175,8 @@ export interface StartupItem {
 export interface StoreSettings {
   id: string;
   storeName: string;
+  storeTagline?: string;
+  logo?: string;
   currency: string;
   address?: string;
   phone?: string;

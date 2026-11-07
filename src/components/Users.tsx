@@ -28,7 +28,8 @@ import { cn } from '../lib/utils';
 import { mergePermissions, PERMISSION_FLAGS, PermissionMap, PermissionPreset, permissionPreset, permissionsForPreset } from '../lib/permissions';
 import { useIsSuperAdmin } from '../lib/useIsSuperAdmin';
 import { apiRequest, checkApiHealth } from '../lib/api';
-import { APP_NAME_SLUG } from '../config/brand';
+import { slugifyAppName } from '../lib/brand';
+import { useBrand } from './BrandProvider';
 import { Badge, Button, Card, EmptyState, Input, PageHeader, Select } from './ui';
 
 const MENU_OPTIONS = [
@@ -63,6 +64,7 @@ interface UsersProps {
 }
 
 export default function Users({ userProfile }: UsersProps) {
+  const brand = useBrand();
   // Initialize with the current admin's own profile so they always appear at the top
   const [users, setUsers] = useState<UserProfile[]>(userProfile ? [userProfile] : []);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -186,7 +188,7 @@ export default function Users({ userProfile }: UsersProps) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${APP_NAME_SLUG}-permissions-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = `${slugifyAppName(brand.storeName)}-permissions-backup-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     setPermissionMigrationBackupDownloaded(true);

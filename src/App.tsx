@@ -34,7 +34,7 @@ import { Badge } from './components/ui';
 import { getPendingOperations, syncPendingOperations } from './lib/offlineManager';
 import { hasMenuAccess } from './lib/permissions';
 import BrandLogo from './components/BrandLogo';
-import { APP_LOGO_URL, APP_NAME } from './config/brand';
+import { useBrand } from './components/BrandProvider';
 import { ALLOW_SELF_SIGNUP } from './config/firebase';
 import { useCashSession } from './lib/cashSessions';
 export { hasMenuAccess } from './lib/permissions';
@@ -236,6 +236,7 @@ function Sidebar({
   cashSession: CashSessionRecord | null;
   cashSessionLoading: boolean;
 }) {
+  const { storeName } = useBrand();
   const location = useLocation();
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
@@ -258,7 +259,7 @@ function Sidebar({
         <div className="h-full flex flex-col">
           <div className="flex items-center justify-between border-b border-ds-border px-5 py-5">
             <div className="min-w-0">
-              <BrandLogo variant="full" logoUrl={APP_LOGO_URL} />
+              <BrandLogo variant="full" />
             </div>
             <button onClick={() => setIsOpen(false)} aria-label="Fermer le menu" className="ms-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ds-muted transition-colors hover:bg-ds-surface-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand lg:hidden">
               <X className="h-5 w-5" />
@@ -361,7 +362,7 @@ function Sidebar({
                   ✨ Installer l'App
                 </div>
                 <p className="mb-2.5 text-[11px] font-medium leading-relaxed text-ds-muted">
-                  Lancez {APP_NAME} en plein écran directement depuis votre écran d'accueil.
+                  Lancez {storeName} en plein écran directement depuis votre écran d'accueil.
                 </p>
                 <button
                   onClick={handleInstallApp}
@@ -863,7 +864,7 @@ export default function App() {
                 <Menu className="h-5 w-5" />
               </button>
               <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                <BrandLogo variant="icon" logoUrl={APP_LOGO_URL} className="h-9 w-9 shrink-0 rounded-xl p-2" />
+                <BrandLogo variant="icon" className="h-9 w-9 shrink-0 rounded-xl p-2" />
                 <div className="min-w-0">
                   <CurrentPageTitle userProfile={userProfile} />
                   <p className="flex items-center gap-1.5 truncate text-[10px] font-semibold text-ds-muted lg:hidden">

@@ -13,7 +13,8 @@ import { useNavigate } from 'react-router-dom';
 import { PrintableTicket } from './PrintableTicket';
 import { can } from '../lib/permissions';
 import { addCashSessionTotals, requireOpenCashSession, useCashSession } from '../lib/cashSessions';
-import { APP_NAME_SLUG } from '../config/brand';
+import { slugifyAppName } from '../lib/brand';
+import { useBrand } from './BrandProvider';
 import { Badge, Button, Card, EmptyState, Input, PageHeader, Select } from './ui';
 
 interface POSProps {
@@ -21,6 +22,7 @@ interface POSProps {
 }
 
 export default function POS({ userProfile }: POSProps) {
+  const brand = useBrand();
   const navigate = useNavigate();
   const { session: cashSession, loading: cashSessionLoading } = useCashSession(userProfile);
   const ownerId = (userProfile?.role === 'admin' ? userProfile?.uid : userProfile?.ownerId) || userProfile?.uid || auth.currentUser?.uid;
@@ -537,7 +539,7 @@ export default function POS({ userProfile }: POSProps) {
         },
         body: JSON.stringify({
           ...invoice,
-          storeName: storeSettings?.storeName,
+          storeName: storeSettings?.storeName || brand.storeName,
           address: storeSettings?.address,
           phone: storeSettings?.phone,
           date: format(new Date(), 'dd/MM/yyyy HH:mm')
@@ -548,7 +550,7 @@ export default function POS({ userProfile }: POSProps) {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${APP_NAME_SLUG}-facture-${invoice.number}.pdf`;
+      a.download = `${slugifyAppName(brand.storeName)}-facture-${invoice.number}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();

@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Repair, StoreSettings } from '../types';
-import { APP_NAME } from '../config/brand';
+import { useBrand } from './BrandProvider';
 
 interface RepairTicketProps {
   repair: Repair;
@@ -11,15 +11,18 @@ interface RepairTicketProps {
 }
 
 export function RepairTicket({ repair, ownerId }: RepairTicketProps) {
+  const brand = useBrand();
   const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null);
 
   useEffect(() => {
     const finalOwnerId = ownerId || repair.ownerId || 'store';
-    const unsubscribe = onSnapshot(doc(db, 'settings', finalOwnerId), (snapshot) => {
-      if (snapshot.exists()) {
-        setStoreSettings(snapshot.data() as StoreSettings);
-      }
-    });
+    const unsubscribe = onSnapshot(
+      doc(db, 'settings', finalOwnerId),
+      (snapshot) => {
+        if (snapshot.exists()) setStoreSettings(snapshot.data() as StoreSettings);
+      },
+      (error) => console.error('Unable to load repair ticket store settings:', error),
+    );
 
     return () => unsubscribe();
   }, [ownerId, repair.ownerId]);
@@ -36,7 +39,7 @@ export function RepairTicket({ repair, ownerId }: RepairTicketProps) {
     }
   };
 
-  const storeName = storeSettings?.storeName || APP_NAME;
+  const storeName = storeSettings?.storeName || brand.storeName;
   const storeAddress = storeSettings?.address || 'Tunisie';
   const storePhone = storeSettings?.phone || '';
   const currency = storeSettings?.currency || 'DT';
