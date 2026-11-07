@@ -1,7 +1,10 @@
 import type { StartupSection } from '../types';
 
+export type AdhkarCategory = 'matin' | 'soir' | 'vendredi' | 'general';
+
 export interface LibraryItem {
   section: StartupSection;
+  category?: AdhkarCategory;
   type: 'text';
   title: string;
   text: string;
@@ -79,10 +82,11 @@ const morningItems: LibraryItem[] = [
 ];
 
 export const adhkarLibrary: LibraryItem[] = [
-  ...morningItems,
+  ...morningItems.map((item) => ({ ...item, category: 'matin' as const })),
   ...morningItems.map((item) => ({
     ...item,
     section: 'soir' as const,
+    category: 'soir' as const,
     title: item.title === 'أصبحنا وأصبح الملك لله' ? 'أمسينا وأمسى الملك لله' : item.title,
     text: item.title === 'أصبحنا وأصبح الملك لله'
       ? item.text.replaceAll('أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ', 'أَمْسَيْنَا وَأَمْسَى الْمُلْكُ')
@@ -92,10 +96,38 @@ export const adhkarLibrary: LibraryItem[] = [
   })),
   {
     section: 'rizq',
+    category: 'general',
     type: 'text',
     title: 'رزق من القرآن',
     text: 'ٱلَّذِىٓ أَطْعَمَهُم مِّن جُوعٍۢ وَءَامَنَهُم مِّنْ خَوْفٍۭ',
     source: 'Coran Uthmani, sourate Quraysh 106:4 (AlQuran.cloud, édition quran-uthmani)',
+    repeat: 1,
+  },
+  {
+    section: 'rizq',
+    category: 'vendredi',
+    type: 'text',
+    title: 'سورة الكهف يوم الجمعة',
+    text: 'اقرؤوا سورة الكهف يوم الجمعة، وتدبروا آياتها.',
+    source: 'Sunan al-Bayhaqi 3/249, narration on reciting Surat al-Kahf on Friday',
+    repeat: 1,
+  },
+  {
+    section: 'rizq',
+    category: 'vendredi',
+    type: 'text',
+    title: 'الصلاة على النبي يوم الجمعة',
+    text: 'اللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى نَبِيِّنَا مُحَمَّدٍ',
+    source: 'Sunan Abi Dawud 1047: encouragement to send blessings upon the Prophet on Friday',
+    repeat: 1,
+  },
+  {
+    section: 'rizq',
+    category: 'vendredi',
+    type: 'text',
+    title: 'ساعة الإجابة يوم الجمعة',
+    text: 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',
+    source: 'Quran Uthmani 2:201; make dua during the Friday hour of response (Sahih al-Bukhari 935)',
     repeat: 1,
   },
 ];
