@@ -5,10 +5,10 @@ import { db, auth } from '../firebase';
 import { Client, StoreSettings, UserProfile } from '../types';
 import { handleFirestoreError, OperationType } from '../App';
 import { Plus, Search, Edit2, Trash2, X, Phone, MapPin, Wallet, Coins, AlertCircle, CheckCircle } from 'lucide-react';
-import { cn } from '../lib/utils';
 import { can, hasMenuAccess } from '../lib/permissions';
 import { addCashSessionTotals, requireOpenCashSession, useCashSession } from '../lib/cashSessions';
 import MessageComposer from './MessageComposer';
+import { Badge, Button, Card, EmptyState, Input, PageHeader, Select } from './ui';
 
 interface ClientsProps {
   userProfile: UserProfile | null;
@@ -251,98 +251,83 @@ export default function Clients({ userProfile }: ClientsProps) {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Clients</h1>
-          <p className="text-xs text-slate-400 font-medium uppercase tracking-wider mt-0.5">Gérez vos clients et leurs dettes</p>
-        </div>
-        {canAddEdit && <button
-          onClick={() => openModal()}
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all duration-300 shadow-lg shadow-indigo-600/15 group hover:-translate-y-0.5"
-        >
-          <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 duration-300" />
+    <div className="min-w-0 space-y-6">
+      <PageHeader
+        title="Clients"
+        description="Gérez vos clients et leurs dettes"
+        actions={canAddEdit && <Button onClick={() => openModal()}>
+          <Plus className="h-4 w-4" />
           Nouveau Client
-        </button>}
-      </div>
-
-      <div className="bg-white rounded-3xl border border-slate-100 shadow-xs overflow-hidden premium-shadow">
-        <div className="p-5 border-b border-slate-100 bg-slate-50/20 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
-            <input
+        </Button>}
+      />
+      <Card className="overflow-hidden p-0">
+        <div className="flex flex-col gap-4 border-b border-ds-border bg-ds-surface-2 p-4 md:flex-row md:items-center md:justify-between sm:p-5">
+          <div className="relative min-w-0 flex-1 sm:max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-ds-muted" />
+            <Input
               type="text"
               placeholder="Rechercher un client..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:bg-white text-xs font-semibold text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all duration-300"
+              className="pl-11"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setOnlyWithDebt(!onlyWithDebt)}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border cursor-pointer select-none",
-                onlyWithDebt 
-                  ? "bg-rose-50 text-rose-700 border-rose-200 shadow-xs" 
-                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-800"
-              )}
-            >
-              <Coins className={cn("w-4 h-4 transition-transform duration-300", onlyWithDebt ? "text-rose-500 scale-110" : "text-slate-400")} />
-              <span>Clients endettés uniquement</span>
-              {onlyWithDebt && (
-                <span className="ml-1.5 px-2 py-0.5 bg-rose-200 text-rose-800 text-xs font-black rounded-md">
-                  {clients.filter(c => c.debt > 0).length}
-                </span>
-              )}
-            </button>
-          </div>
+          <Button
+            variant="secondary"
+            onClick={() => setOnlyWithDebt(!onlyWithDebt)}
+            aria-pressed={onlyWithDebt}
+            className={onlyWithDebt ? 'border-ds-warning bg-ds-warning-soft text-ds-warning' : ''}
+          >
+            <Coins className="h-4 w-4" />
+            <span>Clients endettés uniquement</span>
+            {onlyWithDebt && <Badge variant="warning" className="min-h-0 px-2 py-0">{clients.filter(c => c.debt > 0).length}</Badge>}
+          </Button>
         </div>
 
-        <div className="overflow-x-auto text-[13px] font-medium text-slate-600">
-          <table className="responsive-card-table w-full text-left border-collapse">
+        <div className="overflow-x-auto text-[13px] font-medium text-ds-text-muted">
+          <table className="responsive-card-table w-full min-w-[560px] border-collapse text-left">
             <thead>
-              <tr className="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-[10px] font-extrabold uppercase tracking-widest">
+              <tr className="border-b border-ds-border bg-ds-surface-2 text-[10px] font-extrabold uppercase tracking-widest text-ds-muted">
                 <th className="px-6 py-4">CLIENT / CONTACT</th>
                 <th className="px-6 py-4">DETTE ACTUELLE</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100/70">
+            <tbody className="divide-y divide-ds-border">
               {loading ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-10 text-center text-gray-500">Chargement...</td>
+                  <td colSpan={3} className="px-6 py-10"><EmptyState title="Chargement des clients…" /></td>
                 </tr>
               ) : filteredClients.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-10 text-center text-gray-500">Aucun client trouvé.</td>
+                  <td colSpan={3} className="px-6 py-10"><EmptyState title="Aucun client trouvé." /></td>
                 </tr>
               ) : (
                 filteredClients.map((client) => (
-                  <tr key={client.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={client.id} className="transition-colors hover:bg-ds-surface-2">
                     <td data-label="Client / contact" className="px-6 py-4">
-                      <div className="font-medium text-gray-900">{client.name}</div>
-                      {client.code && <div className="text-[10px] text-gray-400 font-mono uppercase tracking-tighter">Code: {client.code}</div>}
+                      <div className="font-medium text-ds-text">{client.name}</div>
+                      {client.code && <div className="text-[10px] font-mono uppercase tracking-tighter text-ds-muted">Code: {client.code}</div>}
                       {client.address && (
-                        <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                        <div className="mt-1 flex items-center gap-1 text-xs text-ds-muted">
                           <MapPin className="w-3 h-3" />
                           {client.address}
                         </div>
                       )}
                       {client.phone ? (
-                        <div className="mt-1 flex items-center gap-1 text-sm text-gray-600">
+                        <div className="mt-1 flex items-center gap-1 text-sm text-ds-text-muted">
                           <Phone className="w-3 h-3" />
                           {client.phone}
                         </div>
                       ) : (
-                        <span className="mt-1 block text-xs italic text-gray-400">Non renseigné</span>
+                        <span className="mt-1 block text-xs italic text-ds-muted">Non renseigné</span>
                       )}
                     </td>
                     <td data-label="Dette actuelle" className="px-6 py-4">
-                      <div className="inline-flex items-center gap-1.5 rounded-full border border-red-100 bg-red-50 px-3.5 py-1.5 font-mono text-base font-black text-red-700">
-                        <Wallet className="h-4 w-4 shrink-0" />
+                      <Badge variant={client.debt > 0 ? 'warning' : 'neutral'} className="font-mono text-sm">
+                        <Wallet className="mr-1.5 h-4 w-4 shrink-0" />
                         {client.debt.toFixed(3)} {storeSettings?.currency || 'DT'}
-                      </div>
+                      </Badge>
                     </td>
                     <td data-label="Actions" className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -356,26 +341,16 @@ export default function Clients({ userProfile }: ClientsProps) {
                           defaultTemplate="rappel_paiement"
                         />
                         {canCash && client.debt > 0 && (
-                          <button
-                            onClick={() => openSettleModal(client)}
-                            className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                            title="Régler la dette"
-                          >
-                            <Coins className="w-4 h-4" />
-                          </button>
+                          <Button variant="ghost" size="sm" onClick={() => openSettleModal(client)} title="Régler la dette" aria-label="Régler la dette">
+                            <Coins className="h-4 w-4 text-ds-success" />
+                          </Button>
                         )}
-                        {canAddEdit && <button
-                          onClick={() => openModal(client)}
-                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>}
-                        {canDelete && <button
-                          onClick={() => handleDelete(client.id)}
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>}
+                        {canAddEdit && <Button variant="ghost" size="sm" onClick={() => openModal(client)} aria-label="Modifier le client">
+                          <Edit2 className="h-4 w-4 text-ds-info" />
+                        </Button>}
+                        {canDelete && <Button variant="ghost" size="sm" onClick={() => handleDelete(client.id)} aria-label="Supprimer le client">
+                          <Trash2 className="h-4 w-4 text-ds-danger" />
+                        </Button>}
                       </div>
                     </td>
                   </tr>
@@ -384,262 +359,193 @@ export default function Clients({ userProfile }: ClientsProps) {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
       {/* Modal */}
       {canAddEdit && isModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <h2 className="text-lg font-bold text-gray-900">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <Card className="w-full max-w-md overflow-hidden p-0 shadow-ds-md">
+            <div className="flex items-center justify-between border-b border-ds-border bg-ds-surface-2 px-6 py-4">
+              <h2 className="text-lg font-bold text-ds-text">
                 {editingClient ? 'Modifier Client' : 'Nouveau Client'}
               </h2>
-              <button onClick={closeModal} className="p-2 text-gray-400 hover:text-gray-650 rounded-lg">
-                <X className="w-5 h-5" />
-              </button>
+              <Button variant="ghost" size="sm" onClick={closeModal} aria-label="Fermer"><X className="h-5 w-5" /></Button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
-                    placeholder="Ahmed Ben Salah"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Code Client</label>
-                  <input
-                    type="text"
-                    value={formData.code}
-                    onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
-                    placeholder="CLI-001"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
-                  placeholder="Ex: 21 000 000"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
-                <input
+            <form onSubmit={handleSubmit} className="space-y-4 p-6">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Input
+                  label="Nom complet"
                   type="text"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
-                  placeholder="Ex: Rue de la Liberté, Tunis"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Ahmed Ben Salah"
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Dette Initiale ({storeSettings?.currency || 'DT'})</label>
-                <input
+                <Input
+                  label="Code Client"
                   type="text"
-                  inputMode="decimal"
-                  value={debtInput}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(',', '.');
-                    if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                      setDebtInput(value);
-                      setFormData({ ...formData, debt: parseFloat(value) || 0 });
-                    }
-                  }}
-                  onBlur={() => {
-                    const parsed = parseFloat(debtInput) || 0;
-                    setDebtInput(parsed.toString());
-                    setFormData({ ...formData, debt: parsed });
-                  }}
-                  placeholder="0.00"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
+                  value={formData.code}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                  placeholder="CLI-001"
                 />
               </div>
+              <Input
+                label="Téléphone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="Ex: 21 000 000"
+              />
+              <Input
+                label="Adresse"
+                type="text"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                placeholder="Ex: Rue de la Liberté, Tunis"
+              />
+              <Input
+                label={`Dette Initiale (${storeSettings?.currency || 'DT'})`}
+                type="text"
+                inputMode="decimal"
+                value={debtInput}
+                onChange={(e) => {
+                  const value = e.target.value.replace(',', '.');
+                  if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                    setDebtInput(value);
+                    setFormData({ ...formData, debt: parseFloat(value) || 0 });
+                  }
+                }}
+                onBlur={() => {
+                  const parsed = parseFloat(debtInput) || 0;
+                  setDebtInput(parsed.toString());
+                  setFormData({ ...formData, debt: parsed });
+                }}
+                placeholder="0.00"
+              />
 
-              <div className="pt-4 flex gap-3">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/15"
-                >
-                  {editingClient ? 'Enregistrer' : 'Ajouter'}
-                </button>
+              <div className="flex gap-3 pt-4">
+                <Button type="button" variant="secondary" className="flex-1" onClick={closeModal}>Annuler</Button>
+                <Button type="submit" className="flex-1">{editingClient ? 'Enregistrer' : 'Ajouter'}</Button>
               </div>
             </form>
-          </div>
+          </Card>
         </div>
       )}
 
       {canCash && isSettleModalOpen && settlingClient && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100">
-
-            {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-emerald-50/50">
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <Coins className="w-5 h-5 text-emerald-600" />
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <Card className="w-full max-w-md overflow-hidden p-0 shadow-ds-md">
+            <div className="flex items-center justify-between border-b border-ds-border bg-ds-surface-2 px-6 py-4">
+              <h2 className="flex items-center gap-2 text-lg font-bold text-ds-text">
+                <Coins className="h-5 w-5 text-ds-success" />
                 Règlement de Dette
               </h2>
-              <button onClick={closeSettleModal} className="p-2 text-gray-400 hover:text-gray-600 rounded-lg">
-                <X className="w-5 h-5" />
-              </button>
+              <Button variant="ghost" size="sm" onClick={closeSettleModal} aria-label="Fermer"><X className="h-5 w-5" /></Button>
             </div>
 
-            <div className="p-6 space-y-5">
-
-              {/* Client info + dette */}
-              <div className="bg-slate-50 p-4 rounded-xl space-y-2 border border-slate-100/50">
+            <div className="space-y-5 p-6">
+              <div className="space-y-2 rounded-ds-md border border-ds-border bg-ds-surface-2 p-4">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400 font-bold uppercase tracking-wider">Client</span>
-                  <span className="font-bold text-slate-800">{settlingClient.name}</span>
+                  <span className="font-bold uppercase tracking-wider text-ds-muted">Client</span>
+                  <span className="font-bold text-ds-text">{settlingClient.name}</span>
                 </div>
                 {settlingClient.code && (
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-400 font-bold uppercase tracking-wider">Code</span>
-                    <span className="font-mono text-slate-600">{settlingClient.code}</span>
+                    <span className="font-bold uppercase tracking-wider text-ds-muted">Code</span>
+                    <span className="font-mono text-ds-text-muted">{settlingClient.code}</span>
                   </div>
                 )}
-                <div className="flex justify-between items-center border-t border-slate-200/60 pt-2">
-                  <span className="text-rose-600 font-black uppercase tracking-wider text-xs">Dette Totale</span>
-                  <span className="font-black text-rose-600 font-mono text-xl">
+                <div className="flex justify-between items-center border-t border-ds-border pt-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-ds-warning">Dette Totale</span>
+                  <span className="font-mono text-xl font-black text-ds-warning">
                     {settlingClient.debt.toFixed(3)} {storeSettings?.currency || 'DT'}
                   </span>
                 </div>
               </div>
 
-              {/* Deux boutons de choix */}
               <div className="grid grid-cols-2 gap-3">
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
+                  className={settleAmount < settlingClient.debt && settleAmountInput !== '' || settleAmountInput === ''
+                    ? 'border-ds-warning bg-ds-warning-soft text-ds-warning'
+                    : ''}
                   onClick={() => {
                     setSettleAmountInput('');
                     setSettleAmount(0);
                   }}
-                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-xs font-black uppercase tracking-wider cursor-pointer
-                    ${settleAmount < settlingClient.debt && settleAmountInput !== ''
-                      ? 'border-amber-400 bg-amber-50 text-amber-700'
-                      : settleAmountInput === ''
-                        ? 'border-amber-300 bg-amber-50 text-amber-700'
-                        : 'border-slate-200 bg-white text-slate-500 hover:border-amber-300 hover:bg-amber-50/50'
-                    }`}
                 >
-                  <AlertCircle className="w-5 h-5" />
+                  <AlertCircle className="h-5 w-5" />
                   Paiement partiel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="secondary"
+                  className={settleAmount >= settlingClient.debt
+                    ? 'border-ds-success bg-ds-success text-ds-brand-contrast hover:brightness-90'
+                    : 'text-ds-success'}
                   onClick={() => {
                     setSettleAmountInput(settlingClient.debt.toFixed(3));
                     setSettleAmount(settlingClient.debt);
                   }}
-                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-xs font-black uppercase tracking-wider cursor-pointer
-                    ${settleAmount >= settlingClient.debt
-                      ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
-                      : 'border-slate-200 bg-white text-slate-500 hover:border-emerald-300 hover:bg-emerald-50/50'
-                    }`}
                 >
-                  <CheckCircle className="w-5 h-5" />
+                  <CheckCircle className="h-5 w-5" />
                   Solder totalement
-                </button>
+                </Button>
               </div>
 
-              {/* Champ de saisie du montant */}
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
-                  Montant payé ({storeSettings?.currency || 'DT'})
-                </label>
-                <div className="relative">
-                  <Coins className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={settleAmountInput}
-                    onFocus={(e) => e.target.select()}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(',', '.');
-                      if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                        setSettleAmountInput(value);
-                        setSettleAmount(parseFloat(value) || 0);
-                      }
-                    }}
-                    placeholder="Saisissez le montant..."
-                    className="w-full pl-9 pr-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 shadow-sm transition-colors"
-                  />
-                </div>
-              </div>
+              <Input
+                label={`Montant payé (${storeSettings?.currency || 'DT'})`}
+                type="text"
+                inputMode="decimal"
+                value={settleAmountInput}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const value = e.target.value.replace(',', '.');
+                  if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                    setSettleAmountInput(value);
+                    setSettleAmount(parseFloat(value) || 0);
+                  }
+                }}
+                placeholder="Saisissez le montant..."
+              />
 
-              <label className="block">
-                <span className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-slate-400">Mode de règlement</span>
-                <select value={settleMode} onChange={event => setSettleMode(event.target.value)} className="w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold">
-                  <option>Espèces</option><option>Carte</option><option>Virement</option>
-                </select>
-              </label>
+              <Select label="Mode de règlement" value={settleMode} onChange={event => setSettleMode(event.target.value)}>
+                <option>Espèces</option><option>Carte</option><option>Virement</option>
+              </Select>
 
-              {settleError && <div role="alert" className="rounded-xl bg-rose-50 p-3 text-xs font-semibold text-rose-700">
+              {settleError && <div role="alert" className="rounded-ds-md bg-ds-danger-soft p-3 text-xs font-semibold text-ds-danger">
                 {settleError}
                 {!cashSession && !cashSessionLoading && <button type="button" onClick={() => navigate('/cash-session')} className="ml-2 underline">Ouvrir la caisse</button>}
               </div>}
 
-              {/* Résumé dynamique */}
               {settleAmount > 0 && settleAmount < settlingClient.debt && (
-                <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 space-y-2">
-                  <div className="flex justify-between items-center text-xs text-amber-700 font-bold uppercase tracking-wider">
+                <Card className="space-y-2 border-ds-warning/30 bg-ds-warning-soft p-4">
+                  <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-ds-warning">
                     <span>Montant payé</span>
                     <span className="font-mono">{settleAmount.toFixed(3)} {storeSettings?.currency || 'DT'}</span>
                   </div>
-                  <div className="flex justify-between items-center text-sm font-black text-amber-900 border-t border-amber-200 pt-2">
+                  <div className="flex justify-between items-center border-t border-ds-warning/20 pt-2 text-sm font-black text-ds-warning">
                     <span>Reste à payer</span>
-                    <span className="font-mono text-rose-600">{(settlingClient.debt - settleAmount).toFixed(3)} {storeSettings?.currency || 'DT'}</span>
+                    <span className="font-mono">{(settlingClient.debt - settleAmount).toFixed(3)} {storeSettings?.currency || 'DT'}</span>
                   </div>
-                </div>
+                </Card>
               )}
 
               {settleAmount >= settlingClient.debt && settleAmount > 0 && (
-                <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center gap-2 text-emerald-700">
-                  <CheckCircle className="w-4 h-4 shrink-0" />
-                  <span className="text-xs font-bold">La dette sera entièrement soldée ✓</span>
-                </div>
+                <Badge variant="success" className="w-full justify-center rounded-ds-md">
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  La dette sera entièrement soldée ✓
+                </Badge>
               )}
 
-              {/* Boutons action */}
               <div className="flex gap-3 pt-1">
-                <button
-                  type="button"
-                  onClick={closeSettleModal}
-                  className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 text-xs font-bold rounded-xl hover:bg-gray-200 transition-colors uppercase tracking-wider"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSettleSubmit}
-                  disabled={settleAmount <= 0}
-                  className="flex-1 px-4 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-lg shadow-emerald-600/15 uppercase tracking-wider"
-                >
-                  Valider le paiement
-                </button>
+                <Button type="button" variant="secondary" className="flex-1" onClick={closeSettleModal}>Annuler</Button>
+                <Button type="button" className="flex-1" onClick={handleSettleSubmit} disabled={settleAmount <= 0}>Valider le paiement</Button>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       )}
     </div>

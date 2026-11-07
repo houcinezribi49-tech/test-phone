@@ -11,6 +11,7 @@ import { cn } from '../lib/utils';
 import { addPendingOperation } from '../lib/offlineManager';
 import { computeSaleProfit } from '../lib/financial';
 import { APP_NAME_SLUG } from '../config/brand';
+import { Badge, Button, Card, EmptyState, Input, PageHeader } from './ui';
 
 interface SalesProps {
   userProfile: UserProfile | null;
@@ -361,75 +362,66 @@ export default function Sales({ userProfile }: SalesProps) {
   const paidCount = sales.filter(s => s.debt === 0).length;
 
   return (
-    <div className="space-y-6 font-sans">
-
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 mb-1">Boutique</p>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none">Historique des ventes</h1>
-          <p className="text-xs text-slate-400 font-medium mt-1.5">{sales.length} transaction{sales.length > 1 ? 's' : ''} enregistrée{sales.length > 1 ? 's' : ''}</p>
-        </div>
-      </div>
+    <div className="min-w-0 space-y-6 font-sans">
+      <PageHeader
+        title="Historique des ventes"
+        description={`${sales.length} transaction${sales.length > 1 ? 's' : ''} enregistrée${sales.length > 1 ? 's' : ''}`}
+      />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Chiffre encaissé */}
-        <div className="bg-gradient-to-br from-indigo-600 to-indigo-500 rounded-2xl p-5 text-white shadow-lg shadow-indigo-600/20 relative overflow-hidden">
-          <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/5 rounded-full" />
-          <div className="absolute -bottom-6 -right-2 w-16 h-16 bg-white/5 rounded-full" />
-          <div className="relative z-10">
+        <Card className="border-ds-brand bg-ds-brand p-5 text-ds-brand-contrast shadow-ds-md">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-indigo-200">Encaissé</p>
-              <div className="w-8 h-8 bg-white/15 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-white" />
+              <p className="text-xs font-semibold uppercase tracking-wider opacity-80">Encaissé</p>
+              <div className="flex h-9 w-9 items-center justify-center rounded-ds-md bg-white/15">
+                <TrendingUp className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl font-black font-mono tracking-tight">{totalRevenue.toFixed(3)}<span className="text-sm font-bold text-indigo-200 ml-1">DT</span></p>
-          </div>
-        </div>
+            <p className="text-2xl font-black font-mono tracking-tight">{totalRevenue.toFixed(3)}<span className="ml-1 text-sm font-bold opacity-80">DT</span></p>
+        </Card>
 
         {/* Ventes payées */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-xs premium-shadow">
+        <Card className="p-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Payées</p>
-            <div className="w-8 h-8 bg-emerald-50 rounded-xl flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            <p className="text-xs font-semibold uppercase tracking-wider text-ds-muted">Payées</p>
+            <div className="flex h-9 w-9 items-center justify-center rounded-ds-md bg-ds-success-soft">
+              <CheckCircle2 className="w-4 h-4 text-ds-success" />
             </div>
           </div>
-          <p className="text-2xl font-black text-slate-900 font-mono">{paidCount}<span className="text-sm font-bold text-slate-400 ml-1">/ {sales.length}</span></p>
-          <div className="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+          <p className="text-2xl font-black text-ds-text font-mono">{paidCount}<span className="ml-1 text-sm font-bold text-ds-muted">/ {sales.length}</span></p>
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ds-surface-2">
             <div
-              className="h-full bg-emerald-500 rounded-full transition-all duration-700"
+              className="h-full rounded-full bg-ds-success transition-all duration-700"
               style={{ width: sales.length ? `${(paidCount / sales.length) * 100}%` : '0%' }}
             />
           </div>
-        </div>
+        </Card>
 
         {/* Dettes */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-xs premium-shadow">
+        <Card className="p-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Dettes</p>
-            <div className="w-8 h-8 bg-rose-50 rounded-xl flex items-center justify-center">
-              <AlertCircle className="w-4 h-4 text-rose-500" />
+            <p className="text-xs font-semibold uppercase tracking-wider text-ds-muted">Dettes</p>
+            <div className="flex h-9 w-9 items-center justify-center rounded-ds-md bg-ds-warning-soft">
+              <AlertCircle className="w-4 h-4 text-ds-warning" />
             </div>
           </div>
-          <p className="text-2xl font-black text-slate-900 font-mono">{totalDebt.toFixed(3)}<span className="text-sm font-bold text-slate-400 ml-1">DT</span></p>
-          <p className="text-[10px] text-rose-400 font-bold mt-1">{sales.filter(s => s.debt > 0).length} vente{sales.filter(s => s.debt > 0).length > 1 ? 's' : ''} en attente</p>
-        </div>
+          <p className="text-2xl font-black text-ds-text font-mono">{totalDebt.toFixed(3)}<span className="ml-1 text-sm font-bold text-ds-muted">DT</span></p>
+          <p className="mt-1 text-xs font-medium text-ds-warning">{sales.filter(s => s.debt > 0).length} vente{sales.filter(s => s.debt > 0).length > 1 ? 's' : ''} en attente</p>
+        </Card>
       </div>
 
       {/* Recherche par code produit — affiche l'historique des ventes d'un article */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-xs premium-shadow p-5">
+      <Card className="p-5">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
           <div className="w-full sm:max-w-md">
-            <label className="text-[10px] font-black uppercase tracking-[0.18em] text-indigo-500 mb-1.5 flex items-center gap-1.5">
+            <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-ds-text">
               <Package className="w-3.5 h-3.5" />
               Historique par code produit
             </label>
             <div className="relative">
-              <Package className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
+              <Package className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ds-muted" />
+              <Input
                 type="text"
                 name="product-code-search"
                 placeholder="Code-barres, ID ou nom du produit…"
@@ -438,12 +430,12 @@ export default function Sales({ userProfile }: SalesProps) {
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck={false}
-                className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 outline-none transition-all"
+                className="pl-10 pr-10"
               />
               {productCode && (
                 <button
                   onClick={() => setProductCode('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-ds-sm p-2 text-ds-muted hover:bg-ds-surface-2 hover:text-ds-text"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -451,20 +443,20 @@ export default function Sales({ userProfile }: SalesProps) {
             </div>
           </div>
           {productCode.trim() && (
-            <div className="text-xs font-bold text-slate-500 shrink-0 bg-indigo-50 text-indigo-600 px-3 py-2 rounded-xl">
+            <Badge variant="info" className="shrink-0">
               {filteredSales.length} vente{filteredSales.length > 1 ? 's' : ''} trouvée{filteredSales.length > 1 ? 's' : ''}
-            </div>
+            </Badge>
           )}
         </div>
-      </div>
+      </Card>
 
       {/* Table Card */}
-      <div className="bg-white rounded-3xl border border-slate-100 shadow-xs overflow-hidden premium-shadow">
+      <Card className="overflow-hidden p-0">
         {/* Toolbar */}
-        <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+        <div className="flex flex-col items-start justify-between gap-3 border-b border-ds-border p-4 sm:flex-row sm:items-center sm:p-5">
           <div className="relative w-full sm:max-w-xs">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ds-muted" />
+            <Input
               type="text"
               name="sales-search"
               placeholder="Client ou ID…"
@@ -473,7 +465,7 @@ export default function Sales({ userProfile }: SalesProps) {
               autoComplete="off"
               autoCorrect="off"
               spellCheck={false}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 outline-none transition-all"
+              className="pl-10 pr-4"
             />
           </div>
 
@@ -484,10 +476,10 @@ export default function Sales({ userProfile }: SalesProps) {
                 key={f}
                 onClick={() => setFilterStatus(f)}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all",
+                  "min-h-ds-touch-target rounded-ds-md px-3 text-xs font-semibold uppercase tracking-wide transition-all",
                   filterStatus === f
-                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20"
-                    : "bg-slate-50 text-slate-500 hover:bg-slate-100"
+                    ? "bg-ds-brand text-ds-brand-contrast"
+                    : "bg-ds-surface-2 text-ds-muted hover:bg-ds-border"
                 )}
               >
                 {f === 'all' ? 'Tout' : f === 'paid' ? '✓ Payé' : '⚠ Partiel'}
@@ -500,91 +492,90 @@ export default function Sales({ userProfile }: SalesProps) {
         <div className="overflow-x-auto">
           <table className="responsive-card-table w-full text-left">
             <thead>
-              <tr className="bg-slate-50/60 border-b border-slate-100">
-                <th className="px-6 py-3.5 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Date</th>
-                <th className="px-6 py-3.5 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Client</th>
-                <th className="px-6 py-3.5 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Total</th>
-                <th className="px-6 py-3.5 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Statut</th>
-                <th className="px-6 py-3.5 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 text-right">Action</th>
+                <tr className="border-b border-ds-border bg-ds-surface-2">
+                  <th className="px-6 py-3.5 text-[10px] font-black uppercase tracking-[0.15em] text-ds-muted">Date</th>
+                  <th className="px-6 py-3.5 text-[10px] font-black uppercase tracking-[0.15em] text-ds-muted">Client</th>
+                  <th className="px-6 py-3.5 text-[10px] font-black uppercase tracking-[0.15em] text-ds-muted">Total</th>
+                  <th className="px-6 py-3.5 text-[10px] font-black uppercase tracking-[0.15em] text-ds-muted">Statut</th>
+                  <th className="px-6 py-3.5 text-right text-[10px] font-black uppercase tracking-[0.15em] text-ds-muted">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody className="divide-y divide-ds-border">
               {loading ? (
                 // Skeleton rows
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i}>
                     {Array.from({ length: 5 }).map((_, j) => (
                       <td key={j} className="px-6 py-4">
-                        <div className="h-3 bg-slate-100 rounded-full animate-pulse" style={{ width: `${60 + Math.random() * 30}%` }} />
+                        <div className="h-3 animate-pulse rounded-full bg-ds-surface-2" style={{ width: `${60 + Math.random() * 30}%` }} />
                       </td>
                     ))}
                   </tr>
                 ))
               ) : filteredSales.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-16 text-center">
-                    <Receipt className="w-10 h-10 text-slate-200 mx-auto mb-3" />
-                    <p className="text-sm font-bold text-slate-400">Aucune vente trouvée</p>
-                    <p className="text-xs text-slate-300 mt-1">Essayez un autre terme de recherche</p>
+                  <td colSpan={5} className="px-6 py-10">
+                  <EmptyState
+                    icon={<Receipt className="h-10 w-10" />}
+                    title="Aucune vente trouvée"
+                    description="Essayez un autre terme de recherche"
+                  />
                   </td>
                 </tr>
               ) : (
                 filteredSales.map((sale) => (
                   <tr
                     key={sale.id}
-                    className="hover:bg-indigo-50/30 transition-colors group cursor-pointer"
+                    className="group cursor-pointer transition-colors hover:bg-ds-brand-soft/50"
                     onClick={() => setSelectedSale(sale)}
                   >
                     <td data-label="Date" className="px-6 py-4">
-                      <div className="text-sm font-bold text-slate-800">
+                      <div className="text-sm font-bold text-ds-text">
                         {sale.date?.toDate ? format(sale.date.toDate(), 'dd MMM yyyy', { locale: fr }) : '—'}
                       </div>
                       <div className="flex items-center gap-1 mt-0.5">
-                        <Clock className="w-3 h-3 text-slate-300" />
-                        <span className="text-[10px] text-slate-400 font-mono">
+                        <Clock className="w-3 h-3 text-ds-muted" />
+                        <span className="text-[10px] font-mono text-ds-muted">
                           {sale.date?.toDate ? format(sale.date.toDate(), 'HH:mm') : '—'}
                         </span>
                       </div>
                     </td>
                     <td data-label="Client" className="px-6 py-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-100 to-cyan-100 flex items-center justify-center text-[10px] font-black text-indigo-600 shrink-0">
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-ds-sm bg-ds-brand-soft text-[10px] font-black text-ds-brand">
                           {sale.clientName?.[0]?.toUpperCase() || '?'}
                         </div>
-                        <span className="text-sm font-bold text-slate-700">{sale.clientName || 'Client inconnu'}</span>
+                        <span className="text-sm font-bold text-ds-text">{sale.clientName || 'Client inconnu'}</span>
                         {saleHasLoss(sale) && (
-                          <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[9px] font-black uppercase text-rose-700">Vendu à perte</span>
+                          <Badge variant="danger" className="min-h-0 px-2 py-0.5 text-[9px] uppercase">Vendu à perte</Badge>
                         )}
                       </div>
                     </td>
                     <td data-label="Total" className="px-6 py-4">
-                      <span className="text-sm font-black text-slate-900 font-mono">{sale.total.toFixed(3)}</span>
-                      <span className="text-[10px] text-slate-400 font-bold ml-1">DT</span>
+                      <span className="text-sm font-black text-ds-text font-mono">{sale.total.toFixed(3)}</span>
+                      <span className="ml-1 text-[10px] font-bold text-ds-muted">DT</span>
                     </td>
                     <td data-label="Statut" className="px-6 py-4">
                       {sale.debt > 0 ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black bg-rose-50 text-rose-600 border border-rose-100">
-                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                          -{sale.debt.toFixed(3)} DT
-                        </span>
+                      <Badge variant="warning">-{sale.debt.toFixed(3)} DT</Badge>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-100">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                          Payé
-                        </span>
+                      <Badge variant="success">Payé</Badge>
                       )}
                     </td>
                     <td data-label="Actions" className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button
+                        <Button
+                          type="button"
                           onClick={(e) => { e.stopPropagation(); setSelectedSale(sale); }}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
+                          variant="secondary"
+                          size="sm"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           Voir
-                        </button>
+                        </Button>
 
-                        <button
+                        <Button
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             const code = userProfile?.securityCode;
@@ -598,12 +589,13 @@ export default function Sales({ userProfile }: SalesProps) {
                               setSaleToDelete(sale);
                             }
                           }}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-100"
+                          variant="danger"
+                          size="sm"
                           title="Supprimer cette vente"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                           Supprimer
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -615,55 +607,52 @@ export default function Sales({ userProfile }: SalesProps) {
 
         {/* Footer count */}
         {!loading && filteredSales.length > 0 && (
-          <div className="px-6 py-3 border-t border-slate-50 bg-slate-50/30">
-            <p className="text-[10px] font-bold text-slate-400">{filteredSales.length} résultat{filteredSales.length > 1 ? 's' : ''}</p>
+          <div className="border-t border-ds-border bg-ds-surface-2 px-6 py-3">
+            <p className="text-xs font-medium text-ds-muted">{filteredSales.length} résultat{filteredSales.length > 1 ? 's' : ''}</p>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Sale Detail Modal */}
       {selectedSale && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
           <div
-            className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-100 flex flex-col max-h-[90vh]"
+            className="bg-ds-surface rounded-ds-lg shadow-ds-md w-full max-w-2xl overflow-hidden border border-ds-border flex flex-col max-h-[90vh]"
             style={{ animation: 'modalIn 0.2s cubic-bezier(0.34,1.56,0.64,1)' }}
           >
             {/* Modal Header */}
-            <div className="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+            <div className="px-5 py-4 sm:px-8 sm:py-5 border-b border-ds-border flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center shadow-md shadow-indigo-600/20">
-                  <Receipt className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 rounded-ds-md bg-ds-brand flex items-center justify-center text-ds-brand-contrast">
+                  <Receipt className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base font-black text-slate-900 leading-none">Détails de la vente</h2>
-                  <p className="text-[10px] text-slate-400 font-mono uppercase tracking-wider mt-0.5">{selectedSale.id.slice(0, 12)}…</p>
+                  <h2 className="text-base font-black text-ds-text leading-none">Détails de la vente</h2>
+                  <p className="mt-0.5 text-[10px] font-mono uppercase tracking-wider text-ds-muted">{selectedSale.id.slice(0, 12)}…</p>
                 </div>
               </div>
-              <button
-                onClick={() => setSelectedSale(null)}
-                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
-              >
+              <Button variant="ghost" size="sm" onClick={() => setSelectedSale(null)} aria-label="Fermer">
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-8 space-y-6">
               {/* Client + Date */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-                  <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-2">Client</p>
+                <div className="rounded-ds-md border border-ds-border bg-ds-surface-2 p-4">
+                  <p className="mb-2 text-[10px] font-black uppercase tracking-[0.15em] text-ds-muted">Client</p>
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-100 to-cyan-100 flex items-center justify-center text-xs font-black text-indigo-600">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-ds-md bg-ds-brand-soft text-xs font-black text-ds-brand">
                       {selectedSale.clientName?.[0]?.toUpperCase() || '?'}
                     </div>
-                    <span className="font-black text-slate-800 text-sm">{selectedSale.clientName}</span>
+                    <span className="text-sm font-black text-ds-text">{selectedSale.clientName}</span>
                   </div>
                 </div>
-                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-                  <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-2">Date & heure</p>
+                <div className="rounded-ds-md border border-ds-border bg-ds-surface-2 p-4">
+                  <p className="mb-2 text-[10px] font-black uppercase tracking-[0.15em] text-ds-muted">Date & heure</p>
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-indigo-500 shrink-0" />
-                    <span className="font-bold text-slate-800 text-sm">
+                    <Calendar className="w-4 h-4 shrink-0 text-ds-brand" />
+                    <span className="text-sm font-bold text-ds-text">
                       {selectedSale.date?.toDate ? format(selectedSale.date.toDate(), 'PPP p', { locale: fr }) : 'Inconnue'}
                     </span>
                   </div>
@@ -672,28 +661,28 @@ export default function Sales({ userProfile }: SalesProps) {
 
               {/* Items Table */}
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-3 flex items-center gap-2">
+                <p className="mb-3 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.15em] text-ds-muted">
                   <ShoppingBag className="w-3.5 h-3.5" /> Articles vendus
                 </p>
-                <div className="overflow-x-auto rounded-2xl border border-slate-100">
+                <div className="overflow-x-auto rounded-ds-md border border-ds-border">
                   <table className="w-full min-w-[420px] text-left">
                     <thead>
-                      <tr className="bg-slate-50 border-b border-slate-100">
-                        <th className="px-5 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400">Produit</th>
-                        <th className="px-5 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400 text-center">Qté</th>
-                        <th className="px-5 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">P.U</th>
-                        <th className="px-5 py-3 text-[10px] font-black uppercase tracking-wider text-slate-400 text-right">Total</th>
+                      <tr className="border-b border-ds-border bg-ds-surface-2">
+                        <th className="px-5 py-3 text-[10px] font-black uppercase tracking-wider text-ds-muted">Produit</th>
+                        <th className="px-5 py-3 text-center text-[10px] font-black uppercase tracking-wider text-ds-muted">Qté</th>
+                        <th className="px-5 py-3 text-right text-[10px] font-black uppercase tracking-wider text-ds-muted">P.U</th>
+                        <th className="px-5 py-3 text-right text-[10px] font-black uppercase tracking-wider text-ds-muted">Total</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50">
+                    <tbody className="divide-y divide-ds-border">
                       {selectedSale.items.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="px-5 py-3 text-sm font-bold text-slate-800">{item.name}</td>
+                        <tr key={idx} className="transition-colors hover:bg-ds-surface-2">
+                          <td className="px-5 py-3 text-sm font-bold text-ds-text">{item.name}</td>
                           <td className="px-5 py-3 text-center">
-                            <span className="inline-flex items-center justify-center w-7 h-7 bg-indigo-50 text-indigo-700 text-xs font-black rounded-lg">{item.quantity}</span>
+                            <Badge variant="info" className="min-h-0 px-2 py-1">{item.quantity}</Badge>
                           </td>
-                          <td className="px-5 py-3 text-right text-xs font-mono text-slate-500">{item.price.toFixed(3)}</td>
-                          <td className="px-5 py-3 text-right text-sm font-black text-indigo-600 font-mono">{item.total.toFixed(3)} DT</td>
+                          <td className="px-5 py-3 text-right text-xs font-mono text-ds-muted">{item.price.toFixed(3)}</td>
+                          <td className="px-5 py-3 text-right text-sm font-black text-ds-brand font-mono">{item.total.toFixed(3)} DT</td>
                         </tr>
                       ))}
                     </tbody>
@@ -702,40 +691,40 @@ export default function Sales({ userProfile }: SalesProps) {
               </div>
 
               {/* Summary */}
-              <div className="bg-slate-900 rounded-2xl p-6 text-white space-y-3">
-                <div className="flex justify-between items-center text-slate-400 text-sm">
+              <Card className="space-y-3 bg-ds-surface-2 p-5">
+                <div className="flex justify-between items-center text-sm text-ds-muted">
                   <span className="font-bold uppercase tracking-wider text-xs">Total vente</span>
                   <span className="font-mono">{selectedSale.total.toFixed(3)} DT</span>
                 </div>
-                <div className="flex justify-between items-center border-t border-white/10 pt-3">
+                <div className="flex justify-between items-center border-t border-ds-border pt-3">
                   <span className="font-black uppercase tracking-wider text-xs">Montant payé</span>
-                  <span className="text-xl font-black font-mono text-emerald-400">{selectedSale.paid.toFixed(3)} DT</span>
+                  <span className="text-xl font-black font-mono text-ds-success">{selectedSale.paid.toFixed(3)} DT</span>
                 </div>
                 {selectedSale.debt > 0 && (
-                  <div className="flex justify-between items-center border-t border-white/10 pt-3">
-                    <span className="font-black uppercase tracking-wider text-xs text-rose-400">Reste à payer</span>
-                    <span className="text-xl font-black font-mono text-rose-400">{selectedSale.debt.toFixed(3)} DT</span>
+                  <div className="flex justify-between items-center border-t border-ds-border pt-3">
+                    <span className="text-xs font-black uppercase tracking-wider text-ds-warning">Reste à payer</span>
+                    <span className="text-xl font-black font-mono text-ds-warning">{selectedSale.debt.toFixed(3)} DT</span>
                   </div>
                 )}
-              </div>
+              </Card>
             </div>
 
             {/* Modal Footer */}
-            <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex gap-3">
-              <button
+            <div className="flex gap-3 border-t border-ds-border bg-ds-surface-2 p-4 sm:p-6">
+              <Button
                 onClick={() => downloadPDF(selectedSale)}
-                className="flex-1 py-3 bg-indigo-600 text-white font-black text-xs uppercase tracking-wider rounded-2xl hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
+                className="flex-1"
               >
                 <Download className="w-4 h-4" />
                 Télécharger PDF
-              </button>
-              <button
+              </Button>
+              <Button type="button" variant="secondary"
                 onClick={() => window.print()}
-                className="flex-1 py-3 bg-white border border-slate-200 text-slate-700 font-black text-xs uppercase tracking-wider rounded-2xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                className="flex-1"
               >
                 <Printer className="w-4 h-4" />
                 Imprimer
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -743,24 +732,24 @@ export default function Sales({ userProfile }: SalesProps) {
 
       {/* Security Code Modal */}
       {showSecurityModal && pendingDeleteSale && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-100">
-            <div className="px-6 py-4 border-b border-slate-100 bg-rose-50/50 flex items-center justify-between">
-              <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                <Shield className="w-4 h-4 text-rose-500" />
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <Card className="w-full max-w-sm overflow-hidden p-0 shadow-ds-md">
+            <div className="flex items-center justify-between border-b border-ds-border bg-ds-danger-soft px-6 py-4">
+              <h3 className="flex items-center gap-2 text-sm font-black uppercase tracking-wider text-ds-text">
+                <Shield className="w-4 h-4 text-ds-danger" />
                 Code de sécurité requis
               </h3>
-              <button onClick={() => { setShowSecurityModal(false); setPendingDeleteSale(null); }} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
+              <Button variant="ghost" size="sm" onClick={() => { setShowSecurityModal(false); setPendingDeleteSale(null); }} aria-label="Fermer">
                 <X className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
             <div className="p-6 space-y-4">
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-sm text-ds-muted">
                 Saisissez le code de sécurité à 4 chiffres pour autoriser la suppression de cette vente.
               </p>
               <div className="relative">
-                <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-rose-400" />
-                <input
+                <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ds-muted" />
+                <Input
                   type={showSecurityInput ? 'text' : 'password'}
                   name="sale-security-code"
                   autoComplete="one-time-code"
@@ -786,34 +775,35 @@ export default function Sales({ userProfile }: SalesProps) {
                     }
                   }}
                   placeholder="● ● ● ●"
-                  className={`w-full pl-9 pr-10 py-3 border-2 rounded-xl text-center text-xl font-mono font-black tracking-[0.5em] outline-none transition-colors ${
+                  className={`pl-9 pr-10 text-center text-xl font-mono font-black tracking-[0.5em] ${
                     securityError
-                      ? 'border-red-400 bg-red-50 text-red-700 focus:border-red-500'
-                      : 'border-slate-200 bg-white text-slate-800 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10'
+                      ? 'border-ds-danger bg-ds-danger-soft text-ds-danger'
+                      : ''
                   }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowSecurityInput(!showSecurityInput)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-ds-sm p-2 text-ds-muted hover:bg-ds-surface-2 hover:text-ds-text"
                 >
                   {showSecurityInput ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" /> }
                 </button>
               </div>
               {securityError && (
-                <p className="text-xs text-red-600 font-bold flex items-center gap-1.5">
+                <p className="flex items-center gap-1.5 text-sm font-semibold text-ds-danger">
                   <AlertCircle className="w-3.5 h-3.5" />
                   Code incorrect. Veuillez réessayer.
                 </p>
               )}
               <div className="flex gap-3 pt-1">
-                <button
+                <Button
                   onClick={() => { setShowSecurityModal(false); setPendingDeleteSale(null); setSecurityCode(''); setSecurityError(false); }}
-                  className="flex-1 px-4 py-2.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-colors uppercase tracking-wider"
+                  variant="secondary"
+                  className="flex-1"
                 >
                   Annuler
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => {
                     if (securityCode === userProfile?.securityCode) {
                       setShowSecurityModal(false);
@@ -827,59 +817,60 @@ export default function Sales({ userProfile }: SalesProps) {
                     }
                   }}
                   disabled={securityCode.length !== 4}
-                  className="flex-1 px-4 py-2.5 bg-rose-600 text-white text-xs font-bold rounded-xl hover:bg-rose-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors uppercase tracking-wider"
+                  className="flex-1"
                 >
                   Confirmer
-                </button>
+                </Button>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Sale Delete Confirmation Modal */}
       {saleToDelete && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-100 p-6 space-y-4">
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <Card className="w-full max-w-sm space-y-4 p-6 shadow-ds-md">
             <div className="flex items-start gap-3">
-              <div className="p-2.5 bg-red-50 text-red-600 rounded-xl">
+              <div className="rounded-ds-md bg-ds-danger-soft p-2.5 text-ds-danger">
                 <AlertCircle className="w-6 h-6 animate-pulse" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Supprimer la vente ?</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Êtes-vous sûr de vouloir supprimer définitivement la vente <strong className="text-slate-800">#{saleToDelete.id.slice(0, 8)}...</strong> d'un montant de <strong className="text-slate-800">{saleToDelete.total.toFixed(3)} DT</strong> ?
+                <h3 className="text-sm font-black uppercase tracking-wider text-ds-text">Supprimer la vente ?</h3>
+                <p className="text-sm leading-relaxed text-ds-muted">
+                  Êtes-vous sûr de vouloir supprimer définitivement la vente <strong className="text-ds-text">#{saleToDelete.id.slice(0, 8)}...</strong> d'un montant de <strong className="text-ds-text">{saleToDelete.total.toFixed(3)} DT</strong> ?
                 </p>
-                <p className="text-[10px] text-red-600 font-extrabold leading-normal bg-red-50/50 p-2 rounded-lg border border-red-100/50 mt-1">
+                <p className="mt-1 rounded-ds-sm border border-ds-danger/20 bg-ds-danger-soft p-2 text-xs font-semibold leading-normal text-ds-danger">
                   Cette opération va restaurer automatiquement les stocks, recalculer les rapports financiers, et soustraire la dette associée à ce client.
                 </p>
               </div>
             </div>
             
             <div className="flex gap-3 justify-end pt-2">
-              <button
+              <Button
+                type="button"
+                variant="secondary"
                 disabled={deleting}
                 onClick={() => setSaleToDelete(null)}
-                className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-700 text-xs font-bold rounded-xl transition-all border border-slate-100 cursor-pointer disabled:opacity-50"
               >
                 Annuler
-              </button>
-              <button
+              </Button>
+              <Button
+                type="button"
+                variant="danger"
                 disabled={deleting}
                 onClick={handleDeleteConfirm}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-xl transition-all shadow-md shadow-red-600/10 cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
               >
                 {deleting ? (
                   <>
-                    <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     <span>Suppression...</span>
                   </>
                 ) : (
                   <span>Confirmer</span>
                 )}
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 

@@ -1,6 +1,6 @@
 # Design system
 
-This design system is adopted incrementally. The shared tokens and components are used by the application shell (sidebar, header, and login screen) and the Dashboard; other business pages remain unmigrated.
+This design system is adopted incrementally. The shared tokens and components are used by the application shell (sidebar, header, and login screen), Dashboard, POS, Products, Sales, Invoices, and Clients; other business pages remain unmigrated.
 
 ## Tokens
 
@@ -205,3 +205,21 @@ Intentional fixed-color exceptions: the generated EAN-13 SVG in `Products.tsx` r
 The Product type currently has no image field. POS product cards therefore show a neutral package icon as a visual placeholder rather than introducing image data or changing the product model. On mobile, cart details can be collapsed while the checkout summary and payment actions remain rendered; the product grid and cart have `min-w-0`/scroll containment, and form fields use the shared controls with touch-sized targets.
 
 Firestore queries, sale and stock calculations, scan handling, writes, validation handlers, role checks, and product fields were kept unchanged. Visual verification of a complete sale, printed ticket, and product add/edit flow on desktop/mobile and with all three roles remains outstanding.
+
+## Migration 5A: Sales, Invoices, and Clients
+
+Migrated files:
+
+- `src/components/Sales.tsx`: page summary, search/filter controls, sales table, sale details, deletion/security dialogs, and PDF/print actions.
+- `src/components/Invoices.tsx`: sales/purchase invoice lists, invoice creation/detail dialogs, purchase entry/payment/cancellation forms, and related states.
+- `src/components/Clients.tsx`: client search/list, debt filter/status, client form, and debt settlement dialog.
+
+`PageHeader`, `Card`, `Badge`, `Button`, `Input`, `Select`, and `EmptyState` are used where they replace existing presentation blocks. Primary actions and selected filters use `ds-brand`; paid/received/success states use `ds-success`; partial debts and outstanding balances use `ds-warning`; deletion, cancellation, and errors use `ds-danger`; neutral surfaces, text, controls, and dividers use the corresponding `ds-*` roles. Forms use the shared 16px controls, and data tables remain horizontally scrollable on narrow screens.
+
+The baseline had 210, 326, and 154 Tailwind palette-color utility matches in Sales, Invoices, and Clients, respectively. Using the same inventory, the remaining counts are 4, 7, and 2; these are only translucent black modal overlays and white-alpha highlights/loader borders. All chromatic palette-shade utilities and hex colors were removed (0 hex colors before and after), while the neutral overlays remain intentionally fixed for contrast.
+
+Printing remains outside the migrated token styles: the existing `PrintableTicket` component and its portal markup were not changed, browser print handlers remain in place, and the purchase image-compression canvas is untouched. No `ds-*` or `var(--ds-*)` references were added to printable content or canvas output.
+
+Firestore subscriptions, query conditions, calculations, permissions, invoice/client workflows, and print/PDF handlers were preserved. Desktop/mobile rendering and the complete print flow still require visual verification.
+
+The existing Clients page has no client purchase-history/detail view in its baseline, so this visual migration did not add one or introduce a new history query.
