@@ -179,3 +179,29 @@ Dashboard correspondence examples:
 | Recharts gradients and palette colors | `--ds-brand`, `--ds-accent`, `--ds-accent-soft`, and `--ds-border` |
 
 Responsive grids, horizontally scrollable table containers, mobile field sizing, and touch target sizing were updated as presentation only. Firestore queries/subscriptions, calculations, filters, date/amount formatting, and role conditions were not changed. Visual verification on desktop/mobile and with Admin, Casier, and Technicien remains to be performed.
+
+## Migration 4: POS and Products
+
+Migrated files:
+
+- `src/components/POS.tsx`: product selection, scanner controls, category filters, cart, totals, payment controls, and sale/credit result dialogs.
+- `src/components/Products.tsx`: product header, search and category filters, responsive table, stock badges/actions, product form, category/security/delete/replenishment/history dialogs.
+
+Presentation mapping used:
+
+| Existing meaning | Design System mapping |
+|---|---|
+| Primary checkout, selected category, ordinary emphasis | `ds-brand` / `ds-brand-soft` |
+| Secondary information and stock movement | `ds-accent` / `ds-accent-soft` |
+| In-stock, successful scan, settled payment, positive benefit | `ds-success` / `ds-success-soft` |
+| Out of stock, validation errors, deletion, loss | `ds-danger` / `ds-danger-soft` |
+| Low stock, customer credit/debt, outstanding migration warning | `ds-warning` / `ds-warning-soft` |
+| Neutral backgrounds, text, controls and dividers | `ds-surface`, `ds-surface-2`, `ds-text`, `ds-text-muted`, `ds-border` |
+
+Color inventory used a hex-color search plus Tailwind palette utilities (`bg`, `text`, `border`, gradient, ring, shadow, fill, stroke, and divide). Against the branch baseline, POS had 124 hex and 155 palette matches; Products had 0 hex and 360 palette matches. Neither file has remaining matches in those categories.
+
+Intentional fixed-color exceptions: the generated EAN-13 SVG in `Products.tsx` retains white background and black bars as literal SVG fills so the printed barcode remains high-contrast and independent of CSS variables. POS printing still renders through the existing `PrintableTicket`; its markup and print styling were not changed. No `ds-*` class or `var(--ds-*)` reference was added to the generated print HTML or ticket.
+
+The Product type currently has no image field. POS product cards therefore show a neutral package icon as a visual placeholder rather than introducing image data or changing the product model. On mobile, cart details can be collapsed while the checkout summary and payment actions remain rendered; the product grid and cart have `min-w-0`/scroll containment, and form fields use the shared controls with touch-sized targets.
+
+Firestore queries, sale and stock calculations, scan handling, writes, validation handlers, role checks, and product fields were kept unchanged. Visual verification of a complete sale, printed ticket, and product add/edit flow on desktop/mobile and with all three roles remains outstanding.

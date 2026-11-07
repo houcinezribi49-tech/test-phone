@@ -7,6 +7,7 @@ import { Plus, Minus, Search, Edit2, Trash2, X, AlertTriangle, Package, Tag, Bar
 import { cn, decodeAzertyBarcode } from '../lib/utils';
 import { can } from '../lib/permissions';
 import { APP_NAME_SLUG } from '../config/brand';
+import { Badge, Button, Card, EmptyState, Input, PageHeader, Select } from './ui';
 
 interface ProductsProps {
   userProfile: UserProfile | null;
@@ -986,72 +987,72 @@ export default function Products({ userProfile }: ProductsProps) {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Articles vendables en caisse</h1>
-        </div>
-        <div className="flex flex-wrap gap-2.5">
+    <div className="min-w-0 max-w-full space-y-6">
+      <PageHeader
+        title="Articles vendables en caisse"
+        actions={<div className="flex flex-wrap gap-2.5">
           {isAdmin && <button
             onClick={previewProductCostMigration}
             disabled={!productCostsLoaded || migrationBusy}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-black uppercase tracking-wider text-amber-800 disabled:opacity-50"
+            className="inline-flex min-h-ds-touch-target items-center justify-center gap-2 rounded-ds-md border border-ds-warning/20 bg-ds-warning-soft px-4 py-3 text-xs font-black uppercase tracking-wider text-ds-warning disabled:opacity-50"
           >
             <Shield className="h-4 w-4" /> Migrer les prix d’achat
           </button>}
-          {canAddEdit && <button
+          {canAddEdit && <Button
             onClick={() => openModal()}
-            className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all duration-300 shadow-lg shadow-indigo-600/15 group hover:-translate-y-0.5 cursor-pointer"
+            className="group px-5 py-3 text-xs font-black uppercase tracking-wider shadow-ds-sm"
           >
             <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 duration-300" />
             + NOUVEL ARTICLE
-          </button>}
-        </div>
-      </div>
+          </Button>}
+        </div>}
+      />
 
-      {isAdmin && migrationPreview.length > 0 && <section className="space-y-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+      {isAdmin && migrationPreview.length > 0 && <section className="space-y-3 rounded-ds-lg border border-ds-warning/20 bg-ds-warning-soft p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div><h2 className="font-black text-amber-900">Aperçu de la séparation des prix</h2><p className="text-xs text-amber-800">{migrationPreview.length} article(s) contiennent encore un prix d’achat dans « products ».</p></div>
+          <div><h2 className="font-black text-ds-warning">Aperçu de la séparation des prix</h2><p className="text-xs text-ds-warning">{migrationPreview.length} article(s) contiennent encore un prix d’achat dans « products ».</p></div>
           <div className="flex flex-wrap gap-2">
-            <button onClick={downloadProductCostBackup} className="rounded-xl border border-amber-300 bg-white px-4 py-2.5 text-sm font-bold text-amber-800">Télécharger la sauvegarde JSON</button>
-            <button onClick={() => void confirmProductCostMigration()} disabled={!migrationBackupDownloaded || migrationBusy} className="rounded-xl bg-amber-700 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50">{migrationBusy ? 'Migration…' : 'Confirmer la migration'}</button>
+            <Button variant="secondary" onClick={downloadProductCostBackup} className="border-ds-warning/30 text-ds-warning">Télécharger la sauvegarde JSON</Button>
+            <Button onClick={() => void confirmProductCostMigration()} disabled={!migrationBackupDownloaded || migrationBusy} className="border-ds-warning bg-ds-warning text-ds-brand-contrast hover:brightness-90">{migrationBusy ? 'Migration…' : 'Confirmer la migration'}</Button>
           </div>
         </div>
-        <ul className="max-h-40 space-y-1 overflow-y-auto text-xs text-amber-950">{migrationPreview.slice(0, 100).map(item => <li key={item.id} className="rounded-lg bg-white/70 px-3 py-2">{item.name} · {item.buyPrice.toFixed(3)} {storeSettings?.currency || 'DT'}</li>)}</ul>
+        <ul className="max-h-40 space-y-1 overflow-y-auto text-xs text-ds-text">{migrationPreview.slice(0, 100).map(item => <li key={item.id} className="rounded-lg bg-ds-surface/80 px-3 py-2">{item.name} · {item.buyPrice.toFixed(3)} {storeSettings?.currency || 'DT'}</li>)}</ul>
       </section>}
 
-      <div className="bg-white rounded-3xl border border-slate-100 shadow-xs overflow-hidden premium-shadow">
-        <div className="p-5 border-b border-slate-100 bg-slate-50/20">
+      <Card className="min-w-0 overflow-hidden rounded-ds-lg p-0 shadow-ds-sm">
+        <div className="border-b border-ds-border bg-ds-surface-2 p-5">
           <div className="flex flex-col sm:flex-row gap-3">
             {/* Search bar */}
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
-              <input
+            <div className="relative min-w-0 flex-1 sm:max-w-md">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-ds-text-muted" />
+              <Input
                 type="text"
                 name="product-search"
                 autoComplete="off"
                 placeholder="Rechercher un article ou scanner un code-barres..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:bg-white text-xs font-semibold text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all duration-300"
+                aria-label="Rechercher un article ou scanner un code-barres"
+                className="pl-11 pr-4 text-base sm:text-sm"
               />
             </div>
 
             {/* Category filter */}
             <div className="relative w-full sm:w-auto">
-              <Tag className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400 pointer-events-none" />
-              <select
+              <Tag className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ds-accent pointer-events-none" />
+              <Select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full min-w-0 pl-10 pr-8 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:bg-white text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all duration-300 appearance-none cursor-pointer sm:min-w-[180px]"
+                aria-label="Filtrer par catégorie"
+                className="min-w-0 pl-10 pr-8 text-base sm:min-w-[180px] sm:text-sm"
               >
                 <option value="all">Toutes les catégories</option>
                 {filterCategories.map(catName => (
                   <option key={catName} value={catName}>{catName}</option>
                 ))}
-              </select>
+              </Select>
               <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5 text-ds-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
@@ -1061,7 +1062,7 @@ export default function Products({ userProfile }: ProductsProps) {
             {selectedCategory !== 'all' && (
               <button
                 onClick={() => setSelectedCategory('all')}
-                className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 text-indigo-700 text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+                className="inline-flex min-h-ds-touch-target items-center gap-1.5 rounded-ds-md border border-ds-brand/20 bg-ds-brand-soft px-3 py-2.5 text-xs font-black uppercase tracking-wider text-ds-brand transition-all cursor-pointer hover:bg-ds-brand-soft/80"
                 title="Réinitialiser le filtre"
               >
                 <X className="w-3.5 h-3.5" />
@@ -1072,17 +1073,17 @@ export default function Products({ userProfile }: ProductsProps) {
 
           {/* Results summary */}
           {(searchTerm || selectedCategory !== 'all') && (
-            <p className="mt-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            <p className="mt-2.5 text-[10px] font-bold text-ds-text-muted uppercase tracking-wider">
               {filteredProducts.length} résultat{filteredProducts.length !== 1 ? 's' : ''} trouvé{filteredProducts.length !== 1 ? 's' : ''}
-              {selectedCategory !== 'all' && <span className="text-indigo-500"> · {selectedCategory}</span>}
+              {selectedCategory !== 'all' && <span className="text-ds-brand"> · {selectedCategory}</span>}
             </p>
           )}
         </div>
 
-        <div className="overflow-x-auto text-[13px] font-medium text-slate-600">
-          <table className="responsive-card-table w-full text-left border-collapse">
+        <div className="min-w-0 max-w-full overflow-x-auto text-[13px] font-medium text-ds-text">
+          <table className="responsive-card-table w-full min-w-[640px] text-left border-collapse sm:min-w-0">
             <thead>
-              <tr className="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-[10px] font-extrabold uppercase tracking-widest">
+              <tr className="border-b border-ds-border bg-ds-surface-2 text-ds-text-muted text-[10px] font-extrabold uppercase tracking-widest">
                 <th className="px-6 py-4">ARTICLE</th>
                 <th className="px-6 py-4">CATÉGORIE</th>
                 {canViewBuyPrice && <th className="px-6 py-4">PRIX ACHAT</th>}
@@ -1091,53 +1092,50 @@ export default function Products({ userProfile }: ProductsProps) {
                 {canManageItems && <th className="px-6 py-4 text-right">ACTIONS</th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100/70">
+            <tbody className="divide-y divide-ds-border">
               {loading ? (
                 <tr>
-                  <td colSpan={4 + (canViewBuyPrice ? 1 : 0) + (canManageItems ? 1 : 0)} className="px-6 py-10 text-center text-gray-500">Chargement...</td>
+                  <td colSpan={4 + (canViewBuyPrice ? 1 : 0) + (canManageItems ? 1 : 0)} className="px-6 py-10">
+                    <div className="space-y-3" role="status" aria-label="Chargement des produits">
+                      <div className="mx-auto h-4 max-w-48 animate-pulse rounded bg-ds-surface-2" />
+                      <div className="mx-auto h-3 max-w-64 animate-pulse rounded bg-ds-surface-2" />
+                    </div>
+                  </td>
                 </tr>
               ) : filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={4 + (canViewBuyPrice ? 1 : 0) + (canManageItems ? 1 : 0)} className="px-6 py-10 text-center text-gray-500">Aucun produit trouvé.</td>
+                  <td colSpan={4 + (canViewBuyPrice ? 1 : 0) + (canManageItems ? 1 : 0)} className="px-6 py-10">
+                    <EmptyState title="Aucun produit trouvé" description="Modifiez la recherche ou le filtre de catégorie." />
+                  </td>
                 </tr>
               ) : (
                 filteredProducts.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={product.id} className="transition-colors hover:bg-ds-surface-2/70">
                     <td data-label="Article" className="px-6 py-4">
-                      <div className="font-medium text-gray-900">{product.name}</div>
+                      <div className="font-medium text-ds-text">{product.name}</div>
                       <div className="flex flex-col gap-0.5">
                         {product.reference && (
-                          <div className="text-[10px] font-mono text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded w-fit">
+                          <div className="text-[10px] font-mono text-ds-accent bg-ds-accent-soft px-1.5 py-0.5 rounded w-fit">
                             REF: {product.reference}
                           </div>
                         )}
                         {!product.reference && product.barcode && (
-                          <div className="text-[10px] font-mono text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded w-fit">
+                          <div className="text-[10px] font-mono text-ds-accent bg-ds-accent-soft px-1.5 py-0.5 rounded w-fit">
                             REF: {product.barcode}
                           </div>
                         )}
                         {product.expirationDate && (
-                          <div className="text-xs text-gray-500">Exp: {product.expirationDate}</div>
+                          <div className="text-xs text-ds-text-muted">Exp: {product.expirationDate}</div>
                         )}
                       </div>
                     </td>
                     <td data-label="Catégorie" className="px-6 py-4">
-                      <span className={cn(
-                        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize",
-                        (() => {
-                           const cat = categories.find(c => c.name === product.category);
-                           if (!cat) return "bg-indigo-50 text-indigo-700";
-                           return cat.type === 'boissons' ? "bg-blue-50 text-blue-700" :
-                                  cat.type === 'entretien' ? "bg-orange-50 text-orange-700" :
-                                  cat.type === 'frais' ? "bg-purple-50 text-purple-700" :
-                                  "bg-indigo-50 text-indigo-700";
-                        })()
-                      )}>
+                      <Badge variant="info" className="capitalize">
                         {product.category}
-                      </span>
+                      </Badge>
                     </td>
-                    {canViewBuyPrice && <td data-label="Prix achat" className="px-6 py-4 text-gray-600 font-mono">{product.inventoryType === 'service' ? '—' : `${(productCosts[product.id] ?? product.buyPrice ?? 0).toFixed(3)} ${storeSettings?.currency || 'DT'}`}</td>}
-                    <td data-label="Prix vente" className="px-6 py-4 text-gray-900 font-bold font-mono">{product.sellPrice.toFixed(3)} {storeSettings?.currency || 'DT'}</td>
+                    {canViewBuyPrice && <td data-label="Prix achat" className="px-6 py-4 text-ds-text-muted font-mono">{product.inventoryType === 'service' ? '—' : `${(productCosts[product.id] ?? product.buyPrice ?? 0).toFixed(3)} ${storeSettings?.currency || 'DT'}`}</td>}
+                    <td data-label="Prix vente" className="px-6 py-4 text-ds-text font-bold font-mono">{product.sellPrice.toFixed(3)} {storeSettings?.currency || 'DT'}</td>
                     <td data-label="Stock" className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         {(() => {
@@ -1147,49 +1145,48 @@ export default function Products({ userProfile }: ProductsProps) {
                           const isLow = product.stock <= threshold;
                           return (
                             <>
-                              <span className={cn(
-                                "font-medium font-mono",
-                                isLow && product.inventoryType !== 'service' ? "text-red-600 font-bold" : "text-gray-900"
-                              )}>
-                                {product.inventoryType === 'service' ? 'Service' : product.stock}
-                              </span>
-                              {isLow && product.inventoryType !== 'service' && (
-                                <span title={`Alerte stock faible (seuil : ${threshold})`}>
-                                  <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
-                                </span>
+                              {product.inventoryType === 'service' ? (
+                                <Badge variant="neutral">Service</Badge>
+                              ) : (
+                                <Badge
+                                  variant={product.stock <= 0 ? 'danger' : isLow ? 'warning' : 'success'}
+                                  title={isLow ? `Alerte stock faible (seuil : ${threshold})` : undefined}
+                                >
+                                  {product.stock <= 0 ? 'Rupture · 0' : isLow ? `Stock faible · ${product.stock}` : `En stock · ${product.stock}`}
+                                </Badge>
                               )}
                             </>
                           );
                         })()}
                       </div>
                       {canAdjustStock && product.inventoryType !== 'service' && <div className="mt-2 flex items-center gap-2">
-                        <button onClick={() => void adjustProductStock(product, -1)} disabled={product.stock <= 0} className="rounded-lg border border-slate-200 p-2 text-slate-500 disabled:opacity-40" title="Retirer une unité">−</button>
-                        <button onClick={() => void adjustProductStock(product, 1)} className="rounded-lg border border-slate-200 p-2 text-slate-500" title="Ajouter une unité">+</button>
+                        <button onClick={() => void adjustProductStock(product, -1)} disabled={product.stock <= 0} className="min-h-11 min-w-11 rounded-lg border border-ds-border bg-ds-surface text-ds-text-muted disabled:opacity-40" title="Retirer une unité">−</button>
+                        <button onClick={() => void adjustProductStock(product, 1)} className="min-h-11 min-w-11 rounded-lg border border-ds-border bg-ds-surface text-ds-text-muted" title="Ajouter une unité">+</button>
                         <button
                           onClick={() => {
                             setReplenishProduct(product);
                             setReplenishQty('');
                             setReplenishPrice(isAdmin ? (productCosts[product.id] ?? product.buyPrice).toFixed(3) : '');
                           }}
-                          className="inline-flex items-center gap-1 rounded-lg border border-emerald-150 bg-emerald-50 px-3 py-1.5 text-xs font-black uppercase tracking-wider text-emerald-700 hover:bg-emerald-100"
+                          className="inline-flex min-h-11 items-center gap-1 rounded-lg border border-ds-success/20 bg-ds-success-soft px-3 py-1.5 text-xs font-black uppercase tracking-wider text-ds-success hover:brightness-95"
                           title="Approvisionner (ajouter du stock) pour cet article"
                         >
                           + À STOCK
                         </button>
-                        <button onClick={() => void openHistory(product)} className="rounded-lg border border-slate-200 p-2 text-slate-500" title="Historique du stock"><History className="w-4 h-4" /></button>
+                        <button onClick={() => void openHistory(product)} className="min-h-11 min-w-11 rounded-lg border border-ds-border bg-ds-surface text-ds-text-muted" title="Historique du stock"><History className="w-4 h-4" /></button>
                       </div>}
                     </td>
                     {canManageItems && <td data-label="Actions" className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         {canAddEdit && <button
                           onClick={() => requestSecureAction('edit', product)}
-                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent"
+                          className="min-h-11 min-w-11 rounded-lg border border-transparent p-2 text-ds-text-muted transition-colors hover:bg-ds-accent-soft hover:text-ds-accent"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>}
                         {canDelete && <button
                           onClick={() => requestSecureAction('delete', product)}
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent"
+                          className="min-h-11 min-w-11 rounded-lg border border-transparent p-2 text-ds-text-muted transition-colors hover:bg-ds-danger-soft hover:text-ds-danger"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>}
@@ -1201,75 +1198,78 @@ export default function Products({ userProfile }: ProductsProps) {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
       {/* Modal */}
       {canAddEdit && isModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[calc(100vh-24px)] sm:max-h-[85vh] overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-150">
-            <div className="flex-shrink-0 px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <h2 className="text-lg font-bold text-gray-900">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ds-text/40 p-2 backdrop-blur-sm sm:p-4">
+          <Card className="flex max-h-[calc(100vh-24px)] w-full max-w-lg flex-col overflow-hidden rounded-ds-lg p-0 shadow-ds-md sm:max-h-[85vh]">
+            <div className="flex-shrink-0 flex items-center justify-between border-b border-ds-border bg-ds-surface-2 px-6 py-4">
+              <h2 className="text-lg font-bold text-ds-text">
                 {editingProduct ? 'Modifier Article' : 'Nouvel Article'}
               </h2>
-              <button onClick={closeModal} className="p-2 text-gray-400 hover:text-gray-600 rounded-lg cursor-pointer">
+              <button onClick={closeModal} className="min-h-11 min-w-11 rounded-lg p-2 text-ds-text-muted hover:bg-ds-surface cursor-pointer" aria-label="Fermer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
-              <div className="flex-1 overflow-y-auto p-6 space-y-4 touch-pan-y">
+              <div className="min-w-0 flex-1 touch-pan-y space-y-4 overflow-y-auto p-6">
                 {errorMsg && (
-                  <div className="p-3.5 bg-red-50 border border-red-100 rounded-xl flex items-start gap-2 text-red-700 text-xs font-medium animate-in fade-in duration-150">
+                  <div className="flex items-start gap-2 rounded-xl border border-ds-danger/20 bg-ds-danger-soft p-3.5 text-xs font-medium text-ds-danger animate-in fade-in duration-150">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                     <span className="break-all">{errorMsg}</span>
                   </div>
                 )}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Nom de l'article</label>
-                    <input
+                    <label htmlFor="product-name" className="mb-1 block text-sm font-medium text-ds-text">Nom de l'article</label>
+                    <Input
+                      id="product-name"
                       type="text"
                       required
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
+                      className="text-base sm:text-sm"
                     />
                   </div>
 
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Référence</label>
-                    <input
+                    <label htmlFor="product-reference" className="mb-1 block text-sm font-medium text-ds-text">Référence</label>
+                    <Input
+                      id="product-reference"
                       type="text"
                       value={formData.reference}
                       placeholder="Ex: REF-001"
                       onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
+                      className="text-base sm:text-sm"
                     />
                   </div>
 
                   <div className="col-span-2 space-y-2">
                     <div className="flex items-center justify-between">
-                      <label className="block text-xs font-black uppercase tracking-wider text-slate-700">
+                      <label htmlFor="product-barcode" className="block text-xs font-black uppercase tracking-wider text-ds-text">
                         Code-barres
                       </label>
-                      <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <Badge variant="success" className="gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-ds-success animate-pulse" />
                         Scanner Douchette Prêt
-                      </span>
+                      </Badge>
                     </div>
                     
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                        <Barcode className="h-4.5 w-4.5 text-indigo-500 group-focus-within:text-indigo-600" />
+                        <Barcode className="h-4.5 w-4.5 text-ds-brand group-focus-within:text-ds-brand-hover" />
                       </div>
-                      <input
+                      <Input
+                        id="product-barcode"
                         type="text"
                         placeholder="Pointez votre douchette et flashez"
                         value={formData.barcode}
                         onChange={(e) => setFormData({ ...formData, barcode: decodeAzertyBarcode(e.target.value) })}
-                        className="w-full pl-11 pr-36 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white text-xs font-bold font-mono text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all duration-300"
+                        className="min-h-[56px] pl-11 pr-36 font-mono text-base font-bold sm:text-xs"
                       />
-                      <div className="absolute inset-y-1.5 right-1.5 flex items-center gap-1">
+                      <div className="absolute right-1.5 top-1.5 flex items-center gap-1">
                         <button
                           type="button"
                           onClick={() => {
@@ -1277,7 +1277,7 @@ export default function Products({ userProfile }: ProductsProps) {
                             setFormData({ ...formData, barcode: randomCode });
                             playBeep('success');
                           }}
-                          className="h-full px-2.5 bg-slate-100 hover:bg-slate-200 text-[10px] font-black uppercase tracking-wider text-slate-600 rounded-lg transition-colors border border-slate-200 cursor-pointer"
+                          className="min-h-11 rounded-lg border border-ds-border bg-ds-surface-2 px-2.5 text-[10px] font-black uppercase tracking-wider text-ds-text-muted transition-colors hover:bg-ds-border cursor-pointer"
                           title="Générer un code-barres aléatoire commençant par 619 Tunisie"
                         >
                           Générer
@@ -1285,7 +1285,7 @@ export default function Products({ userProfile }: ProductsProps) {
                         <button
                           type="button"
                           onClick={printBarcode}
-                          className="h-full px-2.5 bg-indigo-600 hover:bg-indigo-700 text-[10px] font-black uppercase tracking-wider text-white rounded-lg transition-colors cursor-pointer"
+                          className="min-h-11 rounded-lg bg-ds-brand px-2.5 text-[10px] font-black uppercase tracking-wider text-ds-brand-contrast transition-colors hover:bg-ds-brand-hover cursor-pointer"
                           title="Imprimer l’étiquette EAN-13"
                         >
                           Imprimer
@@ -1294,18 +1294,18 @@ export default function Products({ userProfile }: ProductsProps) {
                     </div>
 
                     {scanStatus === 'scanned' && (
-                      <div className="text-[11px] font-black text-emerald-600 bg-emerald-50/80 px-3 py-1.5 rounded-xl border border-emerald-100 flex items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-300">
-                        <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                      <div className="flex items-center gap-2 rounded-xl border border-ds-success/20 bg-ds-success-soft/80 px-3 py-1.5 text-[11px] font-black text-ds-success animate-in fade-in slide-in-from-top-1 duration-300">
+                        <span className="inline-block w-2 h-2 rounded-full bg-ds-success animate-ping" />
                         <span>{scanMessage}</span>
                       </div>
                     )}
                     
-                    <p className="text-[10px] text-slate-500 font-sans leading-relaxed">
+                    <p className="font-sans text-[10px] leading-relaxed text-ds-text-muted">
                       Vous pouvez scanner directement le produit à tout moment pendant que ce formulaire est ouvert. La douchette remplira automatiquement ce champ et émettra un signal sonore.
                     </p>
                   </div>
 
-                  <label className="col-span-2 flex items-start gap-3 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3 text-sm text-slate-700">
+                  <label className="col-span-2 flex min-h-11 items-start gap-3 rounded-xl border border-ds-brand/20 bg-ds-brand-soft p-3 text-sm text-ds-text">
                     <input
                       type="checkbox"
                       checked={formData.isService}
@@ -1315,22 +1315,24 @@ export default function Products({ userProfile }: ProductsProps) {
                         isService: e.target.checked,
                         ...(e.target.checked ? { buyPrice: 0, stock: 0, lowStockAlert: 0 } : {}),
                       }))}
-                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                      className="mt-0.5 h-4 w-4 rounded border-ds-border text-ds-brand focus:ring-ds-brand"
                     />
                     <span>
                       <span className="block font-bold">C'est un service (main-d'œuvre) — sans prix d'achat ni stock</span>
-                      <span className="block text-xs text-slate-500">Les services sont vendables sans suivi ni décrément de stock.</span>
-                      {!!editingProduct && <span className="block text-xs text-slate-500">Le type d’article ne peut pas être converti après sa création.</span>}
+                      <span className="block text-xs text-ds-text-muted">Les services sont vendables sans suivi ni décrément de stock.</span>
+                      {!!editingProduct && <span className="block text-xs text-ds-text-muted">Le type d’article ne peut pas être converti après sa création.</span>}
                     </span>
                   </label>
 
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+                    <label htmlFor="product-category" className="mb-1 block text-sm font-medium text-ds-text">Catégorie</label>
                     <div className="flex gap-2">
-                      <select
+                      <Select
+                        id="product-category"
                         value={formData.category}
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                        className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none text-slate-800 bg-white"
+                        aria-label="Catégorie du produit"
+                        className="flex-1 text-base sm:text-sm"
                         required
                       >
                         {categories.length === 0 ? (
@@ -1343,12 +1345,12 @@ export default function Products({ userProfile }: ProductsProps) {
                             ))}
                           </>
                         )}
-                      </select>
+                      </Select>
                       <button
                         type="button"
                         onClick={() => setIsQuickCategoryModalOpen(true)}
                         disabled={!canAddEdit}
-                        className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-colors cursor-pointer"
+                        className="min-h-11 min-w-11 rounded-xl bg-ds-brand-soft text-ds-brand hover:bg-ds-brand/15 transition-colors cursor-pointer"
                         title="Ajouter une catégorie"
                       >
                         <Plus className="w-5 h-5" />
@@ -1357,32 +1359,35 @@ export default function Products({ userProfile }: ProductsProps) {
                   </div>
 
                   {!formData.isService && <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Stock Initial</label>
-                    <input
+                    <label htmlFor="product-stock" className="mb-1 block text-sm font-medium text-ds-text">Stock Initial</label>
+                    <Input
+                      id="product-stock"
                       type="number"
                       required
                       min="0"
                       value={formData.stock}
                       onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
                       disabled={!!editingProduct}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
+                      className="text-base sm:text-sm"
                     />
                   </div>}
 
                   {!formData.isService && <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Alerte stock faible (0)</label>
-                    <input
+                    <label htmlFor="product-low-stock-alert" className="mb-1 block text-sm font-medium text-ds-text">Alerte stock faible (0)</label>
+                    <Input
+                      id="product-low-stock-alert"
                       type="number"
                       min="0"
                       value={formData.lowStockAlert}
                       onChange={(e) => setFormData({ ...formData, lowStockAlert: parseInt(e.target.value) })}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
+                      className="text-base sm:text-sm"
                     />
                   </div>}
 
                   {canViewBuyPrice && !formData.isService && <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Prix Achat ({storeSettings?.currency || 'DT'})</label>
-                    <input
+                    <label htmlFor="product-buy-price" className="mb-1 block text-sm font-medium text-ds-text">Prix Achat ({storeSettings?.currency || 'DT'})</label>
+                    <Input
+                      id="product-buy-price"
                       type="text"
                       inputMode="decimal"
                       required
@@ -1403,13 +1408,14 @@ export default function Products({ userProfile }: ProductsProps) {
                       }}
                       placeholder="0.00"
                       readOnly={!isAdmin}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none read-only:bg-gray-100"
+                      className="text-base read-only:bg-ds-surface-2 sm:text-sm"
                     />
                   </div>}
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Prix Vente ({storeSettings?.currency || 'DT'})</label>
-                    <input
+                    <label htmlFor="product-sell-price" className="mb-1 block text-sm font-medium text-ds-text">Prix Vente ({storeSettings?.currency || 'DT'})</label>
+                    <Input
+                      id="product-sell-price"
                       type="text"
                       inputMode="decimal"
                       required
@@ -1430,110 +1436,114 @@ export default function Products({ userProfile }: ProductsProps) {
                         setFormData({ ...formData, sellPrice: rounded });
                       }}
                       placeholder="0.00"
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none read-only:bg-slate-100"
+                      className="text-base read-only:bg-ds-surface-2 sm:text-sm"
                     />
                   </div>
 
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Date Expiration</label>
-                    <input
+                    <label htmlFor="product-expiration-date" className="mb-1 block text-sm font-medium text-ds-text">Date Expiration</label>
+                    <Input
+                      id="product-expiration-date"
                       type="date"
                       value={formData.expirationDate}
                       onChange={(e) => setFormData({ ...formData, expirationDate: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none box-border"
+                      className="text-base sm:text-sm"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="flex-shrink-0 border-t border-gray-100 p-4 bg-gray-50/70 flex gap-3 pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
-                <button
+              <div className="flex-shrink-0 flex gap-3 border-t border-ds-border bg-ds-surface-2 p-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
+                <Button
+                  variant="secondary"
                   type="button"
                   onClick={closeModal}
-                  className="flex-1 px-4 py-2.5 bg-gray-150 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors cursor-pointer text-sm"
+                  className="flex-1 text-sm"
                 >
                   Annuler
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 px-4 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/15 cursor-pointer text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  loading={isSubmitting}
+                  className="flex-1 text-sm"
                 >
                   {isSubmitting ? 'Enregistrement…' : (editingProduct ? 'Enregistrer' : 'Ajouter')}
-                </button>
+                </Button>
               </div>
             </form>
-          </div>
+          </Card>
         </div>
       )}
       {/* Quick Category Modal */}
       {canAddEdit && isQuickCategoryModalOpen && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-100 flex flex-col">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <h2 className="text-base font-black text-slate-800 uppercase tracking-wide flex items-center gap-2">
-                <Tag className="w-4 h-4 text-indigo-500 animate-pulse" />
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-ds-text/40 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <Card className="flex w-full max-w-md flex-col overflow-hidden rounded-ds-lg p-0 shadow-ds-md">
+            <div className="flex items-center justify-between border-b border-ds-border bg-ds-surface-2 px-6 py-4">
+              <h2 className="flex items-center gap-2 text-base font-black uppercase tracking-wide text-ds-text">
+                <Tag className="w-4 h-4 text-ds-brand animate-pulse" />
                 Gérer les Catégories
               </h2>
-              <button onClick={() => setIsQuickCategoryModalOpen(false)} className="p-2 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer">
+              <button onClick={() => setIsQuickCategoryModalOpen(false)} className="min-h-11 min-w-11 rounded-lg p-2 text-ds-text-muted hover:bg-ds-surface cursor-pointer" aria-label="Fermer">
                 <X className="w-5 h-5" />
               </button>
             </div>
             
-            <div className="p-5 space-y-5">
+            <div className="space-y-5 p-5">
               {/* Add form */}
               <form onSubmit={handleQuickCategoryAdd} className="space-y-2">
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-600">Nouveau nom de catégorie</label>
+                <label htmlFor="new-category-name" className="block text-xs font-black uppercase tracking-wider text-ds-text-muted">Nouveau nom de catégorie</label>
                 <div className="flex gap-2">
-                  <input
+                  <Input
+                    id="new-category-name"
                     type="text"
                     autoFocus
                     required
                     value={newCategoryName}
                     onChange={(e) => setNewCategoryName(e.target.value)}
-                    className="flex-1 px-3.5 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none text-xs font-semibold placeholder:text-slate-400 bg-slate-50 focus:bg-white transition-all text-slate-900"
+                    className="flex-1 text-base sm:text-sm"
                     placeholder="Ex: Boissons, Fruits..."
                   />
-                  <button
+                  <Button
                     type="submit"
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md shadow-indigo-600/10 cursor-pointer flex items-center gap-1"
+                    className="text-xs font-black uppercase tracking-wider"
                   >
                     <Plus className="w-4 h-4" />
                     Ajouter
-                  </button>
+                  </Button>
                 </div>
               </form>
 
               {/* List of existing categories */}
               <div className="space-y-2.5">
-                <span className="block text-xs font-black uppercase tracking-wider text-slate-600 border-b border-slate-100 pb-1.5 mb-1">
+                <span className="mb-1 block border-b border-ds-border pb-1.5 text-xs font-black uppercase tracking-wider text-ds-text-muted">
                   Catégories existantes ({categories.length})
                 </span>
                 
                 <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
                   {categories.length === 0 ? (
-                    <p className="text-center py-6 text-slate-400 text-xs font-medium">Aucune catégorie enregistrée.</p>
+                    <EmptyState className="py-6" title="Aucune catégorie enregistrée" />
                   ) : (
                     categories.map((cat) => (
-                      <div key={cat.id} className="flex items-center justify-between px-3 py-2 bg-slate-50 hover:bg-slate-100/50 border border-slate-100 rounded-xl transition-all group">
+                      <div key={cat.id} className="group flex items-center justify-between rounded-xl border border-ds-border bg-ds-surface-2 px-3 py-2 transition-all hover:bg-ds-surface">
                         {deletingCatId === cat.id ? (
                           <div className="flex items-center justify-between w-full animate-in fade-in slide-in-from-right-1 duration-150">
-                            <span className="text-[11px] font-black text-red-600 uppercase tracking-wider flex items-center gap-1">
-                              <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
+                            <span className="flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-ds-danger">
+                              <AlertTriangle className="w-3.5 h-3.5 text-ds-danger" />
                               Supprimer?
                             </span>
                             <div className="flex items-center gap-1.5">
                               <button
                                 type="button"
                                 onClick={() => setDeletingCatId(null)}
-                                className="px-2 py-1 text-[10px] font-bold text-slate-500 hover:text-slate-700 bg-slate-200 rounded-lg transition-colors cursor-pointer"
+                                className="min-h-11 rounded-lg bg-ds-surface-2 px-3 py-1 text-[10px] font-bold text-ds-text-muted hover:text-ds-text transition-colors cursor-pointer"
                               >
                                 Non
                               </button>
                               <button
                                 type="button"
                                 onClick={() => executeCategoryDelete(cat.id, cat.name)}
-                                className="px-2.5 py-1 text-[10px] font-black text-white bg-red-600 hover:bg-red-700 rounded-lg transition-all cursor-pointer"
+                                className="min-h-11 rounded-lg bg-ds-danger px-3 py-1 text-[10px] font-black text-ds-brand-contrast hover:brightness-90 transition-all cursor-pointer"
                               >
                                 Oui
                               </button>
@@ -1541,15 +1551,15 @@ export default function Products({ userProfile }: ProductsProps) {
                           </div>
                         ) : (
                           <>
-                            <span className="text-xs font-bold text-slate-700 flex items-center gap-2">
-                              <Tag className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                            <span className="flex items-center gap-2 text-xs font-bold text-ds-text">
+                              <Tag className="w-3.5 h-3.5 text-ds-text-muted group-hover:text-ds-brand transition-colors" />
                               {cat.name}
                             </span>
                             
                             <button
                               type="button"
                               onClick={() => setDeletingCatId(cat.id)}
-                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                              className="min-h-11 min-w-11 rounded-lg p-1.5 text-ds-text-muted hover:bg-ds-danger-soft hover:text-ds-danger transition-colors cursor-pointer"
                               title={`Supprimer la catégorie ${cat.name}`}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1563,59 +1573,62 @@ export default function Products({ userProfile }: ProductsProps) {
               </div>
             </div>
 
-            <div className="px-6 py-3 border-t border-slate-50 bg-slate-50/50 flex justify-between items-center">
+            <div className="flex items-center justify-between border-t border-ds-border bg-ds-surface-2 px-6 py-3">
               <button
                 type="button"
                 onClick={handleResetDefaultCategories}
-                className="text-slate-500 hover:text-indigo-600 text-[10px] font-black uppercase tracking-wider underline cursor-pointer"
+                className="min-h-11 text-ds-text-muted hover:text-ds-brand text-[10px] font-black uppercase tracking-wider underline cursor-pointer"
                 title="Restaurer les catégories de base par défaut"
               >
                 Réinit. défauts
               </button>
-              <button
+              <Button
+                variant="secondary"
                 type="button"
                 onClick={() => {
                   setDeletingCatId(null);
                   setIsQuickCategoryModalOpen(false);
                 }}
-                className="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-black uppercase tracking-wider rounded-xl transition-colors cursor-pointer"
+                className="text-xs font-black uppercase tracking-wider"
               >
                 Fermer
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Security Code Modal (protects edit & delete) */}
       {showSecurityModal && pendingProduct && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-100">
-            <div className="px-6 py-4 border-b border-slate-100 bg-rose-50/50 flex items-center justify-between">
-              <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                <Shield className="w-4 h-4 text-rose-500" />
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-ds-text/60 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <Card className="w-full max-w-sm overflow-hidden rounded-ds-lg p-0 shadow-ds-md">
+            <div className="flex items-center justify-between border-b border-ds-border bg-ds-danger-soft/60 px-6 py-4">
+              <h3 className="flex items-center gap-2 text-sm font-black uppercase tracking-wider text-ds-text">
+                <Shield className="w-4 h-4 text-ds-danger" />
                 Code de sécurité requis
               </h3>
               <button
                 onClick={() => { setShowSecurityModal(false); setPendingAction(null); setPendingProduct(null); setSecurityCode(''); setSecurityError(false); }}
-                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg"
+                className="min-h-11 min-w-11 rounded-lg p-1.5 text-ds-text-muted hover:bg-ds-surface"
+                aria-label="Fermer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="p-6 space-y-4">
-              <p className="text-xs text-slate-500 font-medium">
-                Saisissez le code de sécurité à 4 chiffres pour autoriser {pendingAction === 'edit' ? 'la modification' : 'la suppression'} du produit <strong className="text-slate-800">"{pendingProduct.name}"</strong>.
+            <div className="space-y-4 p-6">
+              <p className="text-xs font-medium text-ds-text-muted">
+                Saisissez le code de sécurité à 4 chiffres pour autoriser {pendingAction === 'edit' ? 'la modification' : 'la suppression'} du produit <strong className="text-ds-text">"{pendingProduct.name}"</strong>.
               </p>
               <div className="relative">
-                <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-rose-400" />
-                <input
+                <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ds-text-muted" />
+                <Input
                   type={showSecurityInput ? 'text' : 'password'}
                   name="product-security-code"
                   autoComplete="one-time-code"
                   maxLength={4}
                   inputMode="numeric"
                   autoFocus
+                  aria-label="Code de sécurité à 4 chiffres"
                   value={securityCode}
                   onChange={(e) => {
                     const val = e.target.value.replace(/[^0-9]/g, '').slice(0, 4);
@@ -1630,124 +1643,131 @@ export default function Products({ userProfile }: ProductsProps) {
                   placeholder="● ● ● ●"
                   className={`w-full pl-9 pr-10 py-3 border-2 rounded-xl text-center text-xl font-mono font-black tracking-[0.5em] outline-none transition-colors ${
                     securityError
-                      ? 'border-red-400 bg-red-50 text-red-700 focus:border-red-500'
-                      : 'border-slate-200 bg-white text-slate-800 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10'
+                      ? 'border-ds-danger bg-ds-danger-soft text-ds-danger focus:border-ds-danger'
+                      : 'border-ds-border bg-ds-surface text-ds-text focus:border-ds-brand focus:ring-2 focus:ring-ds-brand/10'
                   }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowSecurityInput(!showSecurityInput)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-0 top-1/2 min-h-11 min-w-11 -translate-y-1/2 text-ds-text-muted hover:text-ds-text"
+                  aria-label={showSecurityInput ? 'Masquer le code' : 'Afficher le code'}
                 >
                   {showSecurityInput ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" /> }
                 </button>
               </div>
               {securityError && (
-                <p className="text-xs text-red-600 font-bold flex items-center gap-1.5">
+                <p className="flex items-center gap-1.5 text-xs font-bold text-ds-danger">
                   <AlertCircle className="w-3.5 h-3.5" />
                   Code incorrect. Veuillez réessayer.
                 </p>
               )}
               <div className="flex gap-3 pt-1">
-                <button
+                <Button
+                  variant="secondary"
                   onClick={() => { setShowSecurityModal(false); setPendingAction(null); setPendingProduct(null); setSecurityCode(''); setSecurityError(false); }}
-                  className="flex-1 px-4 py-2.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-colors uppercase tracking-wider"
+                  className="flex-1 text-xs uppercase tracking-wider"
                 >
                   Annuler
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={confirmSecureAction}
-                  className="flex-1 px-4 py-2.5 bg-rose-600 text-white text-xs font-black rounded-xl hover:bg-rose-700 transition-colors uppercase tracking-wider shadow-md shadow-rose-600/20"
+                  className="flex-1 text-xs font-black uppercase tracking-wider"
                 >
                   Valider
-                </button>
+                </Button>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Product Delete Confirmation Modal */}
       {productToDelete && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-100 p-6 space-y-4">
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-ds-text/50 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+          <Card className="w-full max-w-sm space-y-4 rounded-ds-lg p-6 shadow-ds-md">
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-red-50 text-red-600 rounded-xl">
+              <div className="rounded-xl bg-ds-danger-soft p-2 text-ds-danger">
                 <AlertTriangle className="w-6 h-6 animate-pulse" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Supprimer le produit ?</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Êtes-vous sûr de vouloir supprimer définitivement le produit <strong className="text-slate-800">"{productToDelete.name}"</strong> ? Cette action est irréversible.
+                <h3 className="text-sm font-black uppercase tracking-wider text-ds-text">Supprimer le produit ?</h3>
+                <p className="text-xs leading-relaxed text-ds-text-muted">
+                  Êtes-vous sûr de vouloir supprimer définitivement le produit <strong className="text-ds-text">"{productToDelete.name}"</strong> ? Cette action est irréversible.
                 </p>
               </div>
             </div>
 
             {errorMsg && (
-              <div className="p-3 bg-red-50 border border-red-100 rounded-xl flex items-start gap-2 text-red-700 text-xs font-medium animate-in fade-in duration-150">
+              <div className="flex items-start gap-2 rounded-xl border border-ds-danger/20 bg-ds-danger-soft p-3 text-xs font-medium text-ds-danger animate-in fade-in duration-150">
                 <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                 <span className="break-all">{errorMsg}</span>
               </div>
             )}
             
             <div className="flex gap-3 justify-end pt-2">
-              <button
+              <Button
+                variant="secondary"
                 type="button"
                 onClick={() => setProductToDelete(null)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold uppercase tracking-wider rounded-xl transition-colors cursor-pointer"
+                className="text-xs font-bold uppercase tracking-wider"
               >
                 Annuler
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="danger"
                 type="button"
                 onClick={executeProductDelete}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-colors shadow-md shadow-red-600/10 cursor-pointer"
+                className="text-xs font-black uppercase tracking-wider"
               >
                 Supprimer
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Replenish Stock Modal */}
       {replenishProduct && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col max-h-[calc(100vh-24px)] sm:max-h-[85vh] overflow-hidden border border-slate-100">
-            <div className="flex-shrink-0 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-ds-text/50 p-2 backdrop-blur-xs animate-in fade-in duration-200 sm:p-4">
+          <Card className="flex max-h-[calc(100vh-24px)] w-full max-w-md flex-col overflow-hidden rounded-ds-lg p-0 shadow-ds-md sm:max-h-[85vh]">
+            <div className="flex-shrink-0 flex items-center justify-between border-b border-ds-border px-6 py-4">
+              <h3 className="text-sm font-black uppercase tracking-wider text-ds-text">
                 Approvisionner : {replenishProduct.name}
               </h3>
               <button 
                 onClick={() => setReplenishProduct(null)}
-                className="p-1 text-gray-400 hover:text-gray-600 rounded-lg cursor-pointer"
+                className="min-h-11 min-w-11 rounded-lg p-1 text-ds-text-muted hover:bg-ds-surface-2 cursor-pointer"
+                aria-label="Fermer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             
             <form onSubmit={handleReplenishSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
-              <div className="flex-1 overflow-y-auto p-6 space-y-4 touch-pan-y">
+              <div className="flex-1 touch-pan-y space-y-4 overflow-y-auto p-6">
                 <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-600 mb-1">
+                  <label htmlFor="replenish-quantity" className="mb-1 block text-xs font-black uppercase tracking-wider text-ds-text-muted">
                     Quantité à ajouter au stock
                   </label>
-                  <input
+                  <Input
+                    id="replenish-quantity"
                     type="number"
                     required
                     min="1"
                     placeholder="Ex: 50"
                     value={replenishQty}
                     onChange={(e) => setReplenishQty(e.target.value)}
-                    className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-indigo-500 outline-none text-xs font-bold"
+                    className="text-base font-bold sm:text-sm"
                   />
                 </div>
 
                 {isAdmin && <div>
-                  <label className="block text-xs font-black uppercase tracking-wider text-slate-600 mb-1">
+                  <label htmlFor="replenish-buy-price" className="mb-1 block text-xs font-black uppercase tracking-wider text-ds-text-muted">
                     Prix d'achat unitaire ({storeSettings?.currency || 'DT'})
                   </label>
-                  <input
+                  <Input
+                    id="replenish-buy-price"
                     type="number"
                     step="0.001"
                     required
@@ -1755,23 +1775,23 @@ export default function Products({ userProfile }: ProductsProps) {
                     placeholder="Ex: 2.500"
                     value={replenishPrice}
                     onChange={(e) => setReplenishPrice(e.target.value)}
-                    className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-indigo-500 outline-none text-xs font-bold font-mono"
+                    className="font-mono text-base font-bold sm:text-sm"
                   />
                 </div>}
 
                 {isAdmin && replenishQty && replenishPrice && (
-                  <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl space-y-1 my-2">
-                    <div className="flex justify-between text-xs text-slate-500 font-medium">
+                  <div className="my-2 space-y-1 rounded-xl border border-ds-border bg-ds-surface-2 p-3.5">
+                    <div className="flex justify-between text-xs font-medium text-ds-text-muted">
                       <span>Quantité :</span>
-                      <span className="font-bold text-slate-700">{replenishQty}</span>
+                      <span className="font-bold text-ds-text">{replenishQty}</span>
                     </div>
-                    <div className="flex justify-between text-xs text-slate-500 font-medium">
+                    <div className="flex justify-between text-xs font-medium text-ds-text-muted">
                       <span>Prix unitaire :</span>
-                      <span className="font-bold text-slate-700">{parseFloat(replenishPrice).toFixed(3)} {storeSettings?.currency || 'DT'}</span>
+                      <span className="font-bold text-ds-text">{parseFloat(replenishPrice).toFixed(3)} {storeSettings?.currency || 'DT'}</span>
                     </div>
-                    <div className="border-t border-slate-200/50 my-1.5 pt-1.5 flex justify-between text-xs font-bold text-slate-800">
+                    <div className="my-1.5 flex justify-between border-t border-ds-border pt-1.5 text-xs font-bold text-ds-text">
                       <span>Dépense totale estimée :</span>
-                      <span className="text-emerald-700 font-black">
+                      <span className="font-black text-ds-success">
                         {(parseInt(replenishQty) * parseFloat(replenishPrice)).toFixed(3)} {storeSettings?.currency || 'DT'}
                       </span>
                     </div>
@@ -1779,54 +1799,57 @@ export default function Products({ userProfile }: ProductsProps) {
                 )}
               </div>
 
-              <div className="flex-shrink-0 border-t border-slate-100 p-4 bg-slate-50/70 flex gap-3 justify-end pb-[calc(1rem+env(safe-area-inset-bottom,0px))] animate-in fade-in duration-200">
-                <button
+              <div className="flex-shrink-0 flex justify-end gap-3 border-t border-ds-border bg-ds-surface-2 p-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] animate-in fade-in duration-200">
+                <Button
+                  variant="secondary"
                   type="button"
                   onClick={() => setReplenishProduct(null)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-650 text-xs font-bold uppercase tracking-wider rounded-xl transition-colors cursor-pointer"
+                  className="text-xs font-bold uppercase tracking-wider"
                 >
                   Annuler
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md shadow-emerald-600/10 cursor-pointer active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                  loading={isSubmitting}
+                  className="text-xs font-black uppercase tracking-wider"
                 >
                   {isSubmitting ? 'En cours…' : 'Confirmer'}
-                </button>
+                </Button>
               </div>
             </form>
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Stock History Modal (diagnostic) */}
       {historyProduct && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-2 sm:p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[calc(100vh-24px)] sm:max-h-[85vh] overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-150">
-            <div className="flex-shrink-0 px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <History className="w-5 h-5 text-indigo-600" />
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-ds-text/40 p-2 backdrop-blur-sm sm:p-4">
+          <Card className="flex max-h-[calc(100vh-24px)] w-full max-w-lg flex-col overflow-hidden rounded-ds-lg p-0 shadow-ds-md animate-in zoom-in-95 duration-150 sm:max-h-[85vh]">
+            <div className="flex-shrink-0 flex items-center justify-between border-b border-ds-border bg-ds-surface-2 px-6 py-4">
+              <h2 className="flex items-center gap-2 text-lg font-bold text-ds-text">
+                <History className="w-5 h-5 text-ds-brand" />
                 Historique : {historyProduct.name}
               </h2>
               <button
                 onClick={() => setHistoryProduct(null)}
-                className="p-2 text-gray-400 hover:text-gray-600 rounded-lg cursor-pointer"
+                className="min-h-11 min-w-11 rounded-lg p-2 text-ds-text-muted hover:bg-ds-surface cursor-pointer"
+                aria-label="Fermer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 touch-pan-y">
+            <div className="min-w-0 flex-1 touch-pan-y space-y-4 overflow-y-auto p-6">
               {historyLoading && (
-                <div className="flex flex-col items-center justify-center py-10 text-gray-400 gap-3">
+                <div className="flex flex-col items-center justify-center gap-3 py-10 text-ds-text-muted" role="status">
                   <Loader2 className="w-8 h-8 animate-spin" />
                   <span className="text-sm font-medium">Chargement de l'historique…</span>
                 </div>
               )}
 
               {!historyLoading && historyError && (
-                <div className="p-3.5 bg-red-50 border border-red-100 rounded-xl flex items-start gap-2 text-red-700 text-xs font-medium">
+                <div className="flex items-start gap-2 rounded-xl border border-ds-danger/20 bg-ds-danger-soft p-3.5 text-xs font-medium text-ds-danger">
                   <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                   <span>Erreur : {historyError}</span>
                 </div>
@@ -1840,33 +1863,33 @@ export default function Products({ userProfile }: ProductsProps) {
                   <>
                     {/* Résumé */}
                     <div className="grid grid-cols-3 gap-2">
-                      <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-center">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Entrées</div>
-                        <div className="text-xl font-black text-emerald-700">{historyTotals.totalIn}</div>
+                      <div className="rounded-xl border border-ds-success/20 bg-ds-success-soft p-3 text-center">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-ds-success">Entrées</div>
+                        <div className="text-xl font-black text-ds-success">{historyTotals.totalIn}</div>
                       </div>
-                      <div className="p-3 rounded-xl bg-blue-50 border border-blue-100 text-center">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-blue-700">Ventes</div>
-                        <div className="text-xl font-black text-blue-700">{historyTotals.totalOut}</div>
+                      <div className="rounded-xl border border-ds-accent/20 bg-ds-accent-soft p-3 text-center">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-ds-accent">Ventes</div>
+                        <div className="text-xl font-black text-ds-accent">{historyTotals.totalOut}</div>
                       </div>
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-600">Théorique</div>
-                        <div className="text-xl font-black text-slate-700">{theoretical}</div>
+                      <div className="rounded-xl border border-ds-border bg-ds-surface-2 p-3 text-center">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-ds-text-muted">Théorique</div>
+                        <div className="text-xl font-black text-ds-text">{theoretical}</div>
                       </div>
                     </div>
 
                     {/* Verdict écart */}
                     <div className={cn(
-                      "p-4 rounded-xl border flex items-start gap-3",
-                      gap === 0 ? "bg-emerald-50 border-emerald-150" : "bg-amber-50 border-amber-150"
+                      "flex items-start gap-3 rounded-xl border p-4",
+                      gap === 0 ? "bg-ds-success-soft border-ds-success/20" : "bg-ds-warning-soft border-ds-warning/20"
                     )}>
                       {gap === 0
-                        ? <Package className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
-                        : <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />}
+                        ? <Package className="mt-0.5 w-5 h-5 flex-shrink-0 text-ds-success" />
+                        : <AlertTriangle className="mt-0.5 w-5 h-5 flex-shrink-0 text-ds-warning" />}
                       <div className="text-xs leading-relaxed">
-                        <div className="font-bold text-gray-800">
+                        <div className="font-bold text-ds-text">
                           Stock affiché : {displayedStock} &nbsp;·&nbsp; Théorique : {theoretical} &nbsp;·&nbsp; Écart : {gap > 0 ? '+' : ''}{gap}
                         </div>
-                        <div className="mt-1 text-gray-600">
+                        <div className="mt-1 text-ds-text-muted">
                           {gap === 0 && "Cohérent : le stock affiché correspond aux mouvements enregistrés."}
                           {gap > 0 && `${gap} unité(s) en trop. Cause probable : édition manuelle du stock, ou vente hors-ligne dont la décrémentation a été écrasée à la synchronisation.`}
                           {gap < 0 && `${-gap} unité(s) manquante(s). Cause probable : vente comptée en double, ou approvisionnement non enregistré.`}
@@ -1876,11 +1899,11 @@ export default function Products({ userProfile }: ProductsProps) {
 
                     {/* Journal des mouvements */}
                     <div>
-                      <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
+                      <div className="mb-2 text-xs font-bold uppercase tracking-wider text-ds-text-muted">
                         Mouvements ({historyMovements.length})
                       </div>
                       {historyMovements.length === 0 ? (
-                        <div className="text-sm text-gray-400 italic py-4 text-center">
+                        <div className="py-4 text-center text-sm italic text-ds-text-muted">
                           Aucun mouvement enregistré. Le stock a probablement été saisi manuellement.
                         </div>
                       ) : (
@@ -1888,21 +1911,21 @@ export default function Products({ userProfile }: ProductsProps) {
                           {historyMovements.map((m, i) => (
                             <div
                               key={i}
-                              className="flex items-center justify-between px-3 py-2 rounded-lg bg-gray-50 border border-gray-100 text-xs"
+                              className="flex items-center justify-between rounded-lg border border-ds-border bg-ds-surface-2 px-3 py-2 text-xs"
                             >
                               <div className="flex items-center gap-2">
                                 {m.type === 'in'
-                                  ? <ArrowUp className="w-3.5 h-3.5 text-emerald-600" />
-                                  : <ArrowDown className="w-3.5 h-3.5 text-blue-600" />}
-                                <span className="font-medium text-gray-700">{m.label}</span>
+                                  ? <ArrowUp className="w-3.5 h-3.5 text-ds-success" />
+                                  : <ArrowDown className="w-3.5 h-3.5 text-ds-accent" />}
+                                <span className="font-medium text-ds-text">{m.label}</span>
                               </div>
                               <div className="flex items-center gap-3">
-                                <span className="text-gray-400">
+                                <span className="text-ds-text-muted">
                                   {m.date ? m.date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—'}
                                 </span>
                                 <span className={cn(
                                   "font-black tabular-nums",
-                                  m.type === 'in' ? "text-emerald-600" : "text-blue-600"
+                                  m.type === 'in' ? "text-ds-success" : "text-ds-accent"
                                 )}>
                                   {m.type === 'in' ? '+' : '−'}{m.qty}
                                 </span>
@@ -1917,16 +1940,17 @@ export default function Products({ userProfile }: ProductsProps) {
               })()}
             </div>
 
-            <div className="flex-shrink-0 border-t border-slate-100 p-4 bg-slate-50/70 flex justify-end pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
-              <button
+            <div className="flex-shrink-0 flex justify-end border-t border-ds-border bg-ds-surface-2 p-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
+              <Button
+                variant="secondary"
                 type="button"
                 onClick={() => setHistoryProduct(null)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-650 text-xs font-bold uppercase tracking-wider rounded-xl transition-colors cursor-pointer"
+                className="text-xs font-bold uppercase tracking-wider"
               >
                 Fermer
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
     </div>
