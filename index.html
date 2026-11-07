@@ -7,6 +7,7 @@
     <script>
       const applyInitialTheme = (dark) => {
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
         if (dark) document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0B1220');
       };
       try {

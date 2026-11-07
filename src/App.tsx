@@ -35,6 +35,7 @@ import { getPendingOperations, syncPendingOperations } from './lib/offlineManage
 import { hasMenuAccess } from './lib/permissions';
 import BrandLogo from './components/BrandLogo';
 import { useBrand } from './components/BrandProvider';
+import { ThemeSelector } from './components/ThemeProvider';
 import { ALLOW_SELF_SIGNUP } from './config/firebase';
 import { useCashSession } from './lib/cashSessions';
 export { hasMenuAccess } from './lib/permissions';
@@ -303,6 +304,10 @@ function Sidebar({
               </section>
             ))}
           </nav>
+
+          <div className="border-t border-ds-border px-4 py-3">
+            <ThemeSelector className="w-full justify-center lg:hidden" />
+          </div>
 
           {/* PWA / Offline Status Cards in Sidebar */}
           <div className="space-y-3 px-4 py-3">
@@ -1010,6 +1015,8 @@ export default function App() {
                   <CircleDollarSign className="h-5 w-5" />
                 </Link>
               )}
+
+              <ThemeSelector className="hidden lg:flex" />
 
               <div className="hidden items-center gap-2.5 lg:flex">
                 <span className="max-w-56 truncate text-[12px] font-medium text-ds-muted">{user.email}</span>
