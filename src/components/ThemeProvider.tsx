@@ -1,4 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { Monitor, Moon, Sun } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
 
@@ -64,4 +66,26 @@ export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) throw new Error('useTheme must be used within ThemeProvider.');
   return context;
+}
+
+export function ThemeSelector({ className }: { className?: string }) {
+  const { theme, setTheme } = useTheme();
+  const Icon = theme === 'dark' ? Moon : theme === 'light' ? Sun : Monitor;
+
+  return (
+    <label className={cn('flex min-h-11 items-center gap-2 rounded-ds-md border border-ds-border bg-ds-surface px-3 text-ds-text', className)}>
+      <Icon aria-hidden="true" className="h-4 w-4 shrink-0 text-ds-brand" />
+      <span className="sr-only">Thème de l’application</span>
+      <select
+        aria-label="Thème de l’application"
+        value={theme}
+        onChange={(event) => setTheme(event.target.value as ThemePreference)}
+        className="min-w-0 cursor-pointer bg-transparent text-sm font-semibold text-ds-text outline-none"
+      >
+        <option value="light">Clair</option>
+        <option value="dark">Sombre</option>
+        <option value="system">Système</option>
+      </select>
+    </label>
+  );
 }
