@@ -109,8 +109,6 @@ export default function Sales({ userProfile }: SalesProps) {
           userName
         });
 
-        console.log('[SALES OFFLINE] Sale deleted and queued successfully!');
-
       } else {
         // --- ONLINE DELETE FLOW ---
         // writeBatch : atomique mais sans les contraintes read-before-write de runTransaction
