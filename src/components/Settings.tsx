@@ -16,6 +16,7 @@ import { adhkarLibrary } from '../data/adhkar';
 import { verses } from '../data/verses';
 import { isDirectAudioUrl } from '../lib/startup';
 import { Badge, Button, Card, Input, PageHeader, Select } from './ui';
+import { useTheme, type ThemePreference } from './ThemeProvider';
 
 interface SettingsProps {
   userProfile: UserProfile | null;
@@ -292,6 +293,7 @@ export default function Settings({
   const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState<string | null>(null);
+  const { theme, setTheme } = useTheme();
 
   const ownerId = (userProfile?.role === 'admin' ? userProfile?.uid : userProfile?.ownerId) || userProfile?.uid || auth.currentUser?.uid;
   const { config: startupConfig, canManage: canManageStartup } = useStartup();
@@ -974,6 +976,21 @@ export default function Settings({
             tabIndex={0}
             className={cn('min-w-0', activeTab !== 'application' && 'hidden')}
           >
+            <Card className="mb-6 grid min-w-0 gap-4 p-5 sm:grid-cols-2 sm:items-end">
+              <div className="min-w-0">
+                <h2 className="text-sm font-bold text-ds-text">Apparence</h2>
+                <p className="mt-1 text-sm text-ds-muted">Choisissez le thème clair, sombre ou celui de votre appareil.</p>
+              </div>
+              <Select
+                label="Thème de l’application"
+                value={theme}
+                onChange={(event) => setTheme(event.target.value as ThemePreference)}
+              >
+                <option value="light">Clair</option>
+                <option value="dark">Sombre</option>
+                <option value="system">Système</option>
+              </Select>
+            </Card>
             <InstallAppCard deferredPrompt={deferredPrompt} handleInstallApp={handleInstallApp} isIOS={isIOS} isStandalone={isStandalone} />
           </section>
 

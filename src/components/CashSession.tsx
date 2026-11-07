@@ -142,7 +142,7 @@ export default function CashSession({ userProfile }: { userProfile: UserProfile 
               <input type="number" min="0" step="0.001" value={countedInput} onChange={event => setCountedInput(event.target.value)} className="w-full rounded-xl border border-slate-200 px-3 py-2.5" required />
             </label>
             <p className="pb-2 text-sm font-bold text-slate-600">Écart indicatif : {(Number(countedInput || 0) - currentExpected).toFixed(3)} DT</p>
-            <button disabled={saving} className="min-h-11 rounded-xl bg-rose-600 px-5 font-bold text-white disabled:opacity-50">{saving ? 'Clôture…' : 'Clôturer la session'}</button>
+            <button disabled={saving} className="min-h-11 rounded-xl bg-ds-brand px-5 font-bold text-ds-brand-contrast hover:bg-ds-brand-hover disabled:opacity-50">{saving ? 'Clôture…' : 'Clôturer la session'}</button>
           </form>
         </section>
       ) : (

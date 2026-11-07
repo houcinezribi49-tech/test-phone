@@ -262,7 +262,7 @@ export default function StartupAdmin({ userProfile }: { userProfile: UserProfile
             <article key={item.id} className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  {item.type === 'audio' ? <Music2 className="h-4 w-4 text-indigo-500" /> : item.type === 'image' ? <ImagePlus className="h-4 w-4 text-amber-500" /> : null}
+                  {item.type === 'audio' ? <Music2 className="h-4 w-4 text-indigo-500" /> : item.type === 'image' ? <ImagePlus className="h-4 w-4 text-ds-accent" /> : null}
                   <h3 className="truncate font-bold text-slate-800">{item.title}</h3>
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${item.active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>{item.active ? 'Actif' : 'Désactivé'}</span>
                 </div>

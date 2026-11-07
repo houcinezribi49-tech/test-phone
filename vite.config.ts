@@ -138,7 +138,7 @@ function salesBuildPlugin(environment: Record<string, string>): Plugin {
           orientation: 'any',
           lang: 'fr',
           theme_color: brand.primaryColor,
-          background_color: '#F6F7FB',
+          background_color: '#0B1220',
           categories: ['business', 'productivity'],
           icons: [
             { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },

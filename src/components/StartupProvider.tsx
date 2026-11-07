@@ -352,7 +352,7 @@ function StartupOverlay({
       aria-modal="true"
       aria-label="Coran & Adhkar"
       tabIndex={-1}
-      className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-950 via-indigo-950 to-slate-950 px-5 text-white"
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-ds-bg px-5 text-ds-text"
     >
       <div className="pointer-events-none absolute inset-0 opacity-[0.13]" aria-hidden="true">
         <svg width="100%" height="100%">
@@ -364,30 +364,30 @@ function StartupOverlay({
           <rect width="100%" height="100%" fill="url(#startup-geometry)" />
         </svg>
       </div>
-      <button onClick={onClose} className="absolute right-5 top-5 z-10 rounded-full border border-white/20 bg-white/10 p-3 hover:bg-white/20" aria-label="Fermer">
+      <button onClick={onClose} className="absolute right-5 top-5 z-10 rounded-full border border-ds-border bg-ds-surface-2 p-3 text-ds-text hover:bg-ds-border" aria-label="Fermer">
         <X className="h-5 w-5" />
       </button>
       <main className="relative flex w-full max-w-5xl flex-col items-center text-center">
-        <p className="mb-8 text-xs font-semibold uppercase tracking-[0.35em] text-amber-200/80">Coran &amp; Adhkar</p>
+        <p className="mb-8 text-xs font-semibold uppercase tracking-[0.35em] text-ds-brand">Coran &amp; Adhkar</p>
         <article className="animate-in fade-in duration-700">
-          <h1 className="font-arabic mb-6 text-2xl font-semibold text-amber-200 md:text-3xl" dir="rtl" lang="ar">
+          <h1 className="font-arabic mb-6 text-2xl font-semibold text-ds-brand md:text-3xl" dir="rtl" lang="ar">
             {config.welcomeTitle || firstVerse.title}
           </h1>
           <p className="font-arabic text-3xl leading-[1.9] md:text-5xl md:leading-[1.9]" dir="rtl" lang="ar">
             {config.welcomeText || firstVerse.text}
           </p>
-          {config.welcomeSource && <p className="mt-6 text-xs text-white/60">{config.welcomeSource}</p>}
+          {config.welcomeSource && <p className="mt-6 text-xs text-ds-muted">{config.welcomeSource}</p>}
         </article>
         {!audioAllowed ? (
-          <p className="mt-8 text-sm text-white/70">الصوت غير مفعّل لهذا الحساب.</p>
+          <p className="mt-8 text-sm text-ds-muted">الصوت غير مفعّل لهذا الحساب.</p>
         ) : !hasAudio ? (
-          <p className="mt-8 text-sm text-amber-100/80">أضف مقطعًا صوتيًا من الإعدادات</p>
+          <p className="mt-8 text-sm text-ds-accent">أضف مقطعًا صوتيًا من الإعدادات</p>
         ) : audioMessage ? (
-          <p role="status" className="mt-8 text-sm text-amber-100/80">{audioMessage}</p>
+          <p role="status" className="mt-8 text-sm text-ds-accent">{audioMessage}</p>
         ) : null}
         <button
           onClick={onEnter}
-          className="mt-10 rounded-full border border-amber-200/40 bg-amber-300 px-10 py-4 text-lg font-black text-slate-950 shadow-xl shadow-amber-950/30 transition hover:bg-amber-200"
+          className="mt-10 rounded-full bg-ds-brand px-10 py-4 text-lg font-black text-ds-brand-contrast shadow-ds-md transition hover:bg-ds-brand-hover"
         >
           دخول
         </button>
@@ -400,11 +400,11 @@ export function StartupMiniPlayer() {
   const { config, audioAllowed, audioPlaying, muted, toggleAudio, toggleMute } = useStartup();
   if (!config.enabled || !audioAllowed || !isDirectAudioUrl(config.audioUrl || '')) return null;
   return (
-    <div className="fixed bottom-4 right-4 z-40 flex items-center gap-2 rounded-full border border-indigo-100 bg-white/95 px-2 py-1 shadow-lg backdrop-blur">
-      <button className="rounded-full p-2 text-indigo-700 hover:bg-indigo-50" onClick={toggleAudio} aria-label={audioPlaying ? 'إيقاف الصوت' : 'تشغيل الصوت'}>
+    <div className="fixed bottom-4 right-4 z-40 flex items-center gap-2 rounded-full border border-ds-border bg-ds-surface px-2 py-1 shadow-ds-md backdrop-blur">
+      <button className="rounded-full p-2 text-ds-brand hover:bg-ds-brand-soft" onClick={toggleAudio} aria-label={audioPlaying ? 'إيقاف الصوت' : 'تشغيل الصوت'}>
         {audioPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
       </button>
-      <button className="rounded-full p-2 text-indigo-700 hover:bg-indigo-50" onClick={toggleMute} aria-label={muted ? 'تشغيل الصوت' : 'كتم الصوت'}>
+      <button className="rounded-full p-2 text-ds-brand hover:bg-ds-brand-soft" onClick={toggleMute} aria-label={muted ? 'تشغيل الصوت' : 'كتم الصوت'}>
         {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
       </button>
     </div>

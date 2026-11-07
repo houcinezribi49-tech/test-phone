@@ -1,6 +1,6 @@
 # Design system
 
-This design system is adopted incrementally. The shared tokens and components are used by the application shell (sidebar, header, and login screen), Dashboard, POS, Products, Sales, Invoices, Clients, Repairs, Expenses, Reports, Settings, and Users. CashSession, Parts, and Notes remain unmigrated; supplier management is part of Invoices. `Statistics.tsx` is not connected to an application route.
+This design system is adopted incrementally. Shared tokens and components are used by the application shell (sidebar, header, and login screen), Dashboard, POS, Products, Sales, Invoices, Clients, Repairs, Expenses, Reports, Settings, and Users. CashSession, Parts, Notes, StartupAdmin, MessageComposer, and some shell/modal markup retain legacy presentation utilities; Migration 6 maps remaining screen utilities to role tokens. Supplier management is part of Invoices. `Statistics.tsx` is not connected to an application route.
 
 ## Tokens
 
@@ -246,6 +246,20 @@ The migrated sections use `PageHeader`, `Card`, `Badge`, `Button`, `Input`, `Sel
 Expenses had 55 named Tailwind palette-color utility matches before and 0 after; Reports had 36 before and 0 after. Both files had 0 hex colors before and after. No printed, PDF, or canvas output exists in either page. Reports currently renders summary cards and text breakdowns rather than charts, and neither page currently provides export actions; this migration did not add those behaviors.
 
 Firestore subscriptions and transaction writes, summary calculations, filters, role checks, cash-session requirements, and existing navigation were preserved. Lint and production build pass; desktop/mobile rendering and the expense dialog interaction still require visual verification.
+
+## Migration 6: Dark mode
+
+Added `src/components/ThemeProvider.tsx`, wrapped the application in it from `src/index.tsx`, and added an early preference-resolution script to `index.html`. The preference (`light`, `dark`, or `system`) is stored under `phone-clinic-theme` with guarded localStorage access. System mode tracks `prefers-color-scheme`; `data-theme` is resolved before React's first render.
+
+`src/index.css` now defines dark role values for brand, surfaces, text, muted text, borders, and success/danger/warning/info states. Dark surfaces use blue-navy values rather than pure black. Existing legacy palette utilities are adapted by semantic role on screen only (neutral surfaces/text, brand actions, informational blue, success, danger, and warnings); print media is excluded from that compatibility layer. `Parts` distinguishes out-of-stock danger from low-stock warning, `CashSession` and `Notes` use brand-colored primary actions, and `StartupProvider`/`BrandLogo` use the shared tokens directly.
+
+The Application tab in `src/components/Settings.tsx` now offers Clair, Sombre, and Système without changing existing permissions or settings data. The runtime theme-color meta follows the resolved theme. The generated PWA manifest retains the dynamic brand theme color and uses the dark navy app background; the manifest format has one static theme color, while the runtime meta follows the selected theme.
+
+Print remains light: the dark utility compatibility rules are screen-only, print token values are reset to light, and no design-system variables or classes were added to generated invoice, ticket, PDF, iframe, or canvas content. Existing fixed-color print content remains unchanged.
+
+The TSX palette-utility inventory decreased from 530 occurrences at the branch baseline to 485; the remaining legacy utilities are role-mapped on screen, while fixed print markup is intentionally left alone. TSX hex literals decreased from 6 to 1; the remaining literal is the dark theme-color constant. Dark text, muted text, brand, and semantic status pairings were measured at or above 4.5:1.
+
+Lint and production build pass; the build retains the existing >500 kB main-chunk warning. Browser checks covered login in light/dark mode, `system` preference changes, mobile width, representative legacy utility mappings, and light print media. Other pages and role-specific flows were not visually verified; `Statistics.tsx` is not routed and was not separately exercised.
 
 ## Migration 5D: Settings and Users
 
