@@ -24,6 +24,16 @@ interface SettingsProps {
   isStandalone?: boolean;
 }
 
+type SettingsTab = 'boutique' | 'coran-adhkar' | 'compte-securite' | 'donnees' | 'application';
+
+function getSettingsTabFromHash(hash: string): SettingsTab | null {
+  const value = hash.replace(/^#/, '');
+  if (value === 'startup-settings') return 'coran-adhkar';
+  return ['boutique', 'coran-adhkar', 'compte-securite', 'donnees', 'application'].includes(value)
+    ? value as SettingsTab
+    : null;
+}
+
 // ── Carte "Mon code de sécurité" : chaque utilisateur peut changer son propre code à 4 chiffres.
 // Vérification obligatoire avant le changement : mot de passe du compte OU code reçu par email.
 function SecurityCodeCard({ userProfile }: { userProfile: UserProfile | null }) {
@@ -304,6 +314,17 @@ export default function Settings({
 
   const ownerId = (userProfile?.role === 'admin' ? userProfile?.uid : userProfile?.ownerId) || userProfile?.uid || auth.currentUser?.uid;
   const { config: startupConfig, canManage: canManageStartup } = useStartup();
+  const canAccessStoreSettings = !userProfile || hasMenuAccess(userProfile, 'settings');
+  const isTabAvailable = (tab: SettingsTab) => {
+    if (tab === 'compte-securite' || tab === 'application') return true;
+    if (tab === 'coran-adhkar') return canAccessStoreSettings && canManageStartup;
+    return canAccessStoreSettings;
+  };
+  const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
+    const requestedTab = getSettingsTabFromHash(window.location.hash);
+    if (requestedTab && isTabAvailable(requestedTab)) return requestedTab;
+    return canAccessStoreSettings ? 'boutique' : 'compte-securite';
+  });
   const [startupEnabled, setStartupEnabled] = useState(startupConfig.enabled);
   const [welcomeTitle, setWelcomeTitle] = useState(startupConfig.welcomeTitle || verses[0].title);
   const [welcomeText, setWelcomeText] = useState(startupConfig.welcomeText || verses[0].text);
@@ -312,6 +333,30 @@ export default function Settings({
   const [startupSaving, setStartupSaving] = useState(false);
   const [startupMessage, setStartupMessage] = useState('');
   const [startupAudioTestMessage, setStartupAudioTestMessage] = useState('');
+  const [storeFormData, setStoreFormData] = useState({
+    storeName: '',
+    currency: '',
+    address: '',
+    phone: '',
+    whatsappCountryCode: '216',
+    messageTemplates: { ...DEFAULT_MESSAGE_TEMPLATES },
+    tva: 0,
+    tvaEnabled: false,
+    deleteCode: '',
+    minStockAlert: 5
+  });
+  const [isExporting, setIsExporting] = useState(false);
+  const [isPurging, setIsPurging] = useState(false);
+  const [purgeDate, setPurgeDate] = useState('');
+  const [purgeSales, setPurgeSales] = useState(true);
+  const [purgeInvoices, setPurgeInvoices] = useState(true);
+  const [activityStartDate, setActivityStartDate] = useState('');
+  const [activityEndDate, setActivityEndDate] = useState('');
+  const [isGeneratingActivity, setIsGeneratingActivity] = useState(false);
+  const [activityError, setActivityError] = useState('');
+  const [showActivityLogModal, setShowActivityLogModal] = useState(false);
+  const [activityLogLines, setActivityLogLines] = useState<string[]>([]);
+  const [isLoadingActivityView, setIsLoadingActivityView] = useState(false);
   const startupAudioPreview = React.useRef<HTMLAudioElement>(null);
   const welcomeChoices = [
     ...verses.map((verse) => ({ id: `verse:${verse.title}`, ...verse })),
@@ -320,6 +365,22 @@ export default function Settings({
   const selectedWelcomeChoice = welcomeChoices.find(
     (choice) => choice.title === welcomeTitle && choice.text === welcomeText,
   )?.id || 'custom';
+
+  useEffect(() => {
+    const syncTabWithHash = () => {
+      const requestedTab = getSettingsTabFromHash(window.location.hash);
+      if (requestedTab && isTabAvailable(requestedTab)) setActiveTab(requestedTab);
+    };
+    window.addEventListener('hashchange', syncTabWithHash);
+    syncTabWithHash();
+    return () => window.removeEventListener('hashchange', syncTabWithHash);
+  }, [canAccessStoreSettings, canManageStartup]);
+
+  useEffect(() => {
+    if (!isTabAvailable(activeTab)) {
+      setActiveTab(canAccessStoreSettings ? 'boutique' : 'compte-securite');
+    }
+  }, [activeTab, canAccessStoreSettings, canManageStartup]);
 
   useEffect(() => {
     setStartupEnabled(startupConfig.enabled);
@@ -389,56 +450,6 @@ export default function Settings({
       setStartupAudioTestMessage('Fichier illisible ou inaccessible. Vérifiez le lien direct et les autorisations CORS de l’hébergeur.');
     });
   };
-
-  if (userProfile && !hasMenuAccess(userProfile, 'settings')) {
-    // L'utilisateur n'a pas accès aux paramètres du magasin,
-    // mais il peut toujours changer son propre code de sécurité.
-    return (
-      <div className="space-y-6 max-w-4xl mx-auto">
-        <div>
-          <h1 className="flex items-center gap-2 font-display text-3xl font-black tracking-tight text-slate-900">
-            <SettingsIcon className="h-8 w-8 text-indigo-600 fill-indigo-100/40" />
-            Paramètres
-          </h1>
-          <p className="text-xs text-slate-500 font-medium">
-            Gérez votre code de sécurité personnel. Les paramètres du magasin sont réservés aux utilisateurs autorisés.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          <InstallAppCard deferredPrompt={deferredPrompt} handleInstallApp={handleInstallApp} isIOS={isIOS} isStandalone={isStandalone} />
-          <AccountPasswordCard />
-          <SecurityCodeCard userProfile={userProfile} />
-        </div>
-      </div>
-    );
-  }
-
-  // Form state for store settings - always editable now
-  const [storeFormData, setStoreFormData] = useState({
-    storeName: '',
-    currency: '',
-    address: '',
-    phone: '',
-    whatsappCountryCode: '216',
-    messageTemplates: { ...DEFAULT_MESSAGE_TEMPLATES },
-    tva: 0,
-    tvaEnabled: false,
-    deleteCode: '',
-    minStockAlert: 5
-  });
-
-  // Database maintenance states
-  const [isExporting, setIsExporting] = useState(false);
-  const [isPurging, setIsPurging] = useState(false);
-  const [purgeDate, setPurgeDate] = useState('');
-  const [purgeSales, setPurgeSales] = useState(true);
-  const [purgeInvoices, setPurgeInvoices] = useState(true);
-
-  // Activity log (journal d'activité) states
-  const [activityStartDate, setActivityStartDate] = useState('');
-  const [activityEndDate, setActivityEndDate] = useState('');
-  const [isGeneratingActivity, setIsGeneratingActivity] = useState(false);
-  const [activityError, setActivityError] = useState('');
 
   const todayStr = new Date().toISOString().split('T')[0];
 
@@ -615,11 +626,6 @@ export default function Settings({
       setIsGeneratingActivity(false);
     }
   };
-
-  // Affichage du journal directement dans l'application (style fichier log), sans téléchargement
-  const [showActivityLogModal, setShowActivityLogModal] = useState(false);
-  const [activityLogLines, setActivityLogLines] = useState<string[]>([]);
-  const [isLoadingActivityView, setIsLoadingActivityView] = useState(false);
 
   const handleViewActivityLog = async () => {
     const range = validateActivityRange();
@@ -854,6 +860,7 @@ export default function Settings({
   };
 
   useEffect(() => {
+    if (!canAccessStoreSettings) return;
     if (!auth.currentUser || !ownerId) return;
     const unsubscribeStore = onSnapshot(doc(db, 'settings', ownerId), (snapshot) => {
       if (snapshot.exists()) {
@@ -903,7 +910,7 @@ export default function Settings({
     return () => {
       unsubscribeStore();
     };
-  }, [ownerId]);
+  }, [ownerId, canAccessStoreSettings]);
 
   const handleStoreSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -920,16 +927,31 @@ export default function Settings({
     }
   };
 
+  const settingsTabs: { id: SettingsTab; label: string }[] = [
+    ...(canAccessStoreSettings ? [{ id: 'boutique' as const, label: 'Boutique' }] : []),
+    ...(canAccessStoreSettings && canManageStartup ? [{ id: 'coran-adhkar' as const, label: 'Coran & Adhkar' }] : []),
+    { id: 'compte-securite', label: 'Compte & sécurité' },
+    ...(canAccessStoreSettings ? [{ id: 'donnees' as const, label: 'Données' }] : []),
+    { id: 'application', label: 'Application' },
+  ];
+
+  const selectSettingsTab = (tab: SettingsTab) => {
+    setActiveTab(tab);
+    window.location.hash = tab;
+  };
+
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="mx-auto w-full min-w-0 max-w-4xl space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
             <SettingsIcon className="w-7 h-7 text-indigo-600 fill-indigo-100/40" />
-            Paramètres du Magasin
+            {canAccessStoreSettings ? 'Paramètres du Magasin' : 'Paramètres'}
           </h1>
           <p className="text-xs text-slate-500 font-medium">
-            Configurez les informations d'en-tête, la devise, les coordonnées de contact et la gestion de la TVA.
+            {canAccessStoreSettings
+              ? "Configurez les informations d'en-tête, la devise, les coordonnées de contact et la gestion de la TVA."
+              : 'Gérez votre compte et les paramètres de l’application.'}
           </p>
         </div>
       </div>
@@ -939,13 +961,59 @@ export default function Settings({
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          <InstallAppCard deferredPrompt={deferredPrompt} handleInstallApp={handleInstallApp} isIOS={isIOS} isStandalone={isStandalone} />
-          {/* Card 0: Mon code de sécurité (visible par tous les utilisateurs) */}
-          <AccountPasswordCard />
-          <SecurityCodeCard userProfile={userProfile} />
+        <div className="min-w-0 space-y-6">
+          <div className="sticky top-16 z-20 -mx-3 bg-[#F6F7FB] px-3 py-2 sm:-mx-4 sm:px-4" role="tablist" aria-label="Sections des paramètres">
+            <div className="flex max-w-full gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1">
+              {settingsTabs.map(({ id, label }) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  id={`settings-tab-${id}`}
+                  aria-controls={`settings-panel-${id}`}
+                  aria-selected={activeTab === id}
+                  onClick={() => selectSettingsTab(id)}
+                  className={cn(
+                    'min-h-11 shrink-0 rounded-xl px-4 text-xs font-bold transition-colors',
+                    activeTab === id ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50',
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <section
+            id="settings-panel-compte-securite"
+            role="tabpanel"
+            aria-labelledby="settings-tab-compte-securite"
+            tabIndex={0}
+            className={cn('grid min-w-0 grid-cols-1 items-start gap-6 lg:grid-cols-2', activeTab !== 'compte-securite' && 'hidden')}
+          >
+            <AccountPasswordCard />
+            <SecurityCodeCard userProfile={userProfile} />
+          </section>
+
+          <section
+            id="settings-panel-application"
+            role="tabpanel"
+            aria-labelledby="settings-tab-application"
+            tabIndex={0}
+            className={cn('min-w-0', activeTab !== 'application' && 'hidden')}
+          >
+            <InstallAppCard deferredPrompt={deferredPrompt} handleInstallApp={handleInstallApp} isIOS={isIOS} isStandalone={isStandalone} />
+          </section>
 
           {/* Card 1: Informations Générales de la Boutique */}
+          {canAccessStoreSettings && (
+          <section
+            id="settings-panel-boutique"
+            role="tabpanel"
+            aria-labelledby="settings-tab-boutique"
+            tabIndex={0}
+            className={cn('min-w-0', activeTab !== 'boutique' && 'hidden')}
+          >
           <div className="bg-white rounded-3xl border border-slate-100 shadow-xs overflow-hidden premium-shadow">
             <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
               <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
@@ -1118,7 +1186,18 @@ export default function Settings({
             </div>
           </div>
 
+          </section>
+          )}
+
           {/* Card 2: Configuration & Maintenance de la Base de Données */}
+          {canAccessStoreSettings && (
+          <section
+            id="settings-panel-donnees"
+            role="tabpanel"
+            aria-labelledby="settings-tab-donnees"
+            tabIndex={0}
+            className={cn('min-w-0', activeTab !== 'donnees' && 'hidden')}
+          >
           <div className="bg-white rounded-3xl border border-slate-100 shadow-xs overflow-hidden premium-shadow space-y-6 p-6">
             <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
               <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
@@ -1175,7 +1254,7 @@ export default function Settings({
               </div>
 
               {/* Toggles */}
-              <div className="grid grid-cols-2 gap-3 pt-1">
+              <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
                 <label className="flex items-center gap-2 p-3 bg-slate-50/50 rounded-xl border border-slate-100 cursor-pointer hover:bg-slate-50">
                   <input 
                     type="checkbox" 
@@ -1230,7 +1309,7 @@ export default function Settings({
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block font-bold">Date de début</label>
                   <div className="relative">
@@ -1266,7 +1345,7 @@ export default function Settings({
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <button
                   type="button"
                   onClick={handleViewActivityLog}
@@ -1288,11 +1367,20 @@ export default function Settings({
               </div>
             </div>
           </div>
-        </div>
+          </section>
+          )}
 
+        </div>
       )}
 
-      {canManageStartup && (
+      {canAccessStoreSettings && canManageStartup && (
+        <section
+          id="settings-panel-coran-adhkar"
+          role="tabpanel"
+          aria-labelledby="settings-tab-coran-adhkar"
+          tabIndex={0}
+          className={cn('min-w-0', activeTab !== 'coran-adhkar' && 'hidden')}
+        >
         <section id="startup-settings" className="space-y-4 rounded-3xl border border-indigo-100 bg-white p-6 shadow-xs">
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-indigo-50 p-2 text-indigo-600"><Music2 className="h-5 w-5" /></div>
@@ -1402,6 +1490,7 @@ export default function Settings({
             <Save className="h-4 w-4" />
             {startupSaving ? 'Enregistrement…' : 'Enregistrer Coran & Adhkar'}
           </button>
+        </section>
         </section>
       )}
 

@@ -173,20 +173,20 @@ export default function CashSession({ userProfile }: { userProfile: UserProfile 
         </div>
         {historyError && <p role="alert" className="text-sm text-rose-700">{historyError}</p>}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
+          <table className="responsive-card-table w-full text-left text-sm">
             <thead><tr className="border-b text-xs uppercase text-slate-400">
               <th className="py-2">Ouverture</th><th>Caissier</th><th>Ventes</th><th>Espèces</th><th>Dépenses</th><th>Attendu</th><th>Compté</th><th>Écart</th><th>Statut</th>
             </tr></thead>
             <tbody>{filteredHistory.map(record => (
               <tr key={record.id} className="border-b border-slate-100">
-                <td className="py-3">{formatDate(record.openedAt)}</td><td>{record.openedBy}</td>
-                <td>{Number(record.totals?.sales || 0).toFixed(3)} DT</td>
-                <td>{Number(record.totals?.cash || 0).toFixed(3)} DT</td>
-                <td>{Number(record.totals?.expenses || 0).toFixed(3)} DT</td>
-                <td>{record.status === 'closed' ? Number(record.expectedCash || 0).toFixed(3) : computeExpectedCash(record).toFixed(3)} DT</td>
-                <td>{record.countedCash === undefined ? '—' : `${record.countedCash.toFixed(3)} DT`}</td>
-                <td>{record.difference === undefined ? '—' : `${record.difference.toFixed(3)} DT`}</td>
-                <td className={record.status === 'open' ? 'font-bold text-emerald-700' : 'font-semibold text-slate-500'}>{record.status === 'open' ? 'Ouverte' : 'Fermée'}</td>
+                <td data-label="Ouverture" className="py-3">{formatDate(record.openedAt)}</td><td data-label="Caissier">{record.openedBy}</td>
+                <td data-label="Ventes">{Number(record.totals?.sales || 0).toFixed(3)} DT</td>
+                <td data-label="Espèces">{Number(record.totals?.cash || 0).toFixed(3)} DT</td>
+                <td data-label="Dépenses">{Number(record.totals?.expenses || 0).toFixed(3)} DT</td>
+                <td data-label="Attendu">{record.status === 'closed' ? Number(record.expectedCash || 0).toFixed(3) : computeExpectedCash(record).toFixed(3)} DT</td>
+                <td data-label="Compté">{record.countedCash === undefined ? '—' : `${record.countedCash.toFixed(3)} DT`}</td>
+                <td data-label="Écart">{record.difference === undefined ? '—' : `${record.difference.toFixed(3)} DT`}</td>
+                <td data-label="Statut" className={record.status === 'open' ? 'font-bold text-emerald-700' : 'font-semibold text-slate-500'}>{record.status === 'open' ? 'Ouverte' : 'Fermée'}</td>
               </tr>
             ))}</tbody>
           </table>

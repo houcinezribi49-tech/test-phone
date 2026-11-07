@@ -1038,12 +1038,12 @@ export default function Products({ userProfile }: ProductsProps) {
             </div>
 
             {/* Category filter */}
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <Tag className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400 pointer-events-none" />
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="pl-10 pr-8 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:bg-white text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all duration-300 appearance-none cursor-pointer min-w-[180px]"
+                className="w-full min-w-0 pl-10 pr-8 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:bg-white text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all duration-300 appearance-none cursor-pointer sm:min-w-[180px]"
               >
                 <option value="all">Toutes les catégories</option>
                 {filterCategories.map(catName => (
@@ -1080,7 +1080,7 @@ export default function Products({ userProfile }: ProductsProps) {
         </div>
 
         <div className="overflow-x-auto text-[13px] font-medium text-slate-600">
-          <table className="w-full text-left border-collapse">
+          <table className="responsive-card-table w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-[10px] font-extrabold uppercase tracking-widest">
                 <th className="px-6 py-4">ARTICLE</th>
@@ -1103,7 +1103,7 @@ export default function Products({ userProfile }: ProductsProps) {
               ) : (
                 filteredProducts.map((product) => (
                   <tr key={product.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4">
+                    <td data-label="Article" className="px-6 py-4">
                       <div className="font-medium text-gray-900">{product.name}</div>
                       <div className="flex flex-col gap-0.5">
                         {product.reference && (
@@ -1121,7 +1121,7 @@ export default function Products({ userProfile }: ProductsProps) {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td data-label="Catégorie" className="px-6 py-4">
                       <span className={cn(
                         "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize",
                         (() => {
@@ -1136,9 +1136,9 @@ export default function Products({ userProfile }: ProductsProps) {
                         {product.category}
                       </span>
                     </td>
-                    {canViewBuyPrice && <td className="px-6 py-4 text-gray-600 font-mono">{product.inventoryType === 'service' ? '—' : `${(productCosts[product.id] ?? product.buyPrice ?? 0).toFixed(3)} ${storeSettings?.currency || 'DT'}`}</td>}
-                    <td className="px-6 py-4 text-gray-900 font-bold font-mono">{product.sellPrice.toFixed(3)} {storeSettings?.currency || 'DT'}</td>
-                    <td className="px-6 py-4">
+                    {canViewBuyPrice && <td data-label="Prix achat" className="px-6 py-4 text-gray-600 font-mono">{product.inventoryType === 'service' ? '—' : `${(productCosts[product.id] ?? product.buyPrice ?? 0).toFixed(3)} ${storeSettings?.currency || 'DT'}`}</td>}
+                    <td data-label="Prix vente" className="px-6 py-4 text-gray-900 font-bold font-mono">{product.sellPrice.toFixed(3)} {storeSettings?.currency || 'DT'}</td>
+                    <td data-label="Stock" className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         {(() => {
                           const threshold = product.lowStockAlert !== undefined && product.lowStockAlert >= 0
@@ -1179,7 +1179,7 @@ export default function Products({ userProfile }: ProductsProps) {
                         <button onClick={() => void openHistory(product)} className="rounded-lg border border-slate-200 p-2 text-slate-500" title="Historique du stock"><History className="w-4 h-4" /></button>
                       </div>}
                     </td>
-                    {canManageItems && <td className="px-6 py-4 text-right">
+                    {canManageItems && <td data-label="Actions" className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         {canAddEdit && <button
                           onClick={() => requestSecureAction('edit', product)}
@@ -1224,7 +1224,7 @@ export default function Products({ userProfile }: ProductsProps) {
                     <span className="break-all">{errorMsg}</span>
                   </div>
                 )}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Nom de l'article</label>
                     <input

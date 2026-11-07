@@ -1137,7 +1137,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
   );
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-5 pb-12 sm:space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E2E2DF] pb-5">
         <div>
@@ -1247,7 +1247,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
             ))}
           </div>
         </div>
-        <div className={cn('grid grid-cols-2 gap-3', canShowMargin ? 'xl:grid-cols-4' : 'lg:grid-cols-3')}>
+        <div className={cn('grid grid-cols-1 gap-3 sm:grid-cols-2', canShowMargin ? 'xl:grid-cols-4' : 'lg:grid-cols-3')}>
           {financialCards.map(({ label, value, unit, icon: Icon, count }, index) => {
             const accent = ['#5846E8', '#4385F5', '#FF8A3D', '#159B72'][index % 4];
             return (
@@ -1469,7 +1469,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
       )}
 
       {/* Main Stats Grid with responsive 2-column layout and optimized sizing */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5 sm:gap-5">
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 sm:gap-5">
         
         {/* CARD 1: Chiffre d'Affaires - BLEU */}
         <div 
@@ -1706,7 +1706,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
                   <p className="text-xs font-bold uppercase tracking-wider text-[#5C5C5C]">Aucune vente récente dans le système</p>
                 </div>
               ) : (
-                <table className="w-full border-collapse text-left">
+                <table className="responsive-card-table w-full border-collapse text-left">
                   <thead>
                     <tr className="border-b border-[#E2E2DF] bg-[#F4F4F2] text-[10px] font-extrabold uppercase tracking-wider text-[#5C5C5C]">
                       <th className="px-4 py-4">Vente</th>
@@ -1726,7 +1726,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
                       const margin = canShowMargin ? computeSaleProfit(sale, saleCostSnapshots[sale.id]) : null;
                       return (
                         <tr key={sale.id} className="transition-colors hover:bg-[#F4F4F2]">
-                          <td className="whitespace-nowrap px-4 py-4">
+                          <td data-label="Vente" className="whitespace-nowrap px-4 py-4">
                             <div className="flex flex-col">
                               <span className="text-xs font-bold text-[#0A0A0A]">{sale.clientName || 'Client de passage'}</span>
                               <span className="mt-0.5 font-mono text-[10px] font-semibold text-[#5C5C5C]">{formattedDate} · {formattedTime}</span>
@@ -1734,12 +1734,12 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
                           </td>
                           {canShowMargin && (
                             <>
-                              <td className="whitespace-nowrap px-4 py-4 text-right">
+                              <td data-label="Achat" className="whitespace-nowrap px-4 py-4 text-right">
                                 <span className="font-mono text-xs font-semibold tabular-nums text-[#0A0A0A]">
                                   {margin?.complete ? `${margin.cost.toFixed(3)} ${currency}` : '—'}
                                 </span>
                               </td>
-                              <td className="whitespace-nowrap px-4 py-4 text-right">
+                              <td data-label="Bénéfice" className="whitespace-nowrap px-4 py-4 text-right">
                                 {margin?.complete && margin.profit !== null ? (
                                   <span className="inline-flex items-center gap-2">
                                     <span className={cn('font-mono text-xs font-bold tabular-nums', margin.profit < 0 ? 'text-[#8A210A]' : 'text-[#1B5E2B]')}>
@@ -1751,20 +1751,20 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
                               </td>
                             </>
                           )}
-                          <td className="whitespace-nowrap px-4 py-4 text-right">
+                          <td data-label="Total" className="whitespace-nowrap px-4 py-4 text-right">
                             <span className="font-mono text-xs font-bold tabular-nums text-[#0A0A0A]">{sale.total.toFixed(3)} {currency}</span>
                           </td>
-                          <td className="whitespace-nowrap px-4 py-4 text-right">
+                          <td data-label="Montant payé" className="whitespace-nowrap px-4 py-4 text-right">
                             <span className="font-mono text-xs font-semibold tabular-nums text-[#0A0A0A]">{sale.paid.toFixed(3)} {currency}</span>
                           </td>
-                          <td className="whitespace-nowrap px-4 py-4 text-right">
+                          <td data-label="Reste à payer" className="whitespace-nowrap px-4 py-4 text-right">
                             {sale.debt > 0 ? (
                               <span className="font-mono text-xs font-bold tabular-nums text-[#8A210A]">-{sale.debt.toFixed(3)} {currency}</span>
                             ) : (
                               <span className="font-mono text-xs font-semibold tabular-nums text-[#5C5C5C]">0.000 {currency}</span>
                             )}
                           </td>
-                          <td className="whitespace-nowrap px-4 py-4 text-center">
+                          <td data-label="Statut" className="whitespace-nowrap px-4 py-4 text-center">
                             <span className={cn(
                               "inline-flex items-center rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider",
                               sale.debt > 0 
@@ -2103,7 +2103,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
                   <p className="text-slate-400 font-medium text-[11px] mt-1 max-w-xs">Ajustez la recherche pour visualiser d'autres articles ou données.</p>
                 </div>
               ) : (
-                <div className="p-6">
+                <div className="overflow-x-auto p-3 sm:p-6">
                   <table className="w-full border-collapse text-left text-xs">
                     <thead>
                       <tr className="border-b border-slate-150 text-[10px] font-black uppercase tracking-wider text-slate-450 bg-slate-50/70">
@@ -2484,7 +2484,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
             </div>
 
             {/* Modal Table Content */}
-            <div className="overflow-y-auto grow font-sans p-6">
+            <div className="grow overflow-auto font-sans p-3 sm:p-6">
               {expensesTab === 'daily' ? (
                 // Tab 1: Daily grouping list
                 dailySuppliesRecords.length === 0 ? (

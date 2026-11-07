@@ -714,7 +714,7 @@ export default function Parts({ userProfile }: PartsProps) {
           <h2 className="font-black text-slate-800">Stock des pièces</h2><span className="text-xs font-bold text-slate-400">{visibleParts.length} référence(s)</span>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[850px] text-left text-sm">
+          <table className="responsive-card-table w-full text-left text-sm">
             <thead className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500"><tr>
               <th className="px-5 py-3">PIÈCE</th><th className="px-4 py-3">CATÉGORIE</th>{canViewBuyPrice && <th className="px-4 py-3 text-right">PRIX ACHAT</th>}<th className="px-4 py-3 text-right">PRIX VENTE</th><th className="px-4 py-3 text-center">STOCK</th>{canManage && <th className="px-5 py-3 text-right">ACTIONS</th>}
             </tr></thead>
@@ -722,18 +722,18 @@ export default function Parts({ userProfile }: PartsProps) {
               {loading ? <tr><td colSpan={4 + (canViewBuyPrice ? 1 : 0) + (canManage ? 1 : 0)} className="px-5 py-12 text-center text-slate-400">Chargement...</td></tr>
                 : visibleParts.length === 0 ? <tr><td colSpan={4 + (canViewBuyPrice ? 1 : 0) + (canManage ? 1 : 0)} className="px-5 py-12 text-center text-slate-400">Aucune pièce ne correspond à la recherche.</td></tr>
                 : visibleParts.map(part => <tr key={part.id} className="hover:bg-slate-50/70">
-                  <td className="px-5 py-4"><p className="font-bold text-slate-800">{part.description || part.name}</p><p className="mt-1 text-xs text-slate-400">{part.reference || part.barcode ? `REF: ${part.reference || part.barcode}` : ''}</p><p className="mt-1 text-xs text-slate-500">{part.compatibleModels.join(', ') || '—'}</p></td>
-                  <td className="px-4 py-4"><span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700">{part.category}</span></td>
-                  {canViewBuyPrice && <td className="px-4 py-4 text-right font-mono text-xs">{money(costs[part.id] || 0)}</td>}
-                  <td className="px-4 py-4 text-right font-mono font-bold">{money(part.sellPrice)}</td>
-                  <td className="px-4 py-4 text-center"><span className={cn('rounded-lg px-2.5 py-1 font-black tabular-nums', part.stock <= part.lowStockAlert ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-700')}>{part.stock}</span>{part.stock <= part.lowStockAlert && <p className="mt-1 text-[10px] font-bold text-rose-500">Stock bas</p>}
+                  <td data-label="Pièce" className="px-5 py-4"><p className="font-bold text-slate-800">{part.description || part.name}</p><p className="mt-1 text-xs text-slate-400">{part.reference || part.barcode ? `REF: ${part.reference || part.barcode}` : ''}</p><p className="mt-1 text-xs text-slate-500">{part.compatibleModels.join(', ') || '—'}</p></td>
+                  <td data-label="Catégorie" className="px-4 py-4"><span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700">{part.category}</span></td>
+                  {canViewBuyPrice && <td data-label="Prix achat" className="px-4 py-4 text-right font-mono text-xs">{money(costs[part.id] || 0)}</td>}
+                  <td data-label="Prix vente" className="px-4 py-4 text-right font-mono font-bold">{money(part.sellPrice)}</td>
+                  <td data-label="Stock" className="px-4 py-4 text-center"><span className={cn('rounded-lg px-2.5 py-1 font-black tabular-nums', part.stock <= part.lowStockAlert ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-700')}>{part.stock}</span>{part.stock <= part.lowStockAlert && <p className="mt-1 text-[10px] font-bold text-rose-500">Stock bas</p>}
                     {canAdjustStock && <div className="mt-2 flex items-center justify-center gap-1.5">
                     <button title="Retirer une unité" aria-label="Retirer une unité" onClick={() => void adjustStock(part, -1)} disabled={part.stock <= 0} className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:bg-slate-100 disabled:opacity-40"><Minus size={14} /></button>
                     <button title="Ajouter une unité" onClick={() => void adjustStock(part, 1)} className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:bg-slate-100"><Plus size={14} /></button>
                     <button title="+ À STOCK" onClick={() => void adjustStock(part, 1)} className="inline-flex items-center gap-1 rounded-lg border border-emerald-150 bg-emerald-50 px-2 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-100">+ À STOCK</button>
                     </div>}
                   </td>
-                  {canManage && <td className="px-5 py-4"><div className="flex justify-end gap-1.5">
+                  {canManage && <td data-label="Actions" className="px-5 py-4"><div className="flex justify-end gap-1.5">
                     <button title="Historique" onClick={() => void openHistory(part)} className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:bg-slate-100"><History size={14} /></button>
                     {canAddEdit && <button title="Modifier" onClick={() => openEdit(part)} className="rounded-lg border border-indigo-100 p-2 text-indigo-600 hover:bg-indigo-50"><Pencil size={14} /></button>}
                     {canDelete && <button title="Supprimer" onClick={() => void archivePart(part)} className="rounded-lg border border-rose-100 p-2 text-rose-500 hover:bg-rose-50"><Trash2 size={14} /></button>}

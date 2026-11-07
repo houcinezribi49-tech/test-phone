@@ -844,7 +844,7 @@ export default function App() {
             cashSessionLoading={cashSessionLoading}
           />
           
-          <main className="flex min-h-screen flex-1 flex-col lg:pl-72">
+          <main className="flex min-h-screen min-w-0 flex-1 flex-col lg:pl-72">
             <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-2 border-b border-[#E6E9F2] bg-white px-4 py-3 text-[#1E293B] lg:px-8">
               <button 
                 onClick={() => setSidebarOpen(true)}
@@ -1009,7 +1009,7 @@ export default function App() {
               </div>
             </header>
  
-            <div className="mx-auto w-full max-w-[1600px] flex-1 p-4 lg:px-10 lg:py-7">
+            <div className="mx-auto w-full max-w-[1600px] min-w-0 flex-1 p-3 sm:p-4 lg:px-10 lg:py-7">
               <Routes>
                 <Route path="/" element={getFirstAccessiblePath(userProfile) === '/' ? <Dashboard userProfile={userProfile} cashSession={activeCashSession} /> : <Navigate to={getFirstAccessiblePath(userProfile)} replace />} />
                 <Route path="/products" element={hasMenuAccess(userProfile, 'products') ? <Products userProfile={userProfile} /> : <Navigate to="/" replace />} />

@@ -956,7 +956,7 @@ export default function POS({ userProfile }: POSProps) {
         </div>
 
         {/* Products Grid (Extremely Compact) */}
-        <div className="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 pb-2 pr-1 scrollbar-thin">
+        <div className="grid min-w-0 flex-1 grid-cols-1 gap-2 overflow-y-auto pb-2 pr-1 scrollbar-thin min-[400px]:grid-cols-2 md:grid-cols-3">
           {filteredProducts.map((product) => (
             <button
               key={product.id}

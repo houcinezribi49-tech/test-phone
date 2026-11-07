@@ -300,7 +300,7 @@ export default function Clients({ userProfile }: ClientsProps) {
         </div>
 
         <div className="overflow-x-auto text-[13px] font-medium text-slate-600">
-          <table className="w-full text-left border-collapse">
+          <table className="responsive-card-table w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-[10px] font-extrabold uppercase tracking-widest">
                 <th className="px-6 py-4">CLIENT / CONTACT</th>
@@ -320,7 +320,7 @@ export default function Clients({ userProfile }: ClientsProps) {
               ) : (
                 filteredClients.map((client) => (
                   <tr key={client.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4">
+                    <td data-label="Client / contact" className="px-6 py-4">
                       <div className="font-medium text-gray-900">{client.name}</div>
                       {client.code && <div className="text-[10px] text-gray-400 font-mono uppercase tracking-tighter">Code: {client.code}</div>}
                       {client.address && (
@@ -338,13 +338,13 @@ export default function Clients({ userProfile }: ClientsProps) {
                         <span className="mt-1 block text-xs italic text-gray-400">Non renseigné</span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
+                    <td data-label="Dette actuelle" className="px-6 py-4">
                       <div className="inline-flex items-center gap-1.5 rounded-full border border-red-100 bg-red-50 px-3.5 py-1.5 font-mono text-base font-black text-red-700">
                         <Wallet className="h-4 w-4 shrink-0" />
                         {client.debt.toFixed(3)} {storeSettings?.currency || 'DT'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td data-label="Actions" className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <MessageComposer
                           phone={client.phone}
