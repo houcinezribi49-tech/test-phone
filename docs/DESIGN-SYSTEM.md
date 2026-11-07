@@ -1,6 +1,6 @@
 # Design system
 
-This design system is adopted incrementally. The shared tokens and components are used by the application shell (sidebar, header, and login screen); business pages remain unmigrated.
+This design system is adopted incrementally. The shared tokens and components are used by the application shell (sidebar, header, and login screen) and the Dashboard; other business pages remain unmigrated.
 
 ## Tokens
 
@@ -154,3 +154,28 @@ Migrated files:
 - `src/components/Login.tsx`: login form, actions, card, and error state.
 
 The route list, role/permission filters, authentication flows, notifications, synchronization handlers, and sign-out handler were kept unchanged. Existing brand identity remains rendered through `BrandLogo` and the centralized brand configuration. Business pages are not yet migrated.
+
+## Migration 3: Dashboard
+
+Migrated files:
+
+- `src/components/Dashboard.tsx`: dashboard cards, reports, alerts, tables, modal content, loading and empty states.
+- `src/components/SalesVolumeChart.tsx`: chart palette, grid, tooltip, and surrounding controls.
+
+The migration uses `Card`, `PageHeader`, `Badge`, `Button`, and `EmptyState` where they replace existing presentation blocks. Dashboard colors now use `ds-*` utilities; Recharts colors use the matching CSS variables. Violet/blue are used for brand and neutral emphasis, green for positive results, red for errors or stockouts, and orange only for warnings. Decorative orange emphasis was moved to brand/accent colors. No original hard-coded colors were intentionally retained.
+
+Color inventory used a case-insensitive hex-color match and a Tailwind color-palette utility match (`bg`, `text`, `border`, `from`, `via`, `to`, `ring`, `shadow`, `fill`, and `stroke` with named palette colors). Against `main`, `Dashboard.tsx` had 180 hex occurrences and 471 palette utility occurrences; `SalesVolumeChart.tsx` had 70 and 18, respectively. Both files now have zero matches for either category.
+
+Dashboard correspondence examples:
+
+| Existing presentation | Dashboard target |
+|---|---|
+| Gray/white backgrounds and borders | `bg-ds-surface`, `bg-ds-surface-2`, `border-ds-border` |
+| Gray/black text | `text-ds-text`, `text-ds-text-muted` |
+| Violet/orange decorative emphasis | `ds-brand` / `ds-accent` |
+| Green positive metrics | `ds-success` / `ds-success-soft` |
+| Red errors and stockouts | `ds-danger` / `ds-danger-soft` |
+| Orange low-stock warnings | `ds-warning` / `ds-warning-soft` |
+| Recharts gradients and palette colors | `--ds-brand`, `--ds-accent`, `--ds-accent-soft`, and `--ds-border` |
+
+Responsive grids, horizontally scrollable table containers, mobile field sizing, and touch target sizing were updated as presentation only. Firestore queries/subscriptions, calculations, filters, date/amount formatting, and role conditions were not changed. Visual verification on desktop/mobile and with Admin, Casier, and Technicien remains to be performed.
