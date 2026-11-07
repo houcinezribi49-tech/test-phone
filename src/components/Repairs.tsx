@@ -25,6 +25,8 @@ import { apiFetch } from '../lib/api';
 import { addCashSessionTotals, requireOpenCashSession, useCashSession } from '../lib/cashSessions';
 import MessageComposer from './MessageComposer';
 import type { MessageTemplateKey } from '../lib/messages';
+import { Badge, Button, Card, EmptyState, Input, PageHeader, Select } from './ui';
+import type { BadgeVariant } from './ui';
 
 interface RepairsProps {
   userProfile: UserProfile | null;
@@ -38,16 +40,29 @@ type RepairInventoryProduct = Product & {
   compatibleModels?: string[];
 };
 
-export const STATUS_STYLES: Record<RepairStatus, string> = {
-  recu: 'bg-[#F4F4F2] text-[#5C5C5C] border-[#E2E2DF]',
-  diagnostic: 'bg-[#F4F4F2] text-[#5C5C5C] border-[#E2E2DF]',
-  en_attente_piece: 'bg-[#FBDDD5] text-[#8A210A] border-[#F6C9BE]',
-  en_cours: 'bg-[#F4F4F2] text-[#0A0A0A] border-[#E2E2DF]',
-  termine: 'bg-[#F4F4F2] text-[#0A0A0A] border-[#E2E2DF]',
-  livre: 'bg-[#F4F4F2] text-[#5C5C5C] border-[#E2E2DF]',
-  irreparable: 'bg-[#FBDDD5] text-[#8A210A] border-[#F6C9BE]',
-  annule: 'bg-[#F4F4F2] text-[#5C5C5C] border-[#E2E2DF] line-through',
+const REPAIR_STATUS_VARIANTS: Record<RepairStatus, BadgeVariant> = {
+  recu: 'neutral',
+  diagnostic: 'info',
+  en_attente_piece: 'warning',
+  en_cours: 'info',
+  termine: 'success',
+  livre: 'success',
+  irreparable: 'danger',
+  annule: 'danger',
 };
+
+const REPAIR_STATUS_CLASSES: Partial<Record<RepairStatus, string>> = {
+  recu: 'border-ds-brand/20 bg-ds-brand-soft text-ds-brand',
+  annule: 'line-through',
+};
+
+function RepairStatusBadge({ status }: { status: RepairStatus }) {
+  return (
+    <Badge variant={REPAIR_STATUS_VARIANTS[status]} className={cn('min-h-0 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider', REPAIR_STATUS_CLASSES[status])}>
+      {REPAIR_STATUS_LABELS[status]}
+    </Badge>
+  );
+}
 
 export const ACTIVE_STATUSES: RepairStatus[] = ['recu', 'diagnostic', 'en_attente_piece', 'en_cours', 'termine'];
 
@@ -237,6 +252,7 @@ export default function Repairs({ userProfile }: RepairsProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | RepairStatus>('all');
   const [technicianFilter, setTechnicianFilter] = useState<'all' | 'mine'>('all');
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingRepair, setEditingRepair] = useState<Repair | null>(null);
   const [detailRepair, setDetailRepair] = useState<Repair | null>(null);
@@ -589,25 +605,17 @@ export default function Repairs({ userProfile }: RepairsProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h1 className="flex items-center gap-3 font-display text-[34px] font-bold leading-tight tracking-tight text-[#0A0A0A] lg:text-[52px]">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0A0A0A] text-white">
-              <Wrench className="h-6 w-6" />
-            </span>
-            Atelier de réparation
-          </h1>
-          <p className="mt-1 text-sm font-medium text-[#5C5C5C]">Gestion des ordres de réparation et suivi</p>
-        </div>
-        <button
+    <div className="min-w-0 max-w-full space-y-6">
+      <PageHeader
+        title="Atelier de réparation"
+        description="Gestion des ordres de réparation et suivi"
+        actions={<Button
           onClick={() => { setEditingRepair(null); setIsFormOpen(true); }}
-          className="flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#0A0A0A] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]"
+          className="w-full sm:w-auto"
         >
           <Plus className="w-5 h-5" /> Nouvelle réparation
-        </button>
-      </div>
+        </Button>}
+      />
 
       {/* Stats */}
       <div className={cn("grid grid-cols-2 gap-4", canViewCosts ? "lg:grid-cols-4" : "lg:grid-cols-3")}>
@@ -619,83 +627,93 @@ export default function Repairs({ userProfile }: RepairsProps) {
         ].filter((s: any) => canViewCosts || s.label !== 'Bénéfice net du jour').map((s: any, i) => {
           const Icon = s.icon;
           return (
-            <div key={i} onClick={s.onClick}
+            <Card key={i} onClick={s.onClick}
               className={cn(
-                "rounded-[20px] border border-[#E2E2DF] bg-white p-4",
-                s.onClick && "cursor-pointer transition-colors hover:bg-[#F4F4F2]"
+                "rounded-ds-lg p-4",
+                s.onClick && "cursor-pointer transition-colors hover:bg-ds-surface-2"
               )}>
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#F4F4F2] text-[#0A0A0A]">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-ds-surface-2 text-ds-text">
                 <Icon className="h-5 w-5" />
               </div>
-              <p className={cn("font-display text-2xl font-bold tabular-nums", s.profit && todayProfit !== null ? todayProfit < 0 ? 'text-[#8A210A]' : 'text-[#1B5E2B]' : 'text-[#0A0A0A]')}>{s.value}</p>
-              <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-[#5C5C5C]">{s.label}</p>
+              <p className={cn("font-display text-2xl font-bold tabular-nums", s.profit && todayProfit !== null ? todayProfit < 0 ? 'text-ds-danger' : 'text-ds-success' : 'text-ds-text')}>{s.value}</p>
+              <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-ds-text-muted">{s.label}</p>
               {s.onClick && (
-                <p className="mt-1 flex items-center gap-1 text-[9px] font-bold text-[#5C5C5C]">
+                <p className="mt-1 flex items-center gap-1 text-[9px] font-bold text-ds-text-muted">
                   <History className="h-3 w-3 shrink-0" /> Historique journalier
                 </p>
               )}
-            </div>
+            </Card>
           );
         })}
       </div>
 
       {/* Notifications */}
       {success && (
-        <div className="flex items-center gap-2 rounded-xl border border-[#E2E2DF] bg-white px-4 py-3 text-sm font-semibold text-[#0A0A0A]">
-          <CheckCircle className="h-4 w-4 text-[#5C5C5C]" /> {success}
+        <div className="flex items-center gap-2 rounded-xl border border-ds-border bg-ds-surface px-4 py-3 text-sm font-semibold text-ds-text">
+          <CheckCircle className="h-4 w-4 text-ds-text-muted" /> {success}
         </div>
       )}
       {error && (
-        <div className="flex items-center gap-2 rounded-xl border border-[#F6C9BE] bg-[#FBDDD5] px-4 py-3 text-sm font-semibold text-[#8A210A]">
+        <div className="flex items-center gap-2 rounded-xl border border-ds-danger/20 bg-ds-danger-soft px-4 py-3 text-sm font-semibold text-ds-danger">
           <AlertCircle className="h-4 w-4" /> {error}
         </div>
       )}
 
       {/* Search + filter */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="space-y-3">
+        <Button
+          variant="secondary"
+          className="w-full sm:hidden"
+          aria-expanded={filtersOpen}
+          onClick={() => setFiltersOpen(open => !open)}
+        >
+          <Filter className="h-4 w-4" />
+          {filtersOpen ? 'Masquer les filtres' : 'Afficher les filtres'}
+        </Button>
+      <div className={cn("flex min-w-0 flex-col gap-3 sm:flex-row", !filtersOpen && "hidden sm:flex")}>
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5C5C5C]" />
-          <input
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ds-muted" />
+          <Input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Rechercher : n°, client, téléphone, modèle, IMEI... (ou scannez le bon)"
-            className="w-full rounded-full border border-[#E2E2DF] bg-white py-3 pl-11 pr-4 text-sm outline-none focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10"
+            className="pl-11"
           />
         </div>
-        <div className="relative">
-          <Filter className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5C5C5C]" />
-          <select
+        <div className="relative min-w-0 sm:w-56">
+          <Select
+            aria-label="Filtrer par statut"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="cursor-pointer appearance-none rounded-full border border-[#E2E2DF] bg-white py-3 pl-11 pr-8 text-sm font-semibold outline-none focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10"
           >
             <option value="active">En cours (actifs)</option>
             <option value="all">Tous les statuts</option>
             {Object.entries(REPAIR_STATUS_LABELS).map(([k, v]) => (
               <option key={k} value={k}>{v}</option>
             ))}
-          </select>
+          </Select>
         </div>
-        {isTechnician && <select
+        {isTechnician && <Select
           aria-label="Filtrer par technicien"
           value={technicianFilter}
           onChange={event => setTechnicianFilter(event.target.value as 'all' | 'mine')}
-          className="rounded-full border border-[#E2E2DF] bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10"
+          className="sm:w-48"
         >
           <option value="all">Toutes</option>
           <option value="mine">Mes réparations</option>
-        </select>}
+        </Select>}
+      </div>
       </div>
 
       {isAdmin && legacyRepairsNeedingCostSeparation.length > 0 && (
-        <div className="flex flex-col gap-3 rounded-[20px] border border-[#F6C9BE] bg-[#FBDDD5] p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-ds-lg border border-ds-warning/20 bg-ds-warning-soft p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="font-bold text-[#8A210A]">Séparer les coûts historiques</p>
-            <p className="mt-1 text-sm text-[#8A210A]">
+            <p className="font-bold text-ds-warning">Séparer les coûts historiques</p>
+            <p className="mt-1 text-sm text-ds-warning">
               {legacyRepairsNeedingCostSeparation.length} fiche(s) historique(s) n’ont pas encore été vérifiées et nettoyées des prix d’achat intégrés.
             </p>
           </div>
-          <button onClick={() => void separateLegacyRepairCosts()} disabled={migratingCosts} className="min-h-11 shrink-0 rounded-full bg-[#0A0A0A] px-5 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A] disabled:opacity-50">
+          <button onClick={() => void separateLegacyRepairCosts()} disabled={migratingCosts} className="min-h-11 shrink-0 rounded-full bg-ds-brand px-5 text-sm font-bold text-ds-brand-contrast transition-colors hover:bg-ds-brand-hover disabled:opacity-50">
             {migratingCosts ? 'Séparation en cours...' : 'Séparer les coûts historiques'}
           </button>
         </div>
@@ -704,41 +722,38 @@ export default function Repairs({ userProfile }: RepairsProps) {
       {/* List */}
       <div className="space-y-3">
         {filtered.length === 0 ? (
-          <div className="rounded-[20px] border border-[#E2E2DF] bg-white p-12 text-center">
-            <Wrench className="mx-auto mb-3 h-12 w-12 text-[#B8B8B8]" />
-            <p className="font-semibold text-[#5C5C5C]">Aucune réparation trouvée</p>
-          </div>
+          <Card className="rounded-ds-lg p-0">
+            <EmptyState icon={<Wrench className="h-12 w-12" />} title="Aucune réparation trouvée" />
+          </Card>
         ) : filtered.map(r => {
           // Réparation terminée/livrée et entièrement payée (après remise).
           const isDoneAndPaid = (r.status === 'termine' || r.status === 'livre') &&
             ((r.total || 0) - (r.discount || 0) - (r.paid || 0)) <= 0.001;
           return (
-          <div
+          <Card
             key={r.id}
             onClick={() => setDetailRepair(r)}
             className={cn(
-              "group cursor-pointer rounded-[20px] border border-[#E2E2DF] bg-white p-4 transition-colors hover:bg-[#F4F4F2]",
-              isDoneAndPaid && "border-[#D0D0D0]"
+              "group min-w-0 cursor-pointer p-4 transition-colors hover:bg-ds-surface-2",
+              isDoneAndPaid && "border-ds-border"
             )}
           >
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F4F4F2] transition-colors group-hover:bg-white">
-                <Smartphone className="h-6 w-6 text-[#5C5C5C]" />
+            <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ds-surface-2 transition-colors group-hover:bg-ds-surface">
+                <Smartphone className="h-6 w-6 text-ds-text-muted" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-mono text-sm font-bold text-[#0A0A0A]">{r.number}</span>
-                  <span className={cn("px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider border", STATUS_STYLES[r.status])}>
-                    {REPAIR_STATUS_LABELS[r.status]}
-                  </span>
+                  <span className="font-mono text-sm font-bold text-ds-text">{r.number}</span>
+                  <RepairStatusBadge status={r.status} />
                   {r.warrantyUntil && new Date(r.warrantyUntil) > new Date() && (
-                    <span className="flex items-center gap-1 text-[10px] font-black text-[#5C5C5C]"><Shield className="h-3 w-3" /> Garantie</span>
+                    <span className="flex items-center gap-1 text-[10px] font-black text-ds-text-muted"><Shield className="h-3 w-3" /> Garantie</span>
                   )}
                 </div>
-                <p className="mt-0.5 truncate text-sm font-bold text-[#0A0A0A]">
-                  {r.deviceBrand} {r.deviceModel} — <span className="font-medium text-[#5C5C5C]">{r.problem}</span>
+                <p className="mt-0.5 truncate text-sm font-bold text-ds-text">
+                  {r.deviceBrand} {r.deviceModel} — <span className="font-medium text-ds-text-muted">{r.problem}</span>
                 </p>
-                <div className="mt-1 flex items-center gap-3 text-xs font-medium text-[#5C5C5C]">
+                <div className="mt-1 flex items-center gap-3 text-xs font-medium text-ds-text-muted">
                   <span className="flex items-center gap-1"><User className="w-3 h-3" /> {r.clientName || 'Sans client'}</span>
                   {r.date?.toDate && <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {format(r.date.toDate(), 'dd/MM/yyyy HH:mm')}</span>}
                 </div>
@@ -757,76 +772,76 @@ export default function Repairs({ userProfile }: RepairsProps) {
                   />
                 </div>
               </div>
-              <div className="text-right shrink-0">
-                <p className="font-display font-bold tabular-nums text-[#0A0A0A]">{(r.total || 0).toFixed(3)} {currency}</p>
-                {r.debt > 0 && <p className="text-[11px] font-bold text-[#8A210A]">Reste {r.debt.toFixed(3)}</p>}
+              <div className="flex w-full min-w-0 items-center justify-between gap-2 sm:w-auto sm:shrink-0 sm:justify-start">
+                <p className="font-display font-bold tabular-nums text-ds-text">{(r.total || 0).toFixed(3)} {currency}</p>
+                {r.debt > 0 && <p className="text-[11px] font-bold text-ds-warning">Reste {r.debt.toFixed(3)}</p>}
                 <div className="flex items-center justify-end gap-1 mt-1">
                   {userProfile?.role === 'admin' && (
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDelete(r); }}
-                      className="min-h-11 min-w-11 rounded-full text-[#8A210A] transition-colors hover:bg-[#FBDDD5]"
+                      className="min-h-11 min-w-11 rounded-full text-ds-danger transition-colors hover:bg-ds-danger-soft"
                       title="Supprimer la réparation"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   )}
-                  <ChevronRight className="h-4 w-4 text-[#5C5C5C] transition-colors" />
+                  <ChevronRight className="h-4 w-4 text-ds-text-muted transition-colors" />
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
           );
         })}
       </div>
 
       {/* Historique journalier des indicateurs */}
       {statsModal && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#0A0A0A]/50 p-2 backdrop-blur-sm sm:items-center sm:p-4"
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ds-text/50 p-2 backdrop-blur-sm sm:items-center sm:p-4"
           onClick={() => setStatsModal(null)}>
-          <div className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-[24px] border border-[#E2E2DF] bg-white shadow-2xl"
+          <div className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-[24px] border border-ds-border bg-ds-surface shadow-2xl"
             onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between border-b border-[#E2E2DF] px-5 py-4">
-              <h3 className="flex items-center gap-2 font-bold text-[#0A0A0A]">
-                <History className="h-5 w-5 text-[#5C5C5C]" />
+            <div className="flex items-center justify-between border-b border-ds-border px-5 py-4">
+              <h3 className="flex items-center gap-2 font-bold text-ds-text">
+                <History className="h-5 w-5 text-ds-text-muted" />
                 {statsModal === 'count' ? 'Réparations par jour' : 'Bénéfice net par jour'}
               </h3>
-              <button onClick={() => setStatsModal(null)} className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-[#5C5C5C] hover:bg-[#F4F4F2]"><X className="h-5 w-5" /></button>
+              <button onClick={() => setStatsModal(null)} className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-ds-text-muted hover:bg-ds-surface-2"><X className="h-5 w-5" /></button>
             </div>
-            <div className="overflow-y-auto p-4">
+            <div className="overflow-x-auto overflow-y-auto p-4">
               {statsModal === 'count' ? (
                 dailyRepairCounts.length === 0 ? (
-                  <p className="py-6 text-center text-sm text-[#5C5C5C]">Aucune réparation enregistrée.</p>
+                  <p className="py-6 text-center text-sm text-ds-text-muted">Aucune réparation enregistrée.</p>
                 ) : (
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-[#E2E2DF] text-[11px] font-black uppercase tracking-wider text-[#5C5C5C]">
+                      <tr className="border-b border-ds-border text-[11px] font-black uppercase tracking-wider text-ds-text-muted">
                         <th className="text-left py-2">Date</th>
                         <th className="text-right py-2">Réparations</th>
                       </tr>
                     </thead>
                     <tbody>
                       {dailyRepairCounts.map(d => (
-                        <tr key={d.dateStr} className="border-b border-[#E2E2DF] last:border-0">
-                          <td className="py-2 font-semibold text-[#0A0A0A]">{format(new Date(d.dateStr), 'dd/MM/yyyy')}</td>
-                          <td className="py-2 text-right font-bold text-[#0A0A0A]">{d.count}</td>
+                        <tr key={d.dateStr} className="border-b border-ds-border last:border-0">
+                          <td className="py-2 font-semibold text-ds-text">{format(new Date(d.dateStr), 'dd/MM/yyyy')}</td>
+                          <td className="py-2 text-right font-bold text-ds-text">{d.count}</td>
                         </tr>
                       ))}
                     </tbody>
                     <tfoot>
-                      <tr className="border-t border-[#E2E2DF]">
-                        <td className="py-2 text-xs font-black uppercase tracking-wider text-[#5C5C5C]">Total</td>
-                        <td className="py-2 text-right font-bold text-[#0A0A0A]">{stats.total}</td>
+                      <tr className="border-t border-ds-border">
+                        <td className="py-2 text-xs font-black uppercase tracking-wider text-ds-text-muted">Total</td>
+                        <td className="py-2 text-right font-bold text-ds-text">{stats.total}</td>
                       </tr>
                     </tfoot>
                   </table>
                 )
               ) : (
                 dailyNetProfit.length === 0 ? (
-                  <p className="py-6 text-center text-sm text-[#5C5C5C]">Aucune réparation livrée.</p>
+                  <p className="py-6 text-center text-sm text-ds-text-muted">Aucune réparation livrée.</p>
                 ) : (
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-[#E2E2DF] text-[11px] font-black uppercase tracking-wider text-[#5C5C5C]">
+                      <tr className="border-b border-ds-border text-[11px] font-black uppercase tracking-wider text-ds-text-muted">
                         <th className="text-left py-2">Date</th>
                         <th className="text-right py-2">Livrées</th>
                         <th className="text-right py-2">Facturé</th>
@@ -836,19 +851,19 @@ export default function Repairs({ userProfile }: RepairsProps) {
                     </thead>
                     <tbody>
                       {dailyNetProfit.map(d => (
-                        <tr key={d.dateStr} className="border-b border-[#E2E2DF] last:border-0">
-                          <td className="py-2 font-semibold text-[#0A0A0A]">{format(new Date(d.dateStr), 'dd/MM/yyyy')}</td>
-                          <td className="py-2 text-right text-[#5C5C5C]">{d.count}</td>
-                          <td className="py-2 text-right text-[#5C5C5C]">{d.revenue.toFixed(3)}</td>
-                          <td className="py-2 text-right text-[#5C5C5C]">{d.complete ? d.partsCost.toFixed(3) : '—'}</td>
-                          <td className={cn("py-2 text-right font-bold", !d.complete ? 'text-[#5C5C5C]' : d.profit < 0 ? 'text-[#8A210A]' : 'text-[#1B5E2B]')}>{d.complete ? d.profit.toFixed(3) : 'Coûts manquants'}</td>
+                        <tr key={d.dateStr} className="border-b border-ds-border last:border-0">
+                          <td className="py-2 font-semibold text-ds-text">{format(new Date(d.dateStr), 'dd/MM/yyyy')}</td>
+                          <td className="py-2 text-right text-ds-text-muted">{d.count}</td>
+                          <td className="py-2 text-right text-ds-text-muted">{d.revenue.toFixed(3)}</td>
+                          <td className="py-2 text-right text-ds-text-muted">{d.complete ? d.partsCost.toFixed(3) : '—'}</td>
+                          <td className={cn("py-2 text-right font-bold", !d.complete ? 'text-ds-text-muted' : d.profit < 0 ? 'text-ds-danger' : 'text-ds-success')}>{d.complete ? d.profit.toFixed(3) : 'Coûts manquants'}</td>
                         </tr>
                       ))}
                     </tbody>
                     <tfoot>
-                      <tr className="border-t border-[#E2E2DF]">
-                        <td className="py-2 text-xs font-black uppercase tracking-wider text-[#5C5C5C]" colSpan={4}>Total</td>
-                        <td className="py-2 text-right font-bold text-[#0A0A0A]">
+                      <tr className="border-t border-ds-border">
+                        <td className="py-2 text-xs font-black uppercase tracking-wider text-ds-text-muted" colSpan={4}>Total</td>
+                        <td className="py-2 text-right font-bold text-ds-text">
                           {dailyNetProfit.every(d => d.complete)
                             ? `${dailyNetProfit.reduce((s, d) => s + d.profit, 0).toFixed(3)} ${currency}`
                             : 'Coûts historiques manquants'}
@@ -1274,18 +1289,18 @@ export function RepairForm({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#0A0A0A]/50 p-2 backdrop-blur-sm sm:items-center sm:p-4">
-      <div className="my-4 w-full max-w-2xl rounded-[24px] border border-[#E2E2DF] bg-white shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-[24px] border-b border-[#E2E2DF] bg-white p-5">
-          <h2 className="flex items-center gap-2 font-display text-lg font-bold text-[#0A0A0A]">
-            <Wrench className="h-5 w-5 text-[#0A0A0A]" />
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ds-text/50 p-2 backdrop-blur-sm sm:items-center sm:p-4">
+      <div className="my-4 w-full max-w-2xl rounded-[24px] border border-ds-border bg-ds-surface shadow-2xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-[24px] border-b border-ds-border bg-ds-surface p-5">
+          <h2 className="flex items-center gap-2 font-display text-lg font-bold text-ds-text">
+            <Wrench className="h-5 w-5 text-ds-text" />
             {isEdit ? `Modifier ${repair?.number}` : 'Nouvelle réparation'}
           </h2>
-          <button onClick={onClose} className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-[#5C5C5C] hover:bg-[#F4F4F2]"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-ds-text-muted hover:bg-ds-surface-2"><X className="h-5 w-5" /></button>
         </div>
 
         {localError && (
-          <div className="mx-5 mt-4 flex items-start gap-2 rounded-xl border border-[#F6C9BE] bg-[#FBDDD5] px-4 py-3 text-sm font-bold text-[#8A210A]">
+          <div className="mx-5 mt-4 flex items-start gap-2 rounded-xl border border-ds-danger/20 bg-ds-danger-soft px-4 py-3 text-sm font-bold text-ds-danger">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> {localError}
           </div>
         )}
@@ -1293,15 +1308,15 @@ export function RepairForm({
         <div className="max-h-[70vh] space-y-5 overflow-y-auto p-5">
           {/* Client */}
           <section>
-            <label className="mb-2 block text-xs font-black uppercase tracking-wider text-[#5C5C5C]">Client</label>
+            <label className="mb-2 block text-xs font-black uppercase tracking-wider text-ds-text-muted">Client</label>
             {selectedClient ? (
-              <div className="flex items-center justify-between rounded-xl border border-[#E2E2DF] bg-[#F4F4F2] px-4 py-2.5">
+              <div className="flex items-center justify-between rounded-xl border border-ds-border bg-ds-surface-2 px-4 py-2.5">
                 <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-[#5C5C5C]" />
-                  <span className="text-sm font-bold text-[#0A0A0A]">{selectedClient.name}</span>
-                  {selectedClient.phone && <span className="text-xs text-[#5C5C5C]">· {selectedClient.phone}</span>}
+                  <User className="h-4 w-4 text-ds-text-muted" />
+                  <span className="text-sm font-bold text-ds-text">{selectedClient.name}</span>
+                  {selectedClient.phone && <span className="text-xs text-ds-text-muted">· {selectedClient.phone}</span>}
                 </div>
-                <button onClick={() => { setClientId(''); setClientSearch(''); }} className="min-h-11 px-2 text-xs font-bold text-[#8A210A]">Retirer</button>
+                <button onClick={() => { setClientId(''); setClientSearch(''); }} className="min-h-11 px-2 text-xs font-bold text-ds-danger">Retirer</button>
               </div>
             ) : (
               <div className="relative">
@@ -1309,15 +1324,15 @@ export function RepairForm({
                   value={clientSearch}
                   onChange={(e) => setClientSearch(e.target.value)}
                   placeholder="Rechercher un client (nom, téléphone)"
-                  className="min-h-11 w-full rounded-xl border border-[#E2E2DF] bg-[#F4F4F2] px-4 py-2.5 text-sm outline-none focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10"
+                  className="min-h-11 w-full rounded-xl border border-ds-border bg-ds-surface-2 px-4 py-2.5 text-base outline-none focus:border-ds-brand focus:ring-2 focus:ring-ds-brand/20"
                 />
                 {clientSearch && filteredClients.length > 0 && (
-                  <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border border-[#E2E2DF] bg-white shadow-lg">
+                  <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border border-ds-border bg-ds-surface shadow-lg">
                     {filteredClients.map(c => (
                       <button key={c.id} onClick={() => { setClientId(c.id); setClientSearch(''); }}
-                        className="min-h-11 w-full border-b border-[#E2E2DF] px-4 py-2.5 text-left text-sm last:border-0 hover:bg-[#F4F4F2]">
-                        <span className="font-bold text-[#0A0A0A]">{c.name}</span>
-                        {c.phone && <span className="ml-2 text-xs text-[#5C5C5C]">{c.phone}</span>}
+                        className="min-h-11 w-full border-b border-ds-border px-4 py-2.5 text-left text-sm last:border-0 hover:bg-ds-surface-2">
+                        <span className="font-bold text-ds-text">{c.name}</span>
+                        {c.phone && <span className="ml-2 text-xs text-ds-text-muted">{c.phone}</span>}
                       </button>
                     ))}
                   </div>
@@ -1329,19 +1344,19 @@ export function RepairForm({
           {/* Appareil */}
           <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-wider text-[#5C5C5C]">Marque</label>
+              <label className="mb-2 block text-xs font-black uppercase tracking-wider text-ds-text-muted">Marque</label>
               <input list="repair-device-brands" value={deviceBrand} onChange={event => setDeviceBrand(event.target.value)}
                 placeholder="Samsung, Apple"
-                className="min-h-11 w-full rounded-xl border border-[#E2E2DF] bg-[#F4F4F2] px-4 py-2.5 text-sm outline-none focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10" />
+                className="min-h-11 w-full rounded-xl border border-ds-border bg-ds-surface-2 px-4 py-2.5 text-base outline-none focus:border-ds-brand focus:ring-2 focus:ring-ds-brand/20" />
               <datalist id="repair-device-brands">
                 {['Samsung', 'Apple', 'Huawei', 'Xiaomi', 'Oppo', 'Infinix', 'Nokia'].map(brand => <option key={brand} value={brand} />)}
               </datalist>
             </div>
             <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-wider text-[#5C5C5C]">Modèle</label>
+              <label className="mb-2 block text-xs font-black uppercase tracking-wider text-ds-text-muted">Modèle</label>
               <input list="repair-device-models" value={deviceModel} onChange={event => setDeviceModel(event.target.value)}
                 placeholder="Galaxy S21, iPhone 12"
-                className="min-h-11 w-full rounded-xl border border-[#E2E2DF] bg-[#F4F4F2] px-4 py-2.5 text-sm outline-none focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10" />
+                className="min-h-11 w-full rounded-xl border border-ds-border bg-ds-surface-2 px-4 py-2.5 text-base outline-none focus:border-ds-brand focus:ring-2 focus:ring-ds-brand/20" />
               <datalist id="repair-device-models">
                 {['Galaxy S21', 'iPhone 12'].map(model => <option key={model} value={model} />)}
               </datalist>
@@ -1355,55 +1370,65 @@ export function RepairForm({
           {/* Panne */}
           <section className="space-y-3">
             <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-wider text-[#5C5C5C]">Panne signalée *</label>
+              <label className="mb-2 block text-xs font-black uppercase tracking-wider text-ds-text-muted">Panne signalée *</label>
               <textarea value={problem} onChange={(e) => setProblem(e.target.value)} rows={2}
                 placeholder="Décrivez le problème rapporté par le client"
-                className="min-h-11 w-full resize-none rounded-xl border border-[#E2E2DF] bg-[#F4F4F2] px-4 py-2.5 text-sm outline-none focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10" />
+                className="min-h-11 w-full resize-none rounded-xl border border-ds-border bg-ds-surface-2 px-4 py-2.5 text-base outline-none focus:border-ds-brand focus:ring-2 focus:ring-ds-brand/20" />
             </div>
             <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-wider text-[#5C5C5C]">Diagnostic technicien</label>
+              <label className="mb-2 block text-xs font-black uppercase tracking-wider text-ds-text-muted">Diagnostic technicien</label>
               <textarea value={diagnostic} onChange={(e) => setDiagnostic(e.target.value)} rows={2}
                 placeholder="Diagnostic après examen"
-                className="min-h-11 w-full resize-none rounded-xl border border-[#E2E2DF] bg-[#F4F4F2] px-4 py-2.5 text-sm outline-none focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10" />
+                className="min-h-11 w-full resize-none rounded-xl border border-ds-border bg-ds-surface-2 px-4 py-2.5 text-base outline-none focus:border-ds-brand focus:ring-2 focus:ring-ds-brand/20" />
             </div>
           </section>
 
           <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Technicien assigné" value={technician} onChange={setTechnician} placeholder="Nom du technicien" />
-            <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-wider text-[#5C5C5C]">Statut</label>
-              <select value={status} onChange={(e) => setStatus(e.target.value as RepairStatus)}
-                className="min-h-11 w-full cursor-pointer rounded-xl border border-[#E2E2DF] bg-[#F4F4F2] px-4 py-2.5 text-sm font-semibold outline-none focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10">
-                {Object.entries(REPAIR_STATUS_LABELS)
-                  .filter(([k]) => canCash || k !== 'livre' || repair?.status === 'livre')
-                  .map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-              </select>
+            <div className="min-w-0">
+              <p className="mb-2 text-sm font-medium text-ds-text">Statut</p>
+              <div className="flex flex-wrap gap-2">
+                {(Object.keys(REPAIR_STATUS_LABELS) as RepairStatus[])
+                  .filter(k => canCash || k !== 'livre' || repair?.status === 'livre')
+                  .map(k => (
+                    <Button
+                      key={k}
+                      variant="secondary"
+                      size="sm"
+                      aria-pressed={status === k}
+                      onClick={() => setStatus(k)}
+                      className={cn(status === k && 'ring-2 ring-ds-brand ring-offset-2')}
+                    >
+                      <RepairStatusBadge status={k} />
+                    </Button>
+                  ))}
+              </div>
             </div>
           </section>
 
           {/* Pièces utilisées */}
           <section>
-            <label className="mb-2 flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#5C5C5C]">
+            <label className="mb-2 flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-ds-text-muted">
               <Package className="w-3.5 h-3.5" /> Pièces utilisées (déduites du stock)
             </label>
             <div className="relative mb-2">
               <input value={partSearch} onChange={(e) => setPartSearch(e.target.value)}
                 placeholder="Ajouter une pièce (nom, référence, code-barres)..."
-                className="min-h-11 w-full rounded-xl border border-[#E2E2DF] bg-[#F4F4F2] px-4 py-2.5 text-sm outline-none focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10" />
+                className="min-h-11 w-full rounded-xl border border-ds-border bg-ds-surface-2 px-4 py-2.5 text-base outline-none focus:border-ds-brand focus:ring-2 focus:ring-ds-brand/20" />
               {partProducts.length > 0 && (
-                <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border border-[#E2E2DF] bg-white shadow-lg">
+                <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border border-ds-border bg-ds-surface shadow-lg">
                   {partProducts.map(p => {
                     const reserved = parts.find(x => x.productId === p.id)?.quantity || 0;
                     const outOfStock = ((p.stock || 0) + (isEdit ? reserved : 0)) <= reserved;
                     return (
                       <button key={p.id} onClick={() => addPart(p)} disabled={outOfStock}
-                        className={`flex min-h-11 w-full justify-between border-b border-[#E2E2DF] px-4 py-2.5 text-left text-sm last:border-0 ${
+                        className={`flex min-h-11 w-full justify-between border-b border-ds-border px-4 py-2.5 text-left text-sm last:border-0 ${
                           outOfStock
-                            ? 'bg-[#FBDDD5] cursor-not-allowed opacity-70'
-                            : 'hover:bg-[#F4F4F2]'
+                            ? 'bg-ds-danger-soft cursor-not-allowed opacity-70'
+                            : 'hover:bg-ds-surface-2'
                         }`}>
-                        <span className={`font-bold ${outOfStock ? 'text-[#8A210A]' : 'text-[#0A0A0A]'}`}>{p.name}</span>
-                        <span className={`text-xs ${outOfStock ? 'font-bold text-[#8A210A]' : 'text-[#5C5C5C]'}`}>
+                        <span className={`font-bold ${outOfStock ? 'text-ds-danger' : 'text-ds-text'}`}>{p.name}</span>
+                        <span className={`text-xs ${outOfStock ? 'font-bold text-ds-danger' : 'text-ds-text-muted'}`}>
                           {outOfStock ? 'Stock épuisé' : `Stock ${p.stock}`} · {p.sellPrice.toFixed(3)} {currency}
                         </span>
                       </button>
@@ -1415,18 +1440,18 @@ export function RepairForm({
             {parts.length > 0 && (
               <div className="space-y-2">
                 {parts.map(p => (
-                  <div key={p.productId} className="flex min-w-0 flex-wrap items-center gap-2 rounded-xl bg-[#F4F4F2] px-3 py-2">
-                    <span className="min-w-0 flex-1 truncate text-sm font-semibold text-[#0A0A0A]">{p.name}</span>
+                  <div key={p.productId} className="flex min-w-0 flex-wrap items-center gap-2 rounded-xl bg-ds-surface-2 px-3 py-2">
+                    <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ds-text">{p.name}</span>
                     <input type="number" value={p.quantity} min={1}
                       onChange={(e) => updatePartQty(p.productId, parseInt(e.target.value) || 0)}
-                      className="min-h-11 w-14 rounded-lg border border-[#E2E2DF] bg-white px-2 py-1 text-center text-sm" />
-                    <span className="text-[#5C5C5C]">×</span>
+                      className="min-h-11 w-14 rounded-lg border border-ds-border bg-ds-surface px-2 py-1 text-center text-base" />
+                    <span className="text-ds-text-muted">×</span>
                     <input type="number" value={p.unitPrice} step="0.01"
                       onChange={(e) => updatePartPrice(p.productId, parseFloat(e.target.value) || 0)}
                       disabled={p.inventoryCollection === 'parts' ? !canEditPartSellPrice : !canEditProductSellPrice}
-                      className="min-h-11 w-20 rounded-lg border border-[#E2E2DF] bg-white px-2 py-1 text-right text-sm" />
-                    <span className="w-20 text-right text-sm font-black tabular-nums text-[#0A0A0A]">{p.total.toFixed(3)}</span>
-                    <button onClick={() => updatePartQty(p.productId, 0)} className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-[#8A210A] hover:bg-[#FBDDD5]"><Trash2 className="h-4 w-4" /></button>
+                      className="min-h-11 w-20 rounded-lg border border-ds-border bg-ds-surface px-2 py-1 text-right text-base" />
+                    <span className="w-20 text-right text-sm font-black tabular-nums text-ds-text">{p.total.toFixed(3)}</span>
+                    <button onClick={() => updatePartQty(p.productId, 0)} className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-ds-danger hover:bg-ds-danger-soft"><Trash2 className="h-4 w-4" /></button>
                   </div>
                 ))}
               </div>
@@ -1434,28 +1459,28 @@ export function RepairForm({
           </section>
 
           {/* Coûts */}
-          <section className="grid grid-cols-1 gap-3 rounded-[20px] bg-[#F4F4F2] p-4 sm:grid-cols-2">
+          <section className="grid grid-cols-1 gap-3 rounded-[20px] bg-ds-surface-2 p-4 sm:grid-cols-2">
             <Field label="Main d'œuvre" value={laborCost} onChange={setLaborCost} type="number" placeholder="0" full disabled={!canEditProductSellPrice} />
             {parts.length > 0 && (
-              <div className="col-span-full flex items-center justify-between border-t border-[#E2E2DF] pt-3 text-sm">
-                <span className="font-semibold text-[#5C5C5C]">Coût des pièces</span>
-                <span className="font-black tabular-nums text-[#0A0A0A]">{partsTotal.toFixed(3)} {currency}</span>
+              <div className="col-span-full flex items-center justify-between border-t border-ds-border pt-3 text-sm">
+                <span className="font-semibold text-ds-text-muted">Coût des pièces</span>
+                <span className="font-black tabular-nums text-ds-text">{partsTotal.toFixed(3)} {currency}</span>
               </div>
             )}
-            <div className="col-span-full flex items-center justify-between border-t border-[#E2E2DF] pt-3">
-              <span className="font-black text-[#0A0A0A]">TOTAL</span>
-              <span className="font-display text-lg font-bold tabular-nums text-[#0A0A0A]">{total.toFixed(3)} {currency}</span>
+            <div className="col-span-full flex items-center justify-between border-t border-ds-border pt-3">
+              <span className="font-black text-ds-text">TOTAL</span>
+              <span className="font-display text-lg font-bold tabular-nums text-ds-text">{total.toFixed(3)} {currency}</span>
             </div>
             {financialSettings?.tvaEnabled === true && (
-              <div className="col-span-full flex items-center justify-between text-xs text-[#5C5C5C]">
+              <div className="col-span-full flex items-center justify-between text-xs text-ds-text-muted">
                 <span>TVA ({financialSettings.tva || 0}%)</span>
                 <span>{repairTotals.tva.toFixed(3)} {currency}</span>
               </div>
             )}
             <Field label="Payé / acompte" value={canCash ? paid : String(paidValue)} onChange={setPaid} type="number" placeholder="0" disabled={!canCash} />
             <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-wider text-[#5C5C5C]">Reste dû</label>
-              <div className={cn("min-h-11 rounded-xl px-4 py-2.5 text-sm font-black tabular-nums", debt > 0 ? "bg-[#FBDDD5] text-[#8A210A]" : "bg-[#F4F4F2] text-[#5C5C5C]")}>
+              <label className="mb-2 block text-xs font-black uppercase tracking-wider text-ds-text-muted">Reste dû</label>
+              <div className={cn("min-h-11 rounded-xl px-4 py-2.5 text-sm font-black tabular-nums", debt > 0 ? "bg-ds-warning-soft text-ds-warning" : "bg-ds-surface-2 text-ds-text-muted")}>
                 {debt.toFixed(3)} {currency}
               </div>
             </div>
@@ -1463,10 +1488,10 @@ export function RepairForm({
           </section>
         </div>
 
-        <div className="sticky bottom-0 flex gap-3 rounded-b-[24px] border-t border-[#E2E2DF] bg-white p-5">
-          <button onClick={onClose} className="min-h-11 flex-1 rounded-full border border-[#E2E2DF] bg-white py-3 text-sm font-bold text-[#0A0A0A] transition-colors hover:bg-[#F4F4F2]">Annuler</button>
+        <div className="sticky bottom-0 flex gap-3 rounded-b-[24px] border-t border-ds-border bg-ds-surface p-5">
+          <button onClick={onClose} className="min-h-11 flex-1 rounded-full border border-ds-border bg-ds-surface py-3 text-sm font-bold text-ds-text transition-colors hover:bg-ds-surface-2">Annuler</button>
           <button onClick={handleSubmit} disabled={saving}
-            className="min-h-11 flex-1 rounded-full bg-[#0A0A0A] py-3 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A] disabled:opacity-50">
+            className="min-h-11 flex-1 rounded-full bg-ds-brand py-3 text-sm font-bold text-ds-brand-contrast transition-colors hover:bg-ds-brand-hover disabled:opacity-50">
             {saving ? 'Enregistrement...' : (isEdit ? 'Enregistrer' : 'Créer la réparation')}
           </button>
         </div>
@@ -1474,24 +1499,24 @@ export function RepairForm({
 
       {/* Confirmation + impression automatique du bon de dépôt après création */}
       {printingRepair && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-[#0A0A0A]/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-[24px] border border-[#E2E2DF] bg-white p-6 text-center shadow-2xl">
-            <CheckCircle className="mx-auto mb-3 h-12 w-12 text-[#5C5C5C]" />
-            <h3 className="text-lg font-bold text-[#0A0A0A]">Réparation créée</h3>
-            <p className="mt-1 text-sm text-[#5C5C5C]">
-              N° <span className="font-mono font-bold text-[#0A0A0A]">{printingRepair.number}</span>
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-ds-text/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-[24px] border border-ds-border bg-ds-surface p-6 text-center shadow-2xl">
+            <CheckCircle className="mx-auto mb-3 h-12 w-12 text-ds-text-muted" />
+            <h3 className="text-lg font-bold text-ds-text">Réparation créée</h3>
+            <p className="mt-1 text-sm text-ds-text-muted">
+              N° <span className="font-mono font-bold text-ds-text">{printingRepair.number}</span>
             </p>
-            <p className="mt-2 text-xs text-[#5C5C5C]">Impression du bon de dépôt en cours...</p>
+            <p className="mt-2 text-xs text-ds-text-muted">Impression du bon de dépôt en cours...</p>
             <div className="flex gap-2 mt-5">
               <button
                 onClick={() => window.print()}
-                className="min-h-11 flex-1 rounded-full border border-[#E2E2DF] bg-white py-2.5 text-sm font-bold text-[#0A0A0A] transition-colors hover:bg-[#F4F4F2]"
+                className="min-h-11 flex-1 rounded-full border border-ds-border bg-ds-surface py-2.5 text-sm font-bold text-ds-text transition-colors hover:bg-ds-surface-2"
               >
                 Réimprimer
               </button>
               <button
                 onClick={() => onSaved(`Réparation ${printingRepair.number} créée.`)}
-                className="min-h-11 flex-1 rounded-full bg-[#0A0A0A] py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]"
+                className="min-h-11 flex-1 rounded-full bg-ds-brand py-2.5 text-sm font-bold text-ds-brand-contrast transition-colors hover:bg-ds-brand-hover"
               >
                 Terminer
               </button>
@@ -1514,11 +1539,15 @@ function Field({ label, value, onChange, placeholder, type = 'text', full = fals
   label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string; full?: boolean; disabled?: boolean;
 }) {
   return (
-    <div className={full ? 'col-span-2' : ''}>
-      <label className="mb-2 block text-xs font-black uppercase tracking-wider text-[#5C5C5C]">{label}</label>
-      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} disabled={disabled}
-        className="min-h-11 w-full rounded-xl border border-[#E2E2DF] bg-[#F4F4F2] px-4 py-2.5 text-sm outline-none focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10 disabled:cursor-not-allowed disabled:opacity-60" />
-    </div>
+    <Input
+      label={label}
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      disabled={disabled}
+      className={full ? 'col-span-2' : ''}
+    />
   );
 }
 
@@ -1728,31 +1757,29 @@ export function RepairDetail({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#0A0A0A]/50 p-2 backdrop-blur-sm sm:items-center sm:p-4">
-      <div className="my-4 w-full max-w-2xl rounded-[24px] border border-[#E2E2DF] bg-white shadow-2xl">
-    <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-[24px] border-b border-[#E2E2DF] bg-white p-5">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ds-text/50 p-2 backdrop-blur-sm sm:items-center sm:p-4">
+      <Card className="my-4 w-full max-w-2xl p-0 shadow-2xl">
+    <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-[24px] border-b border-ds-border bg-ds-surface p-5">
           <div>
-        <h2 className="font-display font-bold text-[#0A0A0A]">{repair.number}</h2>
+        <h2 className="font-display font-bold text-ds-text">{repair.number}</h2>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
-              <span className={cn("inline-block px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider border", STATUS_STYLES[repair.status])}>
-                {REPAIR_STATUS_LABELS[repair.status]}
-              </span>
+              <RepairStatusBadge status={repair.status} />
               {repair.date?.toDate && (
-                <span className="flex items-center gap-1 text-[10px] font-bold text-[#5C5C5C]">
+                <span className="flex items-center gap-1 text-[10px] font-bold text-ds-text-muted">
                   <Calendar className="h-3 w-3" /> Créé le {format(repair.date.toDate(), 'dd/MM/yyyy à HH:mm')}
                 </span>
               )}
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={onEdit} className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-[#0A0A0A] hover:bg-[#F4F4F2]" title="Modifier"><Edit3 className="h-4 w-4" /></button>
-            {canDelete && <button onClick={onDelete} className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-[#8A210A] hover:bg-[#FBDDD5]" title="Supprimer"><Trash2 className="h-4 w-4" /></button>}
-            <button onClick={onClose} className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-[#5C5C5C] hover:bg-[#F4F4F2]"><X className="h-5 w-5" /></button>
+            <button onClick={onEdit} className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-ds-text hover:bg-ds-surface-2" title="Modifier"><Edit3 className="h-4 w-4" /></button>
+            {canDelete && <button onClick={onDelete} className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-ds-danger hover:bg-ds-danger-soft" title="Supprimer"><Trash2 className="h-4 w-4" /></button>}
+            <button onClick={onClose} className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-ds-text-muted hover:bg-ds-surface-2"><X className="h-5 w-5" /></button>
           </div>
         </div>
 
         {localError && (
-          <div className="mx-5 mt-4 flex items-start gap-2 rounded-xl border border-[#F6C9BE] bg-[#FBDDD5] px-4 py-3 text-sm font-bold text-[#8A210A]">
+          <div className="mx-5 mt-4 flex items-start gap-2 rounded-xl border border-ds-danger/20 bg-ds-danger-soft px-4 py-3 text-sm font-bold text-ds-danger">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> {localError}
           </div>
         )}
@@ -1764,23 +1791,23 @@ export function RepairDetail({
             <InfoBlock icon={Smartphone} label="Appareil" value={`${repair.deviceBrand || ''} ${repair.deviceModel || ''}`.trim() || '—'} sub={repair.imei ? `IMEI ${repair.imei}` : undefined} />
           </div>
 
-          <div className="space-y-2 rounded-[20px] bg-[#F4F4F2] p-4 text-sm">
-            <div><span className="text-xs font-black uppercase tracking-wider text-[#5C5C5C]">Panne : </span><span className="font-medium text-[#0A0A0A]">{repair.problem}</span></div>
-            {repair.diagnostic && <div><span className="text-xs font-black uppercase tracking-wider text-[#5C5C5C]">Diagnostic : </span><span className="font-medium text-[#0A0A0A]">{repair.diagnostic}</span></div>}
-            {repair.accessories && <div><span className="text-xs font-black uppercase tracking-wider text-[#5C5C5C]">Accessoires : </span><span className="font-medium text-[#0A0A0A]">{repair.accessories}</span></div>}
-            {repair.deviceCondition && <div><span className="text-xs font-black uppercase tracking-wider text-[#5C5C5C]">État : </span><span className="font-medium text-[#0A0A0A]">{repair.deviceCondition}</span></div>}
-            {repair.technician && <div><span className="text-xs font-black uppercase tracking-wider text-[#5C5C5C]">Technicien : </span><span className="font-medium text-[#0A0A0A]">{repair.technician}</span></div>}
+          <div className="space-y-2 rounded-[20px] bg-ds-surface-2 p-4 text-sm">
+            <div><span className="text-xs font-black uppercase tracking-wider text-ds-text-muted">Panne : </span><span className="font-medium text-ds-text">{repair.problem}</span></div>
+            {repair.diagnostic && <div><span className="text-xs font-black uppercase tracking-wider text-ds-text-muted">Diagnostic : </span><span className="font-medium text-ds-text">{repair.diagnostic}</span></div>}
+            {repair.accessories && <div><span className="text-xs font-black uppercase tracking-wider text-ds-text-muted">Accessoires : </span><span className="font-medium text-ds-text">{repair.accessories}</span></div>}
+            {repair.deviceCondition && <div><span className="text-xs font-black uppercase tracking-wider text-ds-text-muted">État : </span><span className="font-medium text-ds-text">{repair.deviceCondition}</span></div>}
+            {repair.technician && <div><span className="text-xs font-black uppercase tracking-wider text-ds-text-muted">Technicien : </span><span className="font-medium text-ds-text">{repair.technician}</span></div>}
           </div>
 
           {/* Pièces */}
           {repair.parts?.length > 0 && (
             <div>
-              <p className="mb-2 flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#5C5C5C]"><Package className="h-3.5 w-3.5" /> Pièces utilisées</p>
+              <p className="mb-2 flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-ds-text-muted"><Package className="h-3.5 w-3.5" /> Pièces utilisées</p>
               <div className="space-y-1">
                 {repair.parts.map((p, i) => (
-                  <div key={i} className="flex justify-between rounded-lg border border-[#E2E2DF] bg-white px-3 py-2 text-sm">
-                    <span className="text-[#0A0A0A]">{p.name} × {p.quantity}</span>
-                    <span className="font-bold tabular-nums text-[#0A0A0A]">{p.total.toFixed(3)} {currency}</span>
+                  <div key={i} className="flex justify-between rounded-lg border border-ds-border bg-ds-surface px-3 py-2 text-sm">
+                    <span className="text-ds-text">{p.name} × {p.quantity}</span>
+                    <span className="font-bold tabular-nums text-ds-text">{p.total.toFixed(3)} {currency}</span>
                   </div>
                 ))}
               </div>
@@ -1791,12 +1818,12 @@ export function RepairDetail({
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <MoneyBlock label="Total" value={repair.total} currency={currency} accent />
             <MoneyBlock label="Payé" value={repair.paid} currency={currency} />
-            <MoneyBlock label="Reste dû" value={repair.debt} currency={currency} danger={repair.debt > 0} />
+            <MoneyBlock label="Reste dû" value={repair.debt} currency={currency} warning={repair.debt > 0} />
           </div>
 
           {repair.warrantyUntil && (
             <div className={cn("flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold",
-              new Date(repair.warrantyUntil) > new Date() ? "bg-[#F4F4F2] text-[#0A0A0A]" : "bg-[#F4F4F2] text-[#5C5C5C]")}>
+              new Date(repair.warrantyUntil) > new Date() ? "bg-ds-surface-2 text-ds-text" : "bg-ds-surface-2 text-ds-text-muted")}>
               <Shield className="w-4 h-4" />
               Garantie jusqu'au {format(new Date(repair.warrantyUntil), 'dd/MM/yyyy')}
               {new Date(repair.warrantyUntil) < new Date() && ' (expirée)'}
@@ -1804,39 +1831,45 @@ export function RepairDetail({
           )}
 
           {/* Changement rapide de statut */}
-          <div className="border-t border-[#E2E2DF] pt-4">
-            <p className="mb-2 text-xs font-black uppercase tracking-wider text-[#5C5C5C]">Changer le statut</p>
+          <div className="border-t border-ds-border pt-4">
+            <p className="mb-2 text-xs font-black uppercase tracking-wider text-ds-text-muted">Changer le statut</p>
             <div className="flex flex-wrap gap-2 mb-3">
               {(Object.keys(REPAIR_STATUS_LABELS) as RepairStatus[])
                 .filter(s => canCash || s !== 'livre' || repair.status === 'livre')
                 .map(s => (
-                <button key={s} disabled={updating} onClick={() => changeStatus(s)}
-                  className={cn("min-h-11 rounded-full border px-4 py-1.5 text-xs font-black uppercase tracking-wider transition-all disabled:opacity-50",
-                    s === repair.status ? STATUS_STYLES[s] + " ring-2 ring-offset-1 ring-[#0A0A0A]/20" : "bg-white text-[#5C5C5C] border-[#E2E2DF] hover:bg-[#F4F4F2]")}>
-                  {REPAIR_STATUS_LABELS[s]}
-                </button>
+                <Button
+                  key={s}
+                  variant="secondary"
+                  size="sm"
+                  disabled={updating}
+                  aria-pressed={s === repair.status}
+                  onClick={() => changeStatus(s)}
+                  className={cn(s === repair.status && "ring-2 ring-ds-brand ring-offset-2")}
+                >
+                  <RepairStatusBadge status={s} />
+                </Button>
               ))}
             </div>
             <div className="flex gap-2">
               <input value={quickNote} onChange={(e) => setQuickNote(e.target.value)}
                 placeholder="Ajouter une note de suivi (optionnel)..."
-                className="min-h-11 flex-1 rounded-xl border border-[#E2E2DF] bg-[#F4F4F2] px-4 py-2.5 text-sm outline-none focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10" />
+                className="min-h-11 flex-1 rounded-xl border border-ds-border bg-ds-surface-2 px-4 py-2.5 text-base outline-none focus:border-ds-brand focus:ring-2 focus:ring-ds-brand/20" />
               <button onClick={addNote} disabled={updating || !quickNote.trim()}
-                className="min-h-11 rounded-full bg-[#0A0A0A] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#2A2A2A] disabled:opacity-40">Noter</button>
+                className="min-h-11 rounded-full bg-ds-brand px-5 py-2.5 text-sm font-bold text-ds-brand-contrast hover:bg-ds-brand-hover disabled:opacity-40">Noter</button>
             </div>
           </div>
 
           {/* Historique */}
           {repair.logs?.length > 0 && (
-            <div className="border-t border-[#E2E2DF] pt-4">
-              <p className="mb-3 flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#5C5C5C]"><History className="h-3.5 w-3.5" /> Historique de suivi</p>
+            <div className="border-t border-ds-border pt-4">
+              <p className="mb-3 flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-ds-text-muted"><History className="h-3.5 w-3.5" /> Historique de suivi</p>
               <div className="space-y-3">
                 {[...repair.logs].reverse().map((log, i) => (
                   <div key={i} className="flex gap-3">
-                    <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#5C5C5C]" />
+                    <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-ds-info" />
                     <div className="flex-1 -mt-0.5">
-                      <p className="text-sm font-medium text-[#0A0A0A]">{log.note}</p>
-                      <p className="text-[11px] font-medium text-[#5C5C5C]">
+                      <p className="text-sm font-medium text-ds-text">{log.note}</p>
+                      <p className="text-[11px] font-medium text-ds-text-muted">
                         {format(new Date(log.date), 'dd/MM/yyyy HH:mm')}{log.by ? ` · ${log.by}` : ''}
                       </p>
                     </div>
@@ -1846,8 +1879,8 @@ export function RepairDetail({
             </div>
           )}
           {stockMovements.length > 0 && (
-            <div className="border-t border-[#E2E2DF] pt-4">
-              <p className="mb-3 flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#5C5C5C]">
+            <div className="border-t border-ds-border pt-4">
+              <p className="mb-3 flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-ds-text-muted">
                 <Package className="w-3.5 h-3.5" /> Mouvements de pièces
               </p>
               <div className="space-y-2">
@@ -1858,13 +1891,13 @@ export function RepairDetail({
                   return (
                     <div key={movement.id} className="flex items-start justify-between gap-3 text-sm">
                       <div>
-                        <p className="font-semibold text-[#0A0A0A]">{movement.productName} · {movement.delta > 0 ? 'Restitution' : 'Sortie'}</p>
-                        <p className="text-[11px] text-[#5C5C5C]">
+                        <p className="font-semibold text-ds-text">{movement.productName} · {movement.delta > 0 ? 'Restitution' : 'Sortie'}</p>
+                        <p className="text-[11px] text-ds-text-muted">
                           {date && !Number.isNaN(date.getTime()) ? format(date, 'dd/MM/yyyy HH:mm') : 'Date indisponible'}
                           {movement.userLabel ? ` · ${movement.userLabel}` : ''}
                         </p>
                       </div>
-                      <span className="font-black tabular-nums text-[#0A0A0A]">
+                      <span className="font-black tabular-nums text-ds-text">
                         {movement.delta > 0 ? '+' : ''}{movement.delta}
                       </span>
                     </div>
@@ -1875,13 +1908,13 @@ export function RepairDetail({
           )}
         </div>
 
-        <div className="sticky bottom-0 flex gap-3 rounded-b-[24px] border-t border-[#E2E2DF] bg-white p-5">
-          <button onClick={handlePrint} className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[#E2E2DF] bg-white py-3 text-sm font-bold text-[#0A0A0A] transition-colors hover:bg-[#F4F4F2]">
+        <div className="sticky bottom-0 flex gap-3 rounded-b-[24px] border-t border-ds-border bg-ds-surface p-5">
+          <button onClick={handlePrint} className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-ds-border bg-ds-surface py-3 text-sm font-bold text-ds-text transition-colors hover:bg-ds-surface-2">
             <FileText className="w-4 h-4" /> Imprimer le bon
           </button>
-          <button onClick={onClose} className="min-h-11 flex-1 rounded-full bg-[#0A0A0A] py-3 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]">Fermer</button>
+          <button onClick={onClose} className="min-h-11 flex-1 rounded-full bg-ds-brand py-3 text-sm font-bold text-ds-brand-contrast transition-colors hover:bg-ds-brand-hover">Fermer</button>
         </div>
-      </div>
+      </Card>
 
       {printing && createPortal(
         <div className="print-container">
@@ -1938,70 +1971,70 @@ function DeliveryCaisseModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#0A0A0A]/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-[24px] border border-[#E2E2DF] bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-[#E2E2DF] p-5">
-          <h2 className="flex items-center gap-2 text-lg font-bold text-[#0A0A0A]">
-            <DollarSign className="h-5 w-5 text-[#0A0A0A]" /> Caisse — Livraison
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ds-text/50 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-[24px] border border-ds-border bg-ds-surface shadow-2xl">
+        <div className="flex items-center justify-between border-b border-ds-border p-5">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-ds-text">
+            <DollarSign className="h-5 w-5 text-ds-text" /> Caisse — Livraison
           </h2>
-          <button onClick={onClose} className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-[#5C5C5C] hover:bg-[#F4F4F2]"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-ds-text-muted hover:bg-ds-surface-2"><X className="h-5 w-5" /></button>
         </div>
 
         <div className="p-5 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <MoneyBlock label="Total réparation" value={repair.total} currency={currency} accent />
-            <MoneyBlock label="Reste dû actuel" value={repair.debt} currency={currency} danger={repair.debt > 0} />
+            <MoneyBlock label="Reste dû actuel" value={repair.debt} currency={currency} warning={repair.debt > 0} />
           </div>
 
           {client ? (
-            <p className="text-xs font-bold text-[#5C5C5C]">Client : <span className="text-[#0A0A0A]">{client.name}</span></p>
+            <p className="text-xs font-bold text-ds-text-muted">Client : <span className="text-ds-text">{client.name}</span></p>
           ) : (
-            <div className="flex items-start gap-2 rounded-xl border border-[#F6C9BE] bg-[#FBDDD5] px-3 py-2.5 text-xs font-bold text-[#8A210A]">
+            <div className="flex items-start gap-2 rounded-xl border border-ds-danger/20 bg-ds-danger-soft px-3 py-2.5 text-xs font-bold text-ds-danger">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               Aucun client enregistré sur cette fiche — la livraison ne sera possible que si le montant est encaissé en totalité.
             </div>
           )}
 
           <div>
-            <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-[#5C5C5C]">Remise ({currency})</label>
+            <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-ds-text-muted">Remise ({currency})</label>
             <input
               type="text" inputMode="decimal" value={discountInput}
               onChange={(e) => { if (/^[\d.,]*$/.test(e.target.value)) setDiscountInput(e.target.value); }}
-              className="min-h-11 w-full rounded-xl border border-[#E2E2DF] bg-[#F4F4F2] px-4 py-2.5 text-sm font-bold outline-none focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10"
+              className="min-h-11 w-full rounded-xl border border-ds-border bg-ds-surface-2 px-4 py-2.5 text-base font-bold outline-none focus:border-ds-brand focus:ring-2 focus:ring-ds-brand/20"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-[#5C5C5C]">Montant encaissé maintenant ({currency})</label>
+            <label className="mb-1.5 block text-xs font-black uppercase tracking-wider text-ds-text-muted">Montant encaissé maintenant ({currency})</label>
             <input
               type="text" inputMode="decimal" value={paidInput}
               onChange={(e) => { if (/^[\d.,]*$/.test(e.target.value)) setPaidInput(e.target.value); }}
-              className="min-h-11 w-full rounded-xl border border-[#E2E2DF] bg-[#F4F4F2] px-4 py-2.5 text-sm font-bold outline-none focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10"
+              className="min-h-11 w-full rounded-xl border border-ds-border bg-ds-surface-2 px-4 py-2.5 text-base font-bold outline-none focus:border-ds-brand focus:ring-2 focus:ring-ds-brand/20"
             />
           </div>
 
-          <div className="flex items-center justify-between rounded-xl bg-[#F4F4F2] p-3">
-            <span className="text-xs font-black uppercase tracking-wider text-[#5C5C5C]">
+          <div className="flex items-center justify-between rounded-xl bg-ds-surface-2 p-3">
+            <span className="text-xs font-black uppercase tracking-wider text-ds-text-muted">
               {restDue > 0 ? 'Reste à créditer au client' : 'Reste après cet encaissement'}
             </span>
-            <span className={cn("text-sm font-bold tabular-nums", restDue > 0 ? "text-[#8A210A]" : "text-[#0A0A0A]")}>{restDue.toFixed(3)} {currency}</span>
+            <span className={cn("text-sm font-bold tabular-nums", restDue > 0 ? "text-ds-warning" : "text-ds-text")}>{restDue.toFixed(3)} {currency}</span>
           </div>
 
           {formError && (
-            <div className="flex items-start gap-2 rounded-xl bg-[#FBDDD5] px-3 py-2.5 text-xs font-bold text-[#8A210A]">
+            <div className="flex items-start gap-2 rounded-xl bg-ds-danger-soft px-3 py-2.5 text-xs font-bold text-ds-danger">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> {formError}
             </div>
           )}
         </div>
 
-        <div className="flex flex-col gap-2 border-t border-[#E2E2DF] p-5">
+        <div className="flex flex-col gap-2 border-t border-ds-border p-5">
           <button
             onClick={handleLivrer} disabled={updating}
-            className="min-h-11 w-full rounded-full bg-[#0A0A0A] py-3 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A] disabled:opacity-50"
+            className="min-h-11 w-full rounded-full bg-ds-brand py-3 text-sm font-bold text-ds-brand-contrast transition-colors hover:bg-ds-brand-hover disabled:opacity-50"
           >
             {restDue > 0 ? 'Livrer & Créditer le reste au client' : 'Livrer & Encaisser'}
           </button>
-          <button onClick={onClose} disabled={updating} className="min-h-11 w-full rounded-full border border-[#E2E2DF] py-2.5 text-sm font-bold text-[#0A0A0A] transition-colors hover:bg-[#F4F4F2]">
+          <button onClick={onClose} disabled={updating} className="min-h-11 w-full rounded-full border border-ds-border py-2.5 text-sm font-bold text-ds-text transition-colors hover:bg-ds-surface-2">
             Annuler
           </button>
         </div>
@@ -2012,19 +2045,19 @@ function DeliveryCaisseModal({
 
 function InfoBlock({ icon: Icon, label, value, sub }: { icon: any; label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-[20px] border border-[#E2E2DF] bg-white p-4">
-      <div className="mb-1 flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#5C5C5C]"><Icon className="h-3.5 w-3.5" /> {label}</div>
-      <p className="truncate font-bold text-[#0A0A0A]">{value}</p>
-      {sub && <p className="truncate text-xs font-medium text-[#5C5C5C]">{sub}</p>}
+    <div className="rounded-[20px] border border-ds-border bg-ds-surface p-4">
+      <div className="mb-1 flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-ds-text-muted"><Icon className="h-3.5 w-3.5" /> {label}</div>
+      <p className="truncate font-bold text-ds-text">{value}</p>
+      {sub && <p className="truncate text-xs font-medium text-ds-text-muted">{sub}</p>}
     </div>
   );
 }
 
-function MoneyBlock({ label, value, currency, accent, danger }: { label: string; value: number; currency: string; accent?: boolean; danger?: boolean }) {
+function MoneyBlock({ label, value, currency, accent, warning }: { label: string; value: number; currency: string; accent?: boolean; warning?: boolean }) {
   return (
-    <div className={cn("rounded-[18px] border border-[#E2E2DF] p-3 text-center", accent ? "bg-[#0A0A0A]" : danger ? "bg-[#FBDDD5]" : "bg-[#F4F4F2]")}>
-      <p className={cn("text-[10px] font-black uppercase tracking-wider", accent ? "text-white/75" : "text-[#5C5C5C]")}>{label}</p>
-      <p className={cn("mt-0.5 font-display text-sm font-bold tabular-nums", accent ? "text-white" : danger ? "text-[#8A210A]" : "text-[#0A0A0A]")}>
+    <div className={cn("rounded-ds-md border border-ds-border p-3 text-center", accent ? "bg-ds-brand" : warning ? "bg-ds-warning-soft" : "bg-ds-surface-2")}>
+      <p className={cn("text-[10px] font-black uppercase tracking-wider", accent ? "text-ds-brand-contrast/75" : "text-ds-text-muted")}>{label}</p>
+      <p className={cn("mt-0.5 font-display text-sm font-bold tabular-nums", accent ? "text-ds-brand-contrast" : warning ? "text-ds-warning" : "text-ds-text")}>
         {(value || 0).toFixed(3)} {currency}
       </p>
     </div>

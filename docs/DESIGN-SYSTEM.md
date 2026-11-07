@@ -1,6 +1,6 @@
 # Design system
 
-This design system is adopted incrementally. The shared tokens and components are used by the application shell (sidebar, header, and login screen), Dashboard, POS, Products, Sales, Invoices, and Clients; other business pages remain unmigrated.
+This design system is adopted incrementally. Shared tokens and components are used by the application shell (sidebar, header, and login screen), Dashboard, POS, Products, Sales, Invoices, Clients, Repairs, Expenses, Reports, Settings, and Users. CashSession, Parts, Notes, StartupAdmin, MessageComposer, and some shell/modal markup retain legacy presentation utilities; Migration 6 maps remaining screen utilities to role tokens. Supplier management is part of Invoices. `Statistics.tsx` is not connected to an application route.
 
 ## Tokens
 
@@ -223,3 +223,53 @@ Printing remains outside the migrated token styles: the existing `PrintableTicke
 Firestore subscriptions, query conditions, calculations, permissions, invoice/client workflows, and print/PDF handlers were preserved. Desktop/mobile rendering and the complete print flow still require visual verification.
 
 The existing Clients page has no client purchase-history/detail view in its baseline, so this visual migration did not add one or introduce a new history query.
+
+## Migration 5B: Repairs
+
+Migrated `src/components/Repairs.tsx`: page header and summaries, collapsible mobile filters, repair cards, status choices, detail sheet, forms, and confirmation/dialog surfaces now use Design System components and tokens. Existing repair cards are retained as the mobile list presentation, with contained widths and shared 16px form controls.
+
+Repair status colors use one mapping throughout the list, form choices, and detail actions: received uses brand violet; diagnostics and in-progress use informational blue; waiting for parts uses warning orange; finished and delivered use success green; irreparable and cancelled use danger red. Outstanding balances use warning tokens, while errors, out-of-stock states, and destructive actions use danger tokens.
+
+`src/components/RepairTicket.tsx` and `src/index.css` print rules were not changed. The ticket intentionally keeps fixed black text/borders and a white background so printing remains high contrast and independent of application tokens. `Repairs.tsx` had 323 hex-color occurrences before and 0 after; it had no named Tailwind palette-shade utilities before or after.
+
+Repair creation/editing, stock and financial calculations, subscriptions/queries, role restrictions, status transitions, delivery/cash flows, and print handlers were not changed. The application lint/build pass; desktop/mobile interaction and physical print output still require visual verification.
+
+## Migration 5C: Expenses and Reports
+
+Migrated files:
+
+- `src/components/Expenses.tsx`: page summary, add-expense dialog and form, search/month filters, expense table, and loading/empty states.
+- `src/components/Reports.tsx`: page header and period controls, summary cards, report breakdowns, and repair-status counts.
+
+The migrated sections use `PageHeader`, `Card`, `Badge`, `Button`, `Input`, `Select`, and `EmptyState`. Expense rows stay inside a horizontally scrollable/responsive table; shared form controls retain 16px text. Primary period selection uses the brand role, positive amounts/results use success, outstanding debt and missing historical cost warnings use warning, and neutral category/status surfaces use neutral tokens. The expense dialog overlay uses `ds-text` rather than a fixed palette color.
+
+Expenses had 55 named Tailwind palette-color utility matches before and 0 after; Reports had 36 before and 0 after. Both files had 0 hex colors before and after. No printed, PDF, or canvas output exists in either page. Reports currently renders summary cards and text breakdowns rather than charts, and neither page currently provides export actions; this migration did not add those behaviors.
+
+Firestore subscriptions and transaction writes, summary calculations, filters, role checks, cash-session requirements, and existing navigation were preserved. Lint and production build pass; desktop/mobile rendering and the expense dialog interaction still require visual verification.
+
+## Migration 6: Dark mode
+
+Added `src/components/ThemeProvider.tsx`, wrapped the application in it from `src/index.tsx`, and added an early preference-resolution script to `index.html`. The preference (`light`, `dark`, or `system`) is stored under `phone-clinic-theme` with guarded localStorage access. System mode tracks `prefers-color-scheme`; `data-theme` is resolved before React's first render.
+
+`src/index.css` now defines dark role values for brand, surfaces, text, muted text, borders, and success/danger/warning/info states. Dark surfaces use blue-navy values rather than pure black. Existing legacy palette utilities are adapted by semantic role on screen only (neutral surfaces/text, brand actions, informational blue, success, danger, and warnings); print media is excluded from that compatibility layer. `Parts` distinguishes out-of-stock danger from low-stock warning, `CashSession` and `Notes` use brand-colored primary actions, and `StartupProvider`/`BrandLogo` use the shared tokens directly.
+
+The Application tab in `src/components/Settings.tsx` now offers Clair, Sombre, and Système without changing existing permissions or settings data. The runtime theme-color meta follows the resolved theme. The generated PWA manifest retains the dynamic brand theme color and uses the dark navy app background; the manifest format has one static theme color, while the runtime meta follows the selected theme.
+
+Print remains light: the dark utility compatibility rules are screen-only, print token values are reset to light, and no design-system variables or classes were added to generated invoice, ticket, PDF, iframe, or canvas content. Existing fixed-color print content remains unchanged.
+
+The TSX palette-utility inventory decreased from 530 occurrences at the branch baseline to 485; the remaining legacy utilities are role-mapped on screen, while fixed print markup is intentionally left alone. TSX hex literals decreased from 6 to 1; the remaining literal is the dark theme-color constant. Dark text, muted text, brand, and semantic status pairings were measured at or above 4.5:1.
+
+Lint and production build pass; the build retains the existing >500 kB main-chunk warning. Browser checks covered login in light/dark mode, `system` preference changes, mobile width, representative legacy utility mappings, and light print media. Other pages and role-specific flows were not visually verified; `Statistics.tsx` is not routed and was not separately exercised.
+
+## Migration 5D: Settings and Users
+
+Migrated files:
+
+- `src/components/Settings.tsx`: page heading, settings tab strip, store/account/security, maintenance, Coran & Adhkar, PWA, and activity-log surfaces and forms.
+- `src/components/Users.tsx`: page heading, user table, role/status/allowed-menu badges, password and delete dialogs, create/edit forms, and permission controls.
+
+Settings sections remain mounted and inactive panels are hidden. The existing permission gates, `activeTab` state, tab hash synchronization, and sticky horizontally scrollable tablist remain intact. Containers and dialogs use `min-w-0`/`max-w-*` constraints; the Users table is contained in an `overflow-x-auto` wrapper. Text-entry controls use shared 16px `Input`/`Select` styles, and checkbox labels and buttons use touch-sized targets. User roles use badges, active/inactive status uses success/danger badges, and account deletion uses the danger button variant.
+
+Settings had 246 named Tailwind palette-color utility matches and 1 hex color before migration; Users had 296 and 0. Both files now have 0 palette-color matches and 0 hex colors. Modal overlays use the `ds-text` token. No generated print, PDF, iframe, or canvas content was changed.
+
+Authentication flows, Firestore queries and writes, user role/permission data, store settings fields, data export/purge behavior, and existing confirmations were not changed. The 5D changes pass lint/build; desktop/mobile rendering and all role-specific Settings/Users flows still require visual verification.

@@ -4,6 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="%VITE_APP_PRIMARY_COLOR%" />
+    <script>
+      const applyInitialTheme = (dark) => {
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        if (dark) document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0B1220');
+      };
+      try {
+        const theme = localStorage.getItem('phone-clinic-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyInitialTheme(theme === 'dark' || (theme !== 'light' && prefersDark));
+      } catch {
+        applyInitialTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
+      }
+    </script>
     <meta name="app-build-id" content="%VITE_BUILD_ID%" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />

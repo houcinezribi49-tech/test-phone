@@ -688,7 +688,7 @@ export default function Parts({ userProfile }: PartsProps) {
           <div><h2 className="font-black text-amber-900">Aperçu de l’import</h2><p className="text-xs text-amber-800">{legacyPreview.length} produit(s)-pièce absent(s) de « Pièces Détachées ».</p></div>
           <div className="flex flex-wrap gap-2">
             <button onClick={downloadLegacyImportBackup} className="rounded-xl border border-amber-300 bg-white px-4 py-2.5 text-sm font-bold text-amber-800">Télécharger la sauvegarde JSON</button>
-            <button onClick={() => void confirmLegacyImport()} disabled={importing || !legacyBackupDownloaded} className="rounded-xl bg-amber-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-amber-800 disabled:opacity-50">{importing ? 'Import en cours…' : 'Confirmer l’import'}</button>
+            <button onClick={() => void confirmLegacyImport()} disabled={importing || !legacyBackupDownloaded} className="rounded-xl bg-ds-brand px-4 py-2.5 text-sm font-bold text-ds-brand-contrast hover:bg-ds-brand-hover disabled:opacity-50">{importing ? 'Import en cours…' : 'Confirmer l’import'}</button>
           </div>
         </div>
         <ul className="max-h-48 space-y-1 overflow-y-auto text-xs text-amber-950">
@@ -726,7 +726,7 @@ export default function Parts({ userProfile }: PartsProps) {
                   <td data-label="Catégorie" className="px-4 py-4"><span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700">{part.category}</span></td>
                   {canViewBuyPrice && <td data-label="Prix achat" className="px-4 py-4 text-right font-mono text-xs">{money(costs[part.id] || 0)}</td>}
                   <td data-label="Prix vente" className="px-4 py-4 text-right font-mono font-bold">{money(part.sellPrice)}</td>
-                  <td data-label="Stock" className="px-4 py-4 text-center"><span className={cn('rounded-lg px-2.5 py-1 font-black tabular-nums', part.stock <= part.lowStockAlert ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-700')}>{part.stock}</span>{part.stock <= part.lowStockAlert && <p className="mt-1 text-[10px] font-bold text-rose-500">Stock bas</p>}
+                  <td data-label="Stock" className="px-4 py-4 text-center"><span className={cn('rounded-lg px-2.5 py-1 font-black tabular-nums', part.stock <= 0 ? 'bg-ds-danger-soft text-ds-danger' : part.stock <= part.lowStockAlert ? 'bg-ds-warning-soft text-ds-warning' : 'bg-ds-success-soft text-ds-success')}>{part.stock}</span>{part.stock <= part.lowStockAlert && <p className="mt-1 text-[10px] font-bold text-ds-warning">Stock bas</p>}
                     {canAdjustStock && <div className="mt-2 flex items-center justify-center gap-1.5">
                     <button title="Retirer une unité" aria-label="Retirer une unité" onClick={() => void adjustStock(part, -1)} disabled={part.stock <= 0} className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:bg-slate-100 disabled:opacity-40"><Minus size={14} /></button>
                     <button title="Ajouter une unité" onClick={() => void adjustStock(part, 1)} className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:bg-slate-100"><Plus size={14} /></button>

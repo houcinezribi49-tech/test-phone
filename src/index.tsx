@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import { DARK_THEME_COLOR, ThemeProvider } from './components/ThemeProvider';
 import './index.css';
 import '@fontsource-variable/inter';
 import { APP_BRAND_COLORS, APP_NAME, APP_SHORT_NAME, APP_TAGLINE } from './config/brand';
@@ -22,7 +23,9 @@ const rootEl = document.getElementById('root');
 if (rootEl) {
   createRoot(rootEl).render(
     <StrictMode>
-      <App />
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
     </StrictMode>,
   );
 }
@@ -30,7 +33,10 @@ if (rootEl) {
 document.documentElement.style.setProperty('--brand-primary', APP_BRAND_COLORS.primary);
 document.title = APP_NAME;
 const appDescription = APP_TAGLINE ? `${APP_NAME} — ${APP_TAGLINE}` : APP_NAME;
-document.querySelector('meta[name="theme-color"]')?.setAttribute('content', APP_BRAND_COLORS.primary);
+const initialThemeColor = document.documentElement.dataset.theme === 'dark'
+  ? DARK_THEME_COLOR
+  : APP_BRAND_COLORS.primary;
+document.querySelector('meta[name="theme-color"]')?.setAttribute('content', initialThemeColor);
 document.querySelector('meta[name="apple-mobile-web-app-title"]')?.setAttribute('content', APP_SHORT_NAME);
 document.querySelector('meta[name="description"]')?.setAttribute('content', appDescription);
 document.querySelector('meta[property="og:title"]')?.setAttribute('content', APP_NAME);

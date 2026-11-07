@@ -351,7 +351,7 @@ export default function Notes({ userProfile }: NotesProps) {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-slate-900 border border-slate-900 text-white hover:bg-slate-850 transition-all shadow-md shadow-slate-900/10"
+                  className="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-ds-brand text-ds-brand-contrast hover:bg-ds-brand-hover transition-all shadow-md shadow-slate-900/10"
                 >
                   {editingNote ? "Mettre à jour" : "Ajouter mémo"}
                 </button>
