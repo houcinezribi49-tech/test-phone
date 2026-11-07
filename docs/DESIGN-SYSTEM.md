@@ -1,6 +1,6 @@
 # Design system
 
-This design system is additive. Its tokens and shared components are not applied to existing pages; future page migrations can adopt them incrementally.
+This design system is adopted incrementally. The shared tokens and components are used by the application shell (sidebar, header, and login screen); business pages remain unmigrated.
 
 ## Tokens
 
@@ -32,7 +32,7 @@ Use warning tokens only to communicate a warning. Orange used decoratively or fo
 
 ## Shared components
 
-Import components from `src/components/ui` or individual files. Components are intentionally unconnected to existing pages.
+Import components from `src/components/ui` or individual files. The shell currently uses Badge on synchronization and notification states, and Button, Card, and Input on Login.
 
 ### Button
 
@@ -119,7 +119,7 @@ The shared form controls use logical text alignment, associated labels, accessib
 
 ## Migration correspondence
 
-This mapping is guidance for later page-by-page migration, not an instruction to change current pages in this step.
+This mapping records the migration applied to the application shell and provides guidance for later page-by-page migration.
 
 | Existing color / class | Target token | Mapping note |
 |---|---|---|
@@ -145,3 +145,12 @@ This mapping is guidance for later page-by-page migration, not an instruction to
 | Gray/white background classes (`bg-gray-*`, `bg-slate-*`, `bg-white`) | `--ds-surface` / `--ds-surface-2` | Select by surface role |
 | `rounded-lg`, `rounded-xl`, `rounded-2xl` | `--ds-radius-sm` / `md` / `lg` | Map by actual component scale |
 | Existing shadow utilities | `--ds-shadow-sm` / `--ds-shadow-md` | Select by desired elevation |
+
+## Migration 2: application shell
+
+Migrated files:
+
+- `src/App.tsx`: sidebar navigation, sidebar status cards, header, notifications, and the main application container.
+- `src/components/Login.tsx`: login form, actions, card, and error state.
+
+The route list, role/permission filters, authentication flows, notifications, synchronization handlers, and sign-out handler were kept unchanged. Existing brand identity remains rendered through `BrandLogo` and the centralized brand configuration. Business pages are not yet migrated.
