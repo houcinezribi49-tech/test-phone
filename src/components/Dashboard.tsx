@@ -1147,7 +1147,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
   );
 
   return (
-    <div className="min-w-0 space-y-5 pb-12 [&_button]:min-h-11 sm:space-y-8">
+    <div className="mx-auto w-full max-w-[1680px] min-w-0 space-y-6 pb-12 [&_button]:min-h-11 sm:space-y-8 xl:space-y-10">
       <PageHeader
         title="Tableau de bord"
         description={canViewSales ? 'Performance financière et opérationnelle en temps réel' : 'Suivi opérationnel en temps réel'}
@@ -1295,8 +1295,8 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
         )}
       </section>
 
-      <section className={cn('grid min-w-0 grid-cols-1 gap-4', canAccessCashSession && 'lg:grid-cols-2')}>
-        {canAccessCashSession && <Card className="min-w-0 rounded-ds-lg p-5 sm:p-6">
+      <section className={cn('grid min-w-0 grid-cols-1 gap-4 xl:gap-6', canAccessCashSession && 'lg:grid-cols-2')}>
+        {canAccessCashSession && <Card className="min-w-0 rounded-ds-lg p-5 sm:p-6 xl:p-8">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="font-display text-lg font-bold text-ds-text">Caisse en cours</h2>
@@ -1478,7 +1478,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
       )}
 
       {/* Main Stats Grid with responsive 2-column layout and optimized sizing */}
-      {canViewSales && <div className="grid min-w-0 grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 sm:gap-5">
+      {canViewSales && <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 sm:gap-5 xl:gap-6">
         
         {/* CARD 1: Chiffre d'Affaires - BLEU */}
         <div 
@@ -1486,7 +1486,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
           className="stat-card before:hidden flex min-h-[140px] cursor-pointer flex-col justify-between border-0 bg-ds-brand p-3.5 text-ds-brand-contrast shadow-ds-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand sm:min-h-[170px] sm:p-6"
         >
           <div className="flex items-center justify-between relative z-10 gap-1">
-            <span className="truncate text-[8px] font-black uppercase tracking-widest text-ds-brand-contrast/80 sm:text-[10px]">CA Jour</span>
+            <span className="truncate text-xs font-black uppercase tracking-widest text-ds-brand-contrast/90 sm:text-sm">CA Jour</span>
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-ds-surface/15 sm:h-9 sm:w-9">
               <TrendingUp className="h-4 w-4 text-ds-brand-contrast sm:h-5 sm:w-5" />
             </div>
@@ -1496,9 +1496,9 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
               <span className="truncate font-mono text-xl font-black leading-none tracking-tight text-ds-brand-contrast tabular-nums sm:text-[28px] lg:text-[30px]">
                 {dashboardData.dailyRevenue.toFixed(3)}
               </span>
-              <span className="shrink-0 text-[10px] font-black text-ds-brand-contrast sm:text-xs">{currency}</span>
+              <span className="shrink-0 text-xs font-black text-ds-brand-contrast sm:text-sm">{currency}</span>
             </div>
-            <p className="mt-1.5 flex items-center gap-1 text-[8px] font-bold text-ds-brand-contrast/80 sm:mt-2.5 sm:text-[9px]">
+            <p className="mt-1.5 flex items-center gap-1 text-[10px] font-bold text-ds-brand-contrast/90 sm:mt-2.5 sm:text-xs">
               <Clock className="w-3 h-3 shrink-0" />
               <span className="truncate">Historique</span>
             </p>
@@ -1510,7 +1510,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
           className="stat-card before:hidden flex min-h-[140px] cursor-pointer flex-col justify-between rounded-ds-lg border border-ds-border bg-ds-surface p-3.5 text-ds-text shadow-ds-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand sm:min-h-[170px] sm:p-6"
         >
           <div className="flex items-center justify-between relative z-10 gap-1">
-            <span className="truncate text-[8px] font-black uppercase tracking-widest text-ds-success sm:text-[10px]">Bénéfice Net</span>
+            <span className="truncate text-xs font-black uppercase tracking-widest text-ds-success sm:text-sm">Bénéfice Net</span>
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-ds-success-soft sm:h-9 sm:w-9">
               <Coins className="h-4 w-4 text-ds-success sm:h-5 sm:w-5" />
             </div>
@@ -1522,7 +1522,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
               </span>
               <span className="shrink-0 text-[10px] font-black text-ds-muted sm:text-xs">{currency}</span>
             </div>
-            <p className="mt-1.5 flex items-center gap-1 text-[8px] font-bold text-ds-success sm:mt-2.5 sm:text-[9px]">
+            <p className="mt-1.5 flex items-center gap-1 text-[10px] font-bold text-ds-success sm:mt-2.5 sm:text-xs">
               <Clock className="w-3 h-3 shrink-0" />
               <span className="truncate">Historique</span>
             </p>
@@ -1535,7 +1535,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
           className="stat-card before:hidden flex min-h-[140px] cursor-pointer flex-col justify-between rounded-ds-lg border border-ds-border bg-ds-surface p-3.5 text-ds-text shadow-ds-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand sm:min-h-[170px] sm:p-6"
         >
           <div className="flex items-center justify-between relative z-10 gap-1">
-            <span className="truncate text-[8px] font-black uppercase tracking-widest text-ds-muted sm:text-[10px]">Dépenses</span>
+            <span className="truncate text-xs font-black uppercase tracking-widest text-ds-muted sm:text-sm">Dépenses</span>
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-ds-brand-soft sm:h-9 sm:w-9">
               <PackagePlus className="h-4 w-4 text-ds-brand sm:h-5 sm:w-5" />
             </div>
@@ -1547,7 +1547,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
               </span>
               <span className="shrink-0 text-[10px] font-black text-ds-muted sm:text-xs">{currency}</span>
             </div>
-            <p className="mt-1.5 flex items-center gap-1 text-[8px] font-bold text-ds-muted sm:mt-2.5 sm:text-[9px]">
+            <p className="mt-1.5 flex items-center gap-1 text-[10px] font-bold text-ds-muted sm:mt-2.5 sm:text-xs">
               <Clock className="w-3 h-3 shrink-0" />
               <span className="truncate">Historique</span>
             </p>
@@ -1560,7 +1560,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
           className="stat-card before:hidden flex min-h-[140px] cursor-pointer flex-col justify-between rounded-ds-lg border border-ds-border bg-ds-surface p-3.5 text-ds-text shadow-ds-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand sm:min-h-[170px] sm:p-6"
         >
           <div className="flex items-center justify-between relative z-10 gap-1">
-            <span className="truncate text-[8px] font-black uppercase tracking-widest text-ds-muted sm:text-[10px]">Dettes</span>
+            <span className="truncate text-xs font-black uppercase tracking-widest text-ds-muted sm:text-sm">Dettes</span>
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-ds-danger-soft sm:h-9 sm:w-9">
               <AlertCircle className="h-4 w-4 text-ds-danger sm:h-5 sm:w-5" />
             </div>
@@ -1572,7 +1572,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
               </span>
               <span className="shrink-0 text-[10px] font-black text-ds-muted sm:text-xs">{currency}</span>
             </div>
-            <p className="mt-1.5 flex items-center gap-1 text-[8px] font-bold text-ds-muted sm:mt-2.5 sm:text-[9px]">
+            <p className="mt-1.5 flex items-center gap-1 text-[10px] font-bold text-ds-muted sm:mt-2.5 sm:text-xs">
               <Clock className="w-3 h-3 shrink-0" />
               <span className="truncate">Historique</span>
             </p>
@@ -1585,7 +1585,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
           className="stat-card before:hidden col-span-1 flex min-h-[140px] cursor-pointer flex-col justify-between rounded-ds-lg border border-ds-border bg-ds-surface p-3.5 text-ds-text shadow-ds-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand sm:col-span-2 sm:min-h-[170px] sm:p-6 xl:col-span-1"
         >
           <div className="flex items-center justify-between relative z-10 gap-1">
-            <span className="truncate text-[8px] font-black uppercase tracking-widest text-ds-muted sm:text-[10px]">Ventes</span>
+            <span className="truncate text-xs font-black uppercase tracking-widest text-ds-muted sm:text-sm">Ventes</span>
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-ds-brand-soft sm:h-9 sm:w-9">
               <ShoppingCart className="h-4 w-4 text-ds-brand sm:h-5 sm:w-5" />
             </div>
@@ -1597,7 +1597,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
               </span>
               <span className="shrink-0 text-[10px] font-black text-ds-muted sm:text-xs">ventes</span>
             </div>
-            <p className="mt-1.5 flex items-center gap-1 text-[8px] font-bold text-ds-muted sm:mt-2.5 sm:text-[9px]">
+            <p className="mt-1.5 flex items-center gap-1 text-[10px] font-bold text-ds-muted sm:mt-2.5 sm:text-xs">
               <Clock className="w-3 h-3 shrink-0" />
               <span className="truncate">Historique</span>
             </p>
@@ -1606,7 +1606,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
       </div>}
 
       {/* SECTION: VALORISATION & PERFORMANCE DU STOCK RESTANT */}
-      <div className="rounded-[24px] border border-ds-border bg-ds-surface p-5 sm:p-6">
+      <div className="rounded-[24px] border border-ds-border bg-ds-surface p-5 sm:p-6 xl:p-8">
         <div className="mb-5 flex flex-col justify-between gap-4 border-b border-ds-border pb-4 sm:flex-row sm:items-center">
           <div>
             <div className="flex items-center gap-2">
@@ -1624,7 +1624,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
           </button>}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           
           {canShowMargin && <div className="flex items-center gap-4 rounded-2xl border border-ds-border bg-ds-surface-2 p-4 transition-colors hover:bg-ds-surface">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ds-brand-soft text-ds-brand">
@@ -1691,7 +1691,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
       />}
 
       {/* Main layout divided into 2 Columns (Table on left, stats sidebar on right) */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 border-t border-ds-border pt-8">
+      <div className={cn('grid grid-cols-1 gap-6 border-t border-ds-border pt-8', canViewSales ? 'xl:grid-cols-3 xl:gap-8' : 'xl:grid-cols-1')}>
         
         {/* LEFT COLUMN: Dernières Ventes (Top 10) */}
         {canViewSales && <div className="xl:col-span-2 space-y-6">
