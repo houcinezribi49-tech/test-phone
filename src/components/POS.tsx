@@ -804,7 +804,7 @@ export default function POS({ userProfile }: POSProps) {
   };
 
   return (
-    <div className="min-w-0 max-w-full space-y-4 pb-4">
+    <div className="mx-auto min-w-0 max-w-full space-y-4 pb-4 xl:space-y-5">
       <PageHeader
         title="Vente"
         actions={
@@ -819,7 +819,7 @@ export default function POS({ userProfile }: POSProps) {
           </Button>
         }
       />
-      <div className="relative grid min-h-0 min-w-0 grid-cols-1 gap-4 lg:h-[calc(100vh-210px)] lg:grid-cols-12">
+      <div className="relative grid min-h-0 min-w-0 grid-cols-1 gap-4 xl:h-[calc(100dvh-190px)] xl:grid-cols-12 xl:gap-5">
       {!cashSession && (
         <div className={cn(
           "order-0 flex items-center justify-between gap-3 rounded-ds-lg p-3 text-sm lg:col-span-12",
@@ -856,9 +856,9 @@ export default function POS({ userProfile }: POSProps) {
       )}
 
       {/* Left: Product Selection (Compact Sidebar) */}
-      <div className="order-1 flex min-h-0 min-w-0 h-full flex-col gap-2.5 lg:order-1 lg:col-span-4">
+      <div className="order-1 flex min-h-0 min-w-0 flex-col gap-3 xl:order-1 xl:col-span-7 xl:h-full">
         {/* Top Controls Box (Highly Compact) */}
-        <Card className="space-y-2 p-3">
+        <Card className="space-y-3 p-3 sm:p-4">
           {/* Barcode automatic scan status and manual input */}
           <div className="relative flex flex-col gap-1.5 rounded-xl border border-ds-border bg-ds-surface-2 p-2">
             <div className="flex items-center justify-between">
@@ -868,13 +868,13 @@ export default function POS({ userProfile }: POSProps) {
                   {scannerActive && <span className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full bg-ds-success" />}
                 </div>
                 <div className="flex flex-col leading-tight">
-                  <span className="text-[9px] font-black uppercase tracking-wider text-ds-text">Lecteur Code à Barre</span>
+                  <span className="text-xs font-black uppercase tracking-wider text-ds-text sm:text-sm">Lecteur Code à Barre</span>
                 </div>
               </div>
               <button
                 onClick={() => setScannerActive(!scannerActive)}
                 className={cn(
-                  "min-h-11 rounded-full border px-3 text-[8px] font-black uppercase tracking-wider transition-all cursor-pointer",
+                  "min-h-11 rounded-full border px-3 text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer sm:text-xs",
                   scannerActive
                     ? "bg-ds-success text-ds-brand-contrast border-ds-success"
                     : "bg-ds-surface text-ds-text-muted border-ds-border"
@@ -978,62 +978,62 @@ export default function POS({ userProfile }: POSProps) {
         </Card>
 
         {/* Products Grid (Extremely Compact) */}
-        <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-2 overflow-y-auto pb-2 pr-1 scrollbar-thin min-[400px]:grid-cols-2 md:grid-cols-3">
+        <div className="grid max-h-[40vh] min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 overflow-y-auto pb-2 pr-1 scrollbar-thin min-[400px]:grid-cols-2 xl:max-h-none xl:grid-cols-3 2xl:grid-cols-4 min-[1920px]:grid-cols-5">
           {filteredProducts.map((product) => (
             <button
               key={product.id}
               onClick={() => addToCart(product)}
               disabled={product.inventoryType !== 'service' && product.stock <= 0}
               className={cn(
-                "group relative flex min-h-28 w-full min-w-0 cursor-pointer flex-col justify-between overflow-hidden rounded-ds-lg border border-ds-border bg-ds-surface text-left shadow-ds-sm transition-colors",
+                "group relative flex min-h-36 w-full min-w-0 cursor-pointer flex-col justify-between overflow-hidden rounded-ds-lg border border-ds-border bg-ds-surface p-1 text-left shadow-ds-sm transition-colors sm:min-h-40 sm:p-2",
                 "hover:bg-ds-surface-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ds-brand active:scale-[0.99]",
                 product.inventoryType !== 'service' && product.stock <= 0 && "opacity-60 grayscale cursor-not-allowed"
               )}
             >
               <div className="absolute inset-x-0 top-0 h-1 bg-ds-brand opacity-80 transition-opacity group-hover:opacity-100"></div>
 
-              <div className="w-full flex justify-between items-center gap-1 px-2 pt-2">
-                <span className="flex max-w-[60%] items-center gap-1 truncate text-[7px] font-black uppercase tracking-wider text-ds-text-muted">
+              <div className="flex w-full items-center justify-between gap-2 px-2 pt-2">
+                <span className="flex max-w-[60%] items-center gap-1 truncate text-[10px] font-black uppercase tracking-wide text-ds-text-muted">
                   <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-ds-accent"></span>
                   {product.category}
                 </span>
                 {topSellerIds.has(product.id) ? (
-                  <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-ds-brand-soft px-1.5 py-0.5 text-[7px] font-black uppercase tracking-wider text-ds-brand">
+                  <span className="flex shrink-0 items-center gap-1 rounded-full bg-ds-brand-soft px-2 py-1 text-[10px] font-black uppercase tracking-wide text-ds-brand">
                     <Flame className="w-2.5 h-2.5" /> Top
                   </span>
                 ) : (salesQtyMap[product.id] || 0) > 0 ? (
-                  <span className="shrink-0 text-[7px] font-black uppercase tracking-wider text-ds-text-muted">
+                  <span className="shrink-0 text-[10px] font-bold text-ds-text-muted">
                     {salesQtyMap[product.id]} vendus
                   </span>
                 ) : null}
               </div>
 
-              <div className="flex min-w-0 w-full flex-1 items-center gap-2 px-2 py-0.5">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-ds-brand-soft text-ds-brand" aria-hidden="true">
-                  <Package className="h-4 w-4" />
+              <div className="flex min-w-0 w-full flex-1 items-center gap-3 px-2 py-2">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ds-brand-soft text-ds-brand sm:h-11 sm:w-11" aria-hidden="true">
+                  <Package className="h-5 w-5" />
                 </span>
-                <h3 className="w-full overflow-hidden break-words text-ellipsis text-[11px] font-bold leading-tight text-ds-text line-clamp-2">
+                <h3 className="w-full overflow-hidden break-words text-ellipsis text-sm font-bold leading-snug text-ds-text line-clamp-2 sm:text-base">
                   {product.name}
                 </h3>
               </div>
 
-              <div className="w-full px-2 pb-2 flex items-center justify-between gap-1 mt-auto">
+              <div className="mt-auto flex w-full items-center justify-between gap-2 px-2 pb-2">
                 <div className="min-w-0">
-                  <span className="block truncate font-mono text-[12px] font-bold leading-none text-ds-brand tabular-nums">
-                    {product.sellPrice.toFixed(3)} <span className="text-[8px] font-bold">{currency}</span>
+                  <span className="block truncate font-mono text-base font-bold leading-none text-ds-brand tabular-nums sm:text-lg">
+                    {product.sellPrice.toFixed(3)} <span className="text-xs font-bold">{currency}</span>
                   </span>
                   {product.inventoryType === 'service' ? <Badge variant="neutral">Service</Badge> : <Badge variant={product.stock <= 0 ? 'danger' : product.stock <= 5 ? 'warning' : 'success'}>
                     {product.stock <= 0 ? 'Rupture' : product.stock <= 5 ? `Stock faible · ${product.stock}` : `En stock · ${product.stock}`}
                   </Badge>}
                 </div>
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ds-brand-soft text-ds-brand transition-colors group-hover:bg-ds-brand group-hover:text-ds-brand-contrast">
-                  <Plus className="w-3.5 h-3.5" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ds-brand-soft text-ds-brand transition-colors group-hover:bg-ds-brand group-hover:text-ds-brand-contrast">
+                  <Plus className="h-5 w-5" />
                 </div>
               </div>
 
               {product.inventoryType !== 'service' && product.stock <= 0 && (
                 <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-ds-surface/80 p-1 text-center backdrop-blur-[1px]">
-                  <div className="rounded-full bg-ds-danger px-2 py-1 text-[8px] font-black uppercase tracking-wider text-ds-brand-contrast">
+                  <div className="rounded-full bg-ds-danger px-3 py-1.5 text-xs font-black uppercase tracking-wider text-ds-brand-contrast">
                     Rupture
                   </div>
                 </div>
@@ -1044,18 +1044,18 @@ export default function POS({ userProfile }: POSProps) {
       </div>
 
       {/* Right: Cart, Summary & Checkout Area (Large & Dominant) */}
-      <div className="order-2 flex min-h-0 min-w-0 h-full flex-col gap-2.5 lg:order-2 lg:col-span-8">
-        <Card className="flex h-full min-w-0 flex-1 flex-col overflow-hidden rounded-ds-lg p-0">
+      <div className="order-2 flex min-h-0 min-w-0 flex-col gap-3 xl:order-2 xl:col-span-5 xl:h-full">
+        <Card className="flex h-full min-w-0 flex-1 flex-col overflow-visible rounded-ds-lg p-0 xl:overflow-hidden">
           
           {/* Header Ticket block */}
-          <div className="flex items-center justify-between border-b border-ds-border bg-ds-surface-2 p-3">
-            <h2 className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-ds-text">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-ds-border bg-ds-surface-2 p-3 sm:p-4">
+            <h2 className="flex min-w-0 items-center gap-2 text-sm font-black uppercase tracking-wider text-ds-text sm:text-base">
               <ShoppingCart className="h-4 w-4 text-ds-brand" />
               Ticket de caisse ({cart.length})
             </h2>
             <div className="flex items-center gap-2">
             <Button
-              className="lg:hidden"
+              className="xl:hidden"
               size="sm"
               variant="secondary"
               onClick={() => setIsCartExpanded(value => !value)}
@@ -1070,7 +1070,7 @@ export default function POS({ userProfile }: POSProps) {
                 setDiscountInput('0');
               }}
               disabled={cart.length === 0}
-              className="min-h-11 cursor-pointer rounded-full px-3 text-[10px] font-black uppercase tracking-widest text-ds-danger transition-colors hover:bg-ds-danger-soft disabled:opacity-30"
+              className="min-h-11 cursor-pointer rounded-full px-3 text-xs font-black uppercase tracking-widest text-ds-danger transition-colors hover:bg-ds-danger-soft disabled:opacity-60"
             >
               Vider le Panier
             </button>
@@ -1105,7 +1105,7 @@ export default function POS({ userProfile }: POSProps) {
           </div>
 
           {/* Table representing the list of items in the Cart (Ticket columns) */}
-          <div className={cn("min-h-0 flex-1 overflow-y-auto p-3 scrollbar-thin lg:flex", !isCartExpanded && "hidden")}>
+          <div className={cn("min-h-0 flex-1 overflow-y-auto p-3 scrollbar-thin xl:flex", !isCartExpanded && "hidden")}>
             {cart.length === 0 ? (
               <EmptyState
                 className="min-h-40 flex-1"
@@ -1117,7 +1117,7 @@ export default function POS({ userProfile }: POSProps) {
               <div className="w-full overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs min-w-[420px] sm:min-w-0">
                   <thead>
-                    <tr className="border-b border-ds-border bg-ds-surface-2 text-[10px] font-black uppercase tracking-wider text-ds-text-muted">
+                    <tr className="border-b border-ds-border bg-ds-surface-2 text-xs font-black uppercase tracking-wider text-ds-text-muted">
                       <th className="py-2.5 px-3 text-left">Produit</th>
                       <th className="py-2.5 px-2 text-center w-24">Qté</th>
                       <th className="py-2.5 px-2 text-right w-20">Prix</th>
@@ -1240,13 +1240,13 @@ export default function POS({ userProfile }: POSProps) {
           </div>
 
           {/* Summary Cards Panel (Tableau récapitulatif in 4 columns row on desktop, 2x2 on mobile) */}
-          <div className="grid grid-cols-2 gap-2 border-t border-ds-border bg-ds-surface-2 p-2 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 border-t border-ds-border bg-ds-surface-2 p-3 sm:grid-cols-4 sm:gap-3 sm:p-4">
             {/* Card 1: Nombre d'articles */}
             <div className="flex items-center justify-between rounded-xl border border-ds-border bg-ds-surface p-2">
               <div className="min-w-0">
-                <span className="block text-[8px] font-black uppercase tracking-wider text-ds-text-muted">Articles</span>
+                <span className="block text-[11px] font-black uppercase tracking-wider text-ds-text-muted sm:text-xs">Articles</span>
                 <span className="mt-1 block font-display text-sm font-bold leading-none text-ds-text tabular-nums">
-                  {cart.reduce((sum, item) => sum + item.quantity, 0)} <span className="text-[9px] font-bold uppercase text-ds-text-muted">pces</span>
+                  {cart.reduce((sum, item) => sum + item.quantity, 0)} <span className="text-[10px] font-bold uppercase text-ds-text-muted">pces</span>
                 </span>
               </div>
               <div className="ml-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ds-surface-2 text-ds-text">
@@ -1257,9 +1257,9 @@ export default function POS({ userProfile }: POSProps) {
             {/* Card 2: Montant Brut */}
             <div className="flex items-center justify-between rounded-xl border border-ds-border bg-ds-surface p-2">
               <div className="min-w-0">
-                <span className="block text-[8px] font-black uppercase tracking-wider text-ds-text-muted">Total Brut</span>
+                <span className="block text-[11px] font-black uppercase tracking-wider text-ds-text-muted sm:text-xs">Total Brut</span>
                 <span className="mt-1 block truncate font-display text-xs font-bold leading-none text-ds-text tabular-nums sm:text-sm">
-                  {(subtotal + tvaAmount).toFixed(3)} <span className="text-[8px] font-bold text-ds-text-muted">{currency}</span>
+                  {(subtotal + tvaAmount).toFixed(3)} <span className="text-[10px] font-bold text-ds-text-muted">{currency}</span>
                 </span>
               </div>
               <div className="ml-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ds-surface-2 text-ds-text-muted">
@@ -1270,7 +1270,7 @@ export default function POS({ userProfile }: POSProps) {
             {/* Card 3: Remise Appliquée avec champ d'écriture directe (Sleek) */}
             <div className="flex flex-col justify-between rounded-xl border border-ds-border bg-ds-brand-soft p-2">
               <div className="flex items-center justify-between">
-                <span className="text-[8px] font-black uppercase tracking-wider text-ds-brand">Remise (DT)</span>
+                <span className="text-[11px] font-black uppercase tracking-wider text-ds-brand sm:text-xs">Remise (DT)</span>
                 <Percent className="h-3 w-3 shrink-0 text-ds-brand" />
               </div>
               <div className="mt-0.5 flex items-center gap-1 rounded-md border border-ds-border bg-ds-surface p-0.5">
@@ -1307,21 +1307,21 @@ export default function POS({ userProfile }: POSProps) {
                 <button 
                   type="button"
                   onClick={() => { setDiscount(0); setDiscountInput('0'); }}
-                  className="min-h-11 rounded-full border border-ds-border bg-ds-surface px-3 text-[7px] font-bold text-ds-text cursor-pointer hover:bg-ds-surface-2"
+                  className="min-h-11 rounded-full border border-ds-border bg-ds-surface px-3 text-xs font-bold text-ds-text cursor-pointer hover:bg-ds-surface-2"
                 >
                   Clear
                 </button>
                 <button 
                   type="button"
                   onClick={() => { setDiscount(5); setDiscountInput('5.000'); }}
-                  className="min-h-11 rounded-full bg-ds-brand px-3 text-[7px] font-black text-ds-brand-contrast cursor-pointer hover:bg-ds-brand-hover"
+                  className="min-h-11 rounded-full bg-ds-brand px-3 text-xs font-black text-ds-brand-contrast cursor-pointer hover:bg-ds-brand-hover"
                 >
                   -5DT
                 </button>
                 <button 
                   type="button"
                   onClick={() => { setDiscount(10); setDiscountInput('10.000'); }}
-                  className="min-h-11 rounded-full bg-ds-brand px-3 text-[7px] font-black text-ds-brand-contrast cursor-pointer hover:bg-ds-brand-hover"
+                  className="min-h-11 rounded-full bg-ds-brand px-3 text-xs font-black text-ds-brand-contrast cursor-pointer hover:bg-ds-brand-hover"
                 >
                   -10DT
                 </button>
@@ -1330,13 +1330,13 @@ export default function POS({ userProfile }: POSProps) {
 
             {canViewMargin && <div className="flex items-center justify-between rounded-xl border border-ds-success/20 bg-ds-success-soft p-2">
               <div className="min-w-0">
-                <span className="block text-[8px] font-black uppercase tracking-wider text-ds-text-muted">Bénéfice estimé</span>
+                <span className="block text-[11px] font-black uppercase tracking-wider text-ds-text-muted sm:text-xs">Bénéfice estimé</span>
                 <span className={cn(
                   "text-xs sm:text-sm font-black font-mono block leading-none mt-1 truncate",
                   estimatedBenefit < 0 ? "text-ds-danger" : "text-ds-success",
                 )}>
                   {estimatedBenefit.toFixed(3)} <span className={cn(
-                    "text-[8px] font-bold",
+                    "text-[10px] font-bold",
                     estimatedBenefit < 0 ? "text-ds-danger" : "text-ds-success",
                   )}>{currency}</span>
                 </span>
@@ -1348,16 +1348,16 @@ export default function POS({ userProfile }: POSProps) {
           </div>
 
           {/* Bottom Checkout Zone (Always Visible & Split for Wide Screens) */}
-          <div className="space-y-3 rounded-b-ds-lg border-t border-ds-border bg-ds-surface p-3.5">
+          <div className="sticky bottom-0 z-20 space-y-3 rounded-b-ds-lg border-t border-ds-border bg-ds-surface p-3.5 shadow-[0_-8px_24px_-16px_rgba(23,24,39,0.5)] xl:static xl:z-auto xl:shadow-none">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
               
               {/* Left Column: Total Net & Real-time Change Calculator */}
               <div className="md:col-span-6 flex flex-col justify-between gap-2.5 rounded-ds-md border border-ds-border bg-ds-surface-2 p-3">
                 {/* GIANT DOCK FOR NET TOTAL */}
                 <div className="flex flex-col gap-1 text-center animate-in fade-in duration-200">
-                  <div className="flex items-center justify-between border-b border-ds-border pb-1 text-[9px] font-black uppercase tracking-widest text-ds-text-muted">
+                  <div className="flex items-center justify-between border-b border-ds-border pb-1 text-xs font-black uppercase tracking-wide text-ds-text-muted">
                     <span>Total Net à payer</span>
-                    <span className="rounded-full border border-ds-brand/20 bg-ds-brand-soft px-2 py-1 text-[8px] text-ds-brand">
+                    <span className="rounded-full border border-ds-brand/20 bg-ds-brand-soft px-2 py-1 text-[10px] text-ds-brand">
                       {storeSettings?.tvaEnabled === true ? `TVA (${storeSettings.tva || 0}%)` : 'Hors taxe'}
                     </span>
                   </div>
@@ -1383,7 +1383,7 @@ export default function POS({ userProfile }: POSProps) {
                   )}>
                     <div className="flex items-center gap-1 opacity-90">
                       <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                      <span className="uppercase text-[8px] font-black tracking-wider">
+                      <span className="text-[10px] font-black uppercase tracking-wider sm:text-xs">
                         {receivedCash > cartTotal 
                           ? "A Rendre" 
                           : receivedCash < cartTotal 
@@ -1406,7 +1406,7 @@ export default function POS({ userProfile }: POSProps) {
               <div className="md:col-span-6 flex flex-col justify-between gap-2">
                 {/* HIGH CONTRAST RECEIVED AMOUNT INPUT */}
                 <div className="flex flex-col gap-1 rounded-ds-md border border-ds-border bg-ds-surface-2 p-2">
-                  <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-wider text-ds-text-muted">
+                  <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider text-ds-text-muted">
                     <span>Montant Reçu</span>
                     <button 
                       type="button"
@@ -1414,7 +1414,7 @@ export default function POS({ userProfile }: POSProps) {
                         setReceivedCash(cartTotal);
                         setReceivedCashInput(cartTotal.toFixed(3));
                       }}
-                      className="min-h-11 rounded-full border border-ds-accent/20 bg-ds-accent-soft px-3 text-[8px] font-black uppercase tracking-widest text-ds-accent transition-colors cursor-pointer hover:bg-ds-accent/10"
+                      className="min-h-11 rounded-full border border-ds-accent/20 bg-ds-accent-soft px-3 text-[10px] font-black uppercase tracking-widest text-ds-accent transition-colors cursor-pointer hover:bg-ds-accent/10"
                     >
                       Tout Payer
                     </button>
@@ -1487,7 +1487,7 @@ export default function POS({ userProfile }: POSProps) {
                   <Button
                     onClick={() => validateSale(false)}
                     disabled={cart.length === 0 || isProcessing}
-                    className="flex-1 rounded-full text-xs font-black uppercase tracking-wider"
+                    className="min-h-12 flex-1 rounded-full text-sm font-black uppercase tracking-wider disabled:border-ds-border disabled:bg-ds-surface-2 disabled:text-ds-text-muted disabled:opacity-100"
                     loading={isProcessing}
                   >
                     {isProcessing ? 'Traitement...' : (

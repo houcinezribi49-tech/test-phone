@@ -989,7 +989,7 @@ export default function Products({ userProfile }: ProductsProps) {
   });
 
   return (
-    <div className="min-w-0 max-w-full space-y-6">
+    <div className="mx-auto w-full max-w-[1680px] min-w-0 space-y-6 xl:space-y-8">
       <PageHeader
         title="Articles vendables en caisse"
         actions={<div className="flex flex-wrap gap-2.5">
@@ -1022,8 +1022,8 @@ export default function Products({ userProfile }: ProductsProps) {
       </section>}
 
       <Card className="min-w-0 overflow-hidden rounded-ds-lg p-0 shadow-ds-sm">
-        <div className="border-b border-ds-border bg-ds-surface-2 p-5">
-          <div className="flex flex-col sm:flex-row gap-3">
+        <div className="border-b border-ds-border bg-ds-surface-2 p-4 sm:p-5 xl:p-6">
+          <div className="flex flex-col gap-3 sm:flex-row xl:gap-4">
             {/* Search bar */}
             <div className="relative min-w-0 flex-1 sm:max-w-md">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-ds-text-muted" />
@@ -1075,17 +1075,17 @@ export default function Products({ userProfile }: ProductsProps) {
 
           {/* Results summary */}
           {(searchTerm || selectedCategory !== 'all') && (
-            <p className="mt-2.5 text-[10px] font-bold text-ds-text-muted uppercase tracking-wider">
+            <p className="mt-2.5 text-xs font-bold uppercase tracking-wider text-ds-text-muted">
               {filteredProducts.length} résultat{filteredProducts.length !== 1 ? 's' : ''} trouvé{filteredProducts.length !== 1 ? 's' : ''}
               {selectedCategory !== 'all' && <span className="text-ds-brand"> · {selectedCategory}</span>}
             </p>
           )}
         </div>
 
-        <div className="min-w-0 max-w-full overflow-x-auto text-[13px] font-medium text-ds-text">
-          <table className="responsive-card-table w-full min-w-[640px] text-left border-collapse sm:min-w-0">
+        <div className="min-w-0 max-w-full overflow-x-auto text-sm font-medium text-ds-text">
+          <table className="responsive-card-table w-full min-w-0 border-collapse text-left sm:min-w-0">
             <thead>
-              <tr className="border-b border-ds-border bg-ds-surface-2 text-ds-text-muted text-[10px] font-extrabold uppercase tracking-widest">
+              <tr className="border-b border-ds-border bg-ds-surface-2 text-xs font-extrabold uppercase tracking-widest text-ds-text-muted">
                 <th className="px-6 py-4">ARTICLE</th>
                 <th className="px-6 py-4">CATÉGORIE</th>
                 {canViewBuyPrice && <th className="px-6 py-4">PRIX ACHAT</th>}
@@ -1117,12 +1117,12 @@ export default function Products({ userProfile }: ProductsProps) {
                       <div className="font-medium text-ds-text">{product.name}</div>
                       <div className="flex flex-col gap-0.5">
                         {product.reference && (
-                          <div className="text-[10px] font-mono text-ds-accent bg-ds-accent-soft px-1.5 py-0.5 rounded w-fit">
+                          <div className="text-xs font-mono text-ds-accent bg-ds-accent-soft px-1.5 py-0.5 rounded w-fit">
                             REF: {product.reference}
                           </div>
                         )}
                         {!product.reference && product.barcode && (
-                          <div className="text-[10px] font-mono text-ds-accent bg-ds-accent-soft px-1.5 py-0.5 rounded w-fit">
+                          <div className="text-xs font-mono text-ds-accent bg-ds-accent-soft px-1.5 py-0.5 rounded w-fit">
                             REF: {product.barcode}
                           </div>
                         )}
@@ -1137,7 +1137,7 @@ export default function Products({ userProfile }: ProductsProps) {
                       </Badge>
                     </td>
                     {canViewBuyPrice && <td data-label="Prix achat" className="px-6 py-4 text-ds-text-muted font-mono">{product.inventoryType === 'service' ? '—' : `${(productCosts[product.id] ?? product.buyPrice ?? 0).toFixed(3)} ${storeSettings?.currency || 'DT'}`}</td>}
-                    <td data-label="Prix vente" className="px-6 py-4 text-ds-text font-bold font-mono">{product.sellPrice.toFixed(3)} {storeSettings?.currency || 'DT'}</td>
+                    <td data-label="Prix vente" className="px-6 py-4 text-base font-bold font-mono text-ds-text">{product.sellPrice.toFixed(3)} {storeSettings?.currency || 'DT'}</td>
                     <td data-label="Stock" className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         {(() => {

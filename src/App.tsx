@@ -1031,7 +1031,7 @@ export default function App() {
               </div>
             </header>
  
-            <div className="mx-auto w-full max-w-[1600px] min-w-0 flex-1 bg-ds-bg p-3 sm:p-4 lg:px-10 lg:py-7">
+            <div className="mx-auto w-full max-w-[1680px] min-w-0 flex-1 bg-ds-bg p-3 sm:p-5 lg:px-8 lg:py-7 2xl:px-12">
               <Routes>
                 <Route path="/" element={getFirstAccessiblePath(userProfile) === '/' ? <Dashboard userProfile={userProfile} cashSession={activeCashSession} /> : <Navigate to={getFirstAccessiblePath(userProfile)} replace />} />
                 <Route path="/products" element={hasMenuAccess(userProfile, 'products') ? <Products userProfile={userProfile} /> : <Navigate to="/" replace />} />
