@@ -7,6 +7,7 @@ import { handleFirestoreError, OperationType } from '../App';
 import { Plus, Search, Edit2, Trash2, X, Phone, MapPin, Wallet, Coins, AlertCircle, CheckCircle } from 'lucide-react';
 import { can, hasMenuAccess } from '../lib/permissions';
 import { addCashSessionTotals, requireOpenCashSession, useCashSession } from '../lib/cashSessions';
+import { createClient } from '../lib/clients';
 import MessageComposer from './MessageComposer';
 import { useBrand } from './BrandProvider';
 import { Badge, Button, Card, EmptyState, Input, PageHeader, Select } from './ui';
@@ -88,11 +89,7 @@ export default function Clients({ userProfile }: ClientsProps) {
           userId: userProfile?.uid || ownerId
         });
       } else {
-        await addDoc(collection(db, 'clients'), {
-          ...formData,
-          ownerId,
-          userId: userProfile?.uid || ownerId
-        });
+        await createClient(formData, ownerId, userProfile?.uid || ownerId);
       }
       closeModal();
     } catch (error) {

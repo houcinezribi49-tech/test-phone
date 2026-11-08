@@ -60,6 +60,8 @@ export const PrintableTicket = forwardRef<HTMLDivElement, Props>(({ invoice, own
       <div>Date: {dateStr}</div>
       <div>Ticket: {invoice.number}</div>
       <div>Client: {invoice.clientName}</div>
+      {invoice.clientCode && <div>Code client: {invoice.clientCode}</div>}
+      {invoice.clientPhone && <div>Tél: {invoice.clientPhone}</div>}
       <div className="border-t border-dashed border-black my-1"></div>
       <div className="my-2 space-y-1">
         {invoice.items.map((item, index) => (
