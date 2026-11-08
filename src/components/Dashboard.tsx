@@ -266,6 +266,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
   const canShowBuyPrice = isAdmin && canViewBuyPrice;
   const canShowMargin = isAdmin && canViewMargin;
   const canAccessCashSession = hasMenuAccess(userProfile, 'pos') || hasMenuAccess(userProfile, 'invoices');
+  const canViewSales = canAccessCashSession || hasMenuAccess(userProfile, 'sales');
 
   useEffect(() => {
     if (!canViewMargin && activeModal === 'profit') setActiveModal(null);
@@ -1149,7 +1150,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
     <div className="min-w-0 space-y-5 pb-12 [&_button]:min-h-11 sm:space-y-8">
       <PageHeader
         title="Tableau de bord"
-        description="Performance financière et opérationnelle en temps réel"
+        description={canViewSales ? 'Performance financière et opérationnelle en temps réel' : 'Suivi opérationnel en temps réel'}
         className="border-b border-ds-border pb-5"
         actions={<div className="flex min-w-0 flex-wrap items-center gap-2">
           {dashboardData.lowStockAlerts.length > 0 && stockAlertDismissed && (
@@ -1294,8 +1295,8 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
         )}
       </section>
 
-      <section className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card className="min-w-0 rounded-ds-lg p-5 sm:p-6">
+      <section className={cn('grid min-w-0 grid-cols-1 gap-4', canAccessCashSession && 'lg:grid-cols-2')}>
+        {canAccessCashSession && <Card className="min-w-0 rounded-ds-lg p-5 sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="font-display text-lg font-bold text-ds-text">Caisse en cours</h2>
@@ -1344,7 +1345,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
               </Link>
             )
           )}
-        </Card>
+        </Card>}
 
         <Card className="min-w-0 rounded-ds-lg p-5 sm:p-6">
           <div className="flex items-start justify-between gap-4">
@@ -1363,13 +1364,13 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
                 </span>
               </Link>
             )}
-            {hasMenuAccess(userProfile, 'reparation') && (
+            {isAdmin && hasMenuAccess(userProfile, 'reparation') && (
               <Link to="/repairs" className="flex min-h-11 items-center justify-between gap-4 rounded-xl px-3 text-sm transition-colors hover:bg-ds-surface-2">
                 <span className="text-ds-text">Réparations terminées</span>
                 <span className="rounded-full bg-ds-surface-2 px-3 py-1 font-display text-xs font-bold tabular-nums text-ds-muted">{repairsToDeliver ?? '—'}</span>
               </Link>
             )}
-            {hasMenuAccess(userProfile, 'clients') && (
+            {canViewSales && hasMenuAccess(userProfile, 'clients') && (
               <Link to="/clients" className="flex min-h-11 items-center justify-between gap-4 rounded-xl px-3 text-sm transition-colors hover:bg-ds-surface-2">
                 <span className="text-ds-text">Clients avec impayés</span>
                 <span className={cn('rounded-full px-3 py-1 font-display text-xs font-bold tabular-nums', clientsWithDebt ? 'bg-ds-danger-soft text-ds-danger' : 'bg-ds-surface-2 text-ds-muted')}>
@@ -1477,7 +1478,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
       )}
 
       {/* Main Stats Grid with responsive 2-column layout and optimized sizing */}
-      <div className="grid min-w-0 grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 sm:gap-5">
+      {canViewSales && <div className="grid min-w-0 grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 sm:gap-5">
         
         {/* CARD 1: Chiffre d'Affaires - BLEU */}
         <div 
@@ -1602,7 +1603,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
             </p>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* SECTION: VALORISATION & PERFORMANCE DU STOCK RESTANT */}
       <div className="rounded-[24px] border border-ds-border bg-ds-surface p-5 sm:p-6">
@@ -1614,13 +1615,13 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
             </div>
             <p className="mt-0.5 text-[11px] font-semibold uppercase text-ds-muted">Calculé automatiquement en temps réel à chaque modification de prix ou de stock</p>
           </div>
-          <button
+          {canViewSales && <button
             onClick={() => openHistoryModal('stock')}
             className="flex min-h-11 cursor-pointer items-center gap-1.5 self-start rounded-full bg-ds-brand px-5 text-xs font-black uppercase tracking-wider text-ds-brand-contrast transition-colors hover:bg-ds-brand-hover sm:self-auto"
           >
             <BarChart3 className="w-4 h-4" />
             Consulter le Rapport d'Inventaire
-          </button>
+          </button>}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1639,7 +1640,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
           </div>}
 
           {/* Card: Revenus Potentiels Estimés (Valeur de vente) */}
-          <div className="flex items-center gap-4 rounded-2xl border border-ds-border bg-ds-surface-2 p-4 transition-colors hover:bg-ds-surface">
+          {canViewSales && <div className="flex items-center gap-4 rounded-2xl border border-ds-border bg-ds-surface-2 p-4 transition-colors hover:bg-ds-surface">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ds-surface text-ds-text">
               <TrendingUp className="w-5 h-5" />
             </div>
@@ -1650,7 +1651,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
               </span>
               <span className="mt-0.5 block text-[10px] font-bold uppercase text-ds-muted">Chiffre d'affaires estimé</span>
             </div>
-          </div>
+          </div>}
 
           {canShowMargin && <div className="flex items-center gap-4 rounded-2xl border border-ds-border bg-ds-surface-2 p-4 transition-colors hover:bg-ds-surface">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ds-surface text-ds-success">
@@ -1682,18 +1683,18 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
       </div>
 
       {/* SECTION: VISUALISATION DU VOLUME DES VENTES SUR LES 7 DERNIERS JOURS */}
-      <SalesVolumeChart 
+      {canViewSales && <SalesVolumeChart
         sales={sales} 
         saleCostSnapshots={saleCostSnapshots}
         currency={currency} 
         showProfit={canShowMargin}
-      />
+      />}
 
       {/* Main layout divided into 2 Columns (Table on left, stats sidebar on right) */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 border-t border-ds-border pt-8">
         
         {/* LEFT COLUMN: Dernières Ventes (Top 10) */}
-        <div className="xl:col-span-2 space-y-6">
+        {canViewSales && <div className="xl:col-span-2 space-y-6">
           <Card className="min-w-0 overflow-hidden rounded-ds-lg p-0">
             <div className="flex items-center justify-between border-b border-ds-border bg-ds-surface-2 p-5 sm:p-6">
               <div className="flex items-center gap-2.5">
@@ -1786,13 +1787,13 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
               )}
             </div>
           </Card>
-        </div>
+        </div>}
 
         {/* RIGHT COLUMN: Products Bestsellers and Low Stock alerts */}
         <div className="space-y-6">
           
           {/* Section: Top Products TODAY */}
-          <div className="overflow-hidden rounded-[24px] border border-ds-border bg-ds-surface">
+          {canViewSales && <div className="overflow-hidden rounded-[24px] border border-ds-border bg-ds-surface">
             <div className="flex items-center justify-between border-b border-ds-border bg-ds-surface-2 p-5">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-ds-brand text-ds-brand-contrast">
@@ -1832,7 +1833,7 @@ export default function Dashboard({ userProfile, cashSession }: DashboardProps) 
                 ))
               )}
             </div>
-          </div>
+          </div>}
 
           {/* Section: Low Stock Warning */}
           <div className="overflow-hidden rounded-[24px] border border-ds-border bg-ds-surface">

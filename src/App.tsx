@@ -242,6 +242,7 @@ function Sidebar({
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
   const navSections = getAccessibleNavigation(userProfile);
+  const canAccessCashSession = hasMenuAccess(userProfile, 'pos') || hasMenuAccess(userProfile, 'invoices');
 
   return (
     <>
@@ -310,7 +311,7 @@ function Sidebar({
           </div>
 
           {/* PWA / Offline Status Cards in Sidebar */}
-          <div className="space-y-3 px-4 py-3">
+          {canAccessCashSession && <div className="space-y-3 px-4 py-3">
             <div className="flex flex-col gap-3 rounded-ds-lg border border-ds-border bg-ds-surface-2 p-4">
               <div className="flex items-center gap-2.5">
                 <Badge variant={cashSession ? 'success' : 'neutral'} className="min-h-7 px-2 text-[10px] uppercase tracking-wide">
@@ -322,7 +323,7 @@ function Sidebar({
                 {cashSession ? 'Clôturer la caisse' : 'Ouvrir la caisse'}
               </Link>
             </div>
-          </div>
+          </div>}
 
           <div className="border-t border-ds-border px-4 py-3">
             {/* Connection and Sync Status */}
@@ -812,12 +813,16 @@ export default function App() {
     hasMenuAccess(userProfile, 'reparation') ||
     hasMenuAccess(userProfile, 'sales') ||
     hasMenuAccess(userProfile, 'invoices');
+  const canAccessCashSession = hasMenuAccess(userProfile, 'pos') || hasMenuAccess(userProfile, 'invoices');
+  const canViewSalesNotifications = canAccessCashSession || hasMenuAccess(userProfile, 'sales');
   const allHeaderNotificationItems: { id: string; label: string; count: number; path: string; variant: 'warning' | 'success' | 'danger' }[] = [
     { id: 'lowStock', label: 'Articles sous le seuil de stock', count: headerNotifications.lowStock, path: '/products', variant: 'warning' },
     { id: 'readyRepairs', label: 'Réparations prêtes à être récupérées', count: headerNotifications.readyRepairs, path: '/repairs', variant: 'success' },
     { id: 'unpaid', label: 'Ventes ou réparations avec impayé', count: headerNotifications.unpaidSales + headerNotifications.unpaidRepairs, path: hasMenuAccess(userProfile, 'sales') ? '/sales' : '/repairs', variant: 'danger' },
   ];
-  const headerNotificationItems = allHeaderNotificationItems.filter(item => item.count > 0);
+  const headerNotificationItems = allHeaderNotificationItems.filter(item =>
+    item.count > 0 && (item.id !== 'unpaid' || canViewSalesNotifications)
+  );
   const headerNotificationCount = todayNotes.length + headerNotificationItems.reduce((sum, item) => sum + item.count, 0);
 
   if (loading) {
@@ -872,10 +877,10 @@ export default function App() {
                 <BrandLogo variant="icon" className="h-9 w-9 shrink-0 rounded-xl p-2" />
                 <div className="min-w-0">
                   <CurrentPageTitle userProfile={userProfile} />
-                  <p className="flex items-center gap-1.5 truncate text-[10px] font-semibold text-ds-muted lg:hidden">
+                  {canAccessCashSession && <p className="flex items-center gap-1.5 truncate text-[10px] font-semibold text-ds-muted lg:hidden">
                     <span className={cn("h-2 w-2 shrink-0 rounded-full", activeCashSession ? "bg-ds-success" : "bg-ds-text-muted")} />
                     {activeCashSession ? 'Caisse ouverte' : cashSessionLoading ? 'Chargement de la caisse…' : 'Aucune caisse ouverte'}
-                  </p>
+                  </p>}
                 </div>
               </div>
 
