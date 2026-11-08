@@ -6,7 +6,7 @@ import { apiFetch } from '../lib/api';
 import { computeTotals, normalizeFinancialSettings } from '../lib/financial';
 import { Product, Client, SaleItem, Sale, Invoice, Category, StoreSettings, UserProfile } from '../types';
 import { handleFirestoreError, OperationType } from '../App';
-import { Search, ShoppingCart, Trash2, Plus, Minus, User, CreditCard, CheckCircle, AlertCircle, Printer, X, FileText, Barcode, Filter, Tag, Coins, Percent, TrendingUp, UserCheck, Flame, Package } from 'lucide-react';
+import { Search, ShoppingCart, Trash2, Plus, Minus, User, CreditCard, CheckCircle, AlertCircle, Printer, X, FileText, Barcode, Filter, Tag, Coins, Percent, TrendingUp, Flame, Package } from 'lucide-react';
 import { cn, decodeAzertyBarcode } from '../lib/utils';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +15,8 @@ import { can } from '../lib/permissions';
 import { addCashSessionTotals, requireOpenCashSession, useCashSession } from '../lib/cashSessions';
 import { slugifyAppName } from '../lib/brand';
 import { useBrand } from './BrandProvider';
+import ClientPicker from './pos/ClientPicker';
+import QuickClientModal from './pos/QuickClientModal';
 import { Badge, Button, Card, EmptyState, Input, PageHeader, Select } from './ui';
 
 interface POSProps {
@@ -30,6 +32,7 @@ export default function POS({ userProfile }: POSProps) {
   const canViewBuyPrice = can(userProfile, 'products', 'viewBuyPrice');
   const canViewCosts = can(userProfile, 'reparation', 'viewCosts');
   const canViewMargin = canViewBuyPrice && canViewCosts;
+  const canCreateClients = can(userProfile, 'clients', 'addEdit');
   const [products, setProducts] = useState<Product[]>([]);
   const productCostsRef = useRef<Record<string, number>>({});
   const [clients, setClients] = useState<Client[]>([]);
@@ -39,6 +42,7 @@ export default function POS({ userProfile }: POSProps) {
   const [cart, setCart] = useState<SaleItem[]>([]);
   const [isCartExpanded, setIsCartExpanded] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [isQuickClientModalOpen, setIsQuickClientModalOpen] = useState(false);
   const [receivedCash, setReceivedCash] = useState<number>(0);
   const [receivedCashInput, setReceivedCashInput] = useState('0');
   const [isReceivedCashFocused, setIsReceivedCashFocused] = useState(false);
@@ -819,6 +823,20 @@ export default function POS({ userProfile }: POSProps) {
           </Button>
         }
       />
+      {isQuickClientModalOpen && canCreateClients && (
+        <QuickClientModal
+          clients={clients}
+          ownerId={ownerId}
+          userId={userProfile?.uid || ownerId}
+          onClose={() => setIsQuickClientModalOpen(false)}
+          onCreated={client => {
+            setClients(current => [...current.filter(existing => existing.id !== client.id), client]
+              .sort((a, b) => (a.name || '').localeCompare(b.name || '')));
+            setSelectedClient(client);
+            setIsQuickClientModalOpen(false);
+          }}
+        />
+      )}
       <div className="relative grid min-h-0 min-w-0 grid-cols-1 gap-4 xl:h-[calc(100dvh-190px)] xl:grid-cols-12 xl:gap-5">
       {!cashSession && (
         <div className={cn(
@@ -1045,7 +1063,7 @@ export default function POS({ userProfile }: POSProps) {
 
       {/* Right: Cart, Summary & Checkout Area (Large & Dominant) */}
       <div className="order-2 flex min-h-0 min-w-0 flex-col gap-3 xl:order-2 xl:col-span-5 xl:h-full">
-        <Card className="flex h-full min-w-0 flex-1 flex-col overflow-visible rounded-ds-lg p-0 xl:overflow-hidden">
+        <Card className="flex h-full min-w-0 flex-1 flex-col overflow-visible rounded-ds-lg p-0 xl:overflow-visible">
           
           {/* Header Ticket block */}
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-ds-border bg-ds-surface-2 p-3 sm:p-4">
@@ -1078,30 +1096,24 @@ export default function POS({ userProfile }: POSProps) {
           </div>
 
           {/* Client Selection */}
-          <div className="flex min-w-0 items-center gap-2 border-b border-ds-border bg-ds-surface-2 p-3">
-            <div className="w-full relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <UserCheck className="h-4.5 w-4.5 text-ds-text-muted" />
-              </div>
-              <Select
-                value={selectedClient?.id || ''}
-                aria-label="Client"
-                onChange={(e) => {
-                  const client = clients.find(c => c.id === e.target.value);
-                  setSelectedClient(client || null);
-                  if (!client) {
-                    setReceivedCash(cartTotal);
-                    setReceivedCashInput(cartTotal.toFixed(3));
-                  }
-                }}
-                className="pl-9 text-base sm:text-sm"
-              >
-                <option value="">👤 Client de passage</option>
-                {clients.map(c => (
-                  <option key={c.id} value={c.id}>👥 {c.name} ({c.phone || 'Pas de tel'})</option>
-                ))}
-              </Select>
-            </div>
+          <div className="relative z-30 flex min-w-0 flex-col gap-2 border-b border-ds-border bg-ds-surface-2 p-3 sm:flex-row sm:items-center">
+            <ClientPicker
+              clients={clients}
+              selectedClient={selectedClient}
+              onSelect={client => {
+                setSelectedClient(client);
+                if (!client) {
+                  setReceivedCash(cartTotal);
+                  setReceivedCashInput(cartTotal.toFixed(3));
+                }
+              }}
+            />
+            {canCreateClients && (
+              <Button type="button" variant="secondary" onClick={() => setIsQuickClientModalOpen(true)} className="shrink-0">
+                <Plus className="h-4 w-4" />
+                Nouveau client
+              </Button>
+            )}
           </div>
 
           {/* Table representing the list of items in the Cart (Ticket columns) */}

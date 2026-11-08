@@ -1125,6 +1125,7 @@ export default function Invoices({ userProfile }: InvoicesProps) {
                     <td data-label="Client" className="px-6 py-4">
                       <div className="text-sm font-medium text-ds-text">{invoice.clientName}</div>
                       {invoice.clientCode && <div className="text-[10px] font-mono uppercase tracking-tighter text-ds-muted">Code: {invoice.clientCode}</div>}
+                      {invoice.clientPhone && <div className="text-xs text-ds-text-muted">{invoice.clientPhone}</div>}
                     </td>
                     <td data-label="Total" className="px-6 py-4 font-mono font-black text-ds-text">{invoice.total.toFixed(3)} {storeSettings?.currency || 'DT'}</td>
                     <td data-label="Actions" className="px-6 py-4 text-right">
